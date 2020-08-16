@@ -1,0 +1,16 @@
+/*
+ * @NOTE: Prepend a `~` to css file paths that are in your node_modules
+ *        See https://github.com/webpack-contrib/sass-loader#imports
+ */
+@import '~@fortawesome/fontawesome-free/css/all.css';
+
+body {
+  position: relative;
+  color: white;
+  height: 100vh;
+  background-color: #232c39;
+  font-family: Arial, Helvetica, Helvetica Neue, serif;
+  overflow-y: hidden;
+  margin-bottom: 0;
+  margin-top: 0;
+}
