@@ -1,13 +1,13 @@
 {
-  "name": "electron-react-boilerplate",
-  "productName": "electron-react-boilerplate",
-  "version": "1.3.0",
-  "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
+  "name": "frc-video-splitter-3",
+  "productName": "frc-video-splitter-3",
+  "version": "0.0.1",
+  "description": "Automatically split FRC match videos from large recordings.",
   "main": "./main.prod.js",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://github.com/electron-react-boilerplate"
+    "name": "Ty Tremblay",
+    "email": "ty.tremblay@gmail.com",
+    "url": "https://github.com/tytremblay/frc-video-splitter-3"
   },
   "scripts": {
     "electron-rebuild": "node -r ../internals/scripts/BabelRegister.js ../internals/scripts/ElectronRebuild.js",
