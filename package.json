@@ -1,7 +1,7 @@
 {
   "name": "frc-video-splitter-3",
-  "productName": "FRCVideoSplitter",
-  "version": "0.0.1",
+  "productName": "FRC Video Splitter",
+  "version": "0.0.2",
   "description": "Automatically split FRC match videos from large recordings.",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
@@ -52,8 +52,8 @@
     ]
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.develar.ElectronReact",
+    "productName": "FRCVideoSplitter",
+    "appId": "org.develar.FRCVideoSplitter",
     "files": [
       "dist/",
       "node_modules/",
@@ -84,9 +84,7 @@
     },
     "linux": {
       "target": [
-        "deb",
-        "rpm",
-        "AppImage"
+        "deb"
       ],
       "category": "Development"
     },

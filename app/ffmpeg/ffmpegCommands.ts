@@ -3,7 +3,10 @@ import { IpcMainEvent } from 'electron';
 import moment from 'moment';
 import { SplitDetails } from '../features/splitter/splitterSlice';
 
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path.replace(
+  'app.asar',
+  'app.asar.unpacked'
+);
 
 setFfmpegPath(ffmpegPath);
 

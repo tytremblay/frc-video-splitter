@@ -137,5 +137,5 @@ ipcMain.on('split', async (event, allDetails: SplitDetails[]) => {
     })
   )
     .then(event.reply('split-end', 'Done'))
-    .catch(() => console.log('caught something while splitting'));
+    .catch((event) => console.log('caught something while splitting', event));
 });
