@@ -10,10 +10,9 @@ import { RootState } from '../../store';
 import { Match as TbaMatch, MatchApi } from '../tba-api/api';
 import { Configuration } from '../tba-api/configuration';
 import { matchFromTbaMatch, Match } from './Match';
-import { tbaKey } from '../tba-api/tbaKey';
 
 const tbaApiConfig = new Configuration({
-  apiKey: tbaKey,
+  apiKey: process.env.TBA_API_KEY,
 });
 
 const tbaApi = new MatchApi(tbaApiConfig);
