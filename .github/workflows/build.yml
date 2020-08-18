@@ -35,5 +35,7 @@ jobs:
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          args: '--publish always'
+
         env:
           TBA_API_KEY: ${{ secrets.TBA_API_KEY }}

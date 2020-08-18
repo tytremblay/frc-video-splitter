@@ -1,10 +1,10 @@
 {
   "name": "frc-video-splitter-3",
   "productName": "FRC Video Splitter",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Automatically split FRC match videos from large recordings.",
   "scripts": {
-    "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
+    "build": "yarn build-main && yarn build-renderer",
     "build-dll": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js --colors",
     "build-e2e": "cross-env E2E_BUILD=true yarn build",
     "build-main": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.main.prod.babel.js --colors",
@@ -278,7 +278,6 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@reduxjs/toolkit": "^1.4.0",
-    "@types/moment-duration-format": "^2.2.2",
     "axios": "^0.19.2",
     "connected-react-router": "^6.6.1",
     "electron-debug": "^3.1.0",
