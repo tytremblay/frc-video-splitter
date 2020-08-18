@@ -94,8 +94,8 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate",
+      "owner": "tytremblay",
+      "repo": "frc-video-splitter-3",
       "private": false
     }
   },
