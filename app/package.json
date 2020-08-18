@@ -1,7 +1,7 @@
 {
   "name": "frc-video-splitter-3",
-  "productName": "frc-video-splitter-3",
-  "version": "0.0.3",
+  "productName": "FRC Video Splitter",
+  "version": "0.0.4",
   "description": "Automatically split FRC match videos from large recordings.",
   "main": "./main.prod.js",
   "author": {
@@ -14,14 +14,5 @@
     "postinstall": "yarn electron-rebuild"
   },
   "license": "MIT",
-  "dependencies": {
-    "@ffmpeg-installer/ffmpeg": "^1.0.20",
-    "@types/fluent-ffmpeg": "^2.1.14",
-    "@types/normalizr": "^2.0.18",
-    "fluent-ffmpeg": "^2.1.2",
-    "normalizr": "^3.6.0"
-  },
-  "devDependencies": {
-    "@types/moment-duration-format": "^2.2.2"
-  }
+  "dependencies": {}
 }
