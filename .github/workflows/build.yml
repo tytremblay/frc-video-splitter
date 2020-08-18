@@ -8,9 +8,6 @@ on:
     branches:
       - master
 
-env:
-  TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
-
 jobs:
   release:
     runs-on: ${{ matrix.os }}
@@ -21,12 +18,12 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v1
         with:
-          node-version: 10
+          node-version: 12
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
@@ -38,3 +35,5 @@ jobs:
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        env:
+          TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
