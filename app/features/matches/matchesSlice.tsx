@@ -7,20 +7,14 @@ import {
 import * as _ from 'lodash';
 // eslint-disable-next-line import/no-cycle
 import { RootState } from '../../store';
-import { Match as TbaMatch, MatchApi } from '../tba-api/api';
-import { Configuration } from '../tba-api/configuration';
+import { Match as TbaMatch } from '../tba-api/api';
 import { matchFromTbaMatch, Match } from './Match';
-
-const tbaApiConfig = new Configuration({
-  apiKey: process.env.TBA_API_KEY,
-});
-
-const tbaApi = new MatchApi(tbaApiConfig);
+import { TbaApiInstance as tbaApi } from '../tba-api/tbaApiInstance';
 
 export const getMatches = createAsyncThunk(
   'matches/get',
   async (eventKey: string) => {
-    const matchesPromise = tbaApi.getEventMatches(eventKey);
+    const matchesPromise = tbaApi.matches.getEventMatches(eventKey);
     const tbaMatches = await matchesPromise;
     tbaMatches.sort((a, b) => (a.actual_time || 0) - (b.actual_time || 0));
 

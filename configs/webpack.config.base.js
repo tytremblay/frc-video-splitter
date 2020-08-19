@@ -43,6 +43,9 @@ export default {
       NODE_ENV: 'production',
     }),
     new webpack.NamedModulesPlugin(),
-    new webpack.DefinePlugin({ 'process.env.FLUENTFFMPEG_COV': false }),
+    new webpack.DefinePlugin({
+      'process.env.FLUENTFFMPEG_COV': false,
+      __TBA_API_KEY__: JSON.stringify(process.env.TBA_API_KEY),
+    }),
   ],
 };

@@ -1,20 +1,14 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 // eslint-disable-next-line import/no-cycle
 import { RootState } from '../../store';
-import * as tba from '../tba-api/api';
-import { Configuration } from '../tba-api/configuration';
+import { Event } from '../tba-api/api';
 import { getFrcYears } from '../../utils/helpers';
-
-const tbaApiConfig = new Configuration({
-  apiKey: process.env.TBA_API_KEY,
-});
-
-const tbaApi = new tba.EventApi(tbaApiConfig);
+import { TbaApiInstance as tbaApi } from '../tba-api/tbaApiInstance';
 
 export const getEventsByYear = createAsyncThunk(
   'events/getByYear',
   async (year: number) => {
-    const eventsPromise = tbaApi.getEventsByYear(year);
+    const eventsPromise = tbaApi.events.getEventsByYear(year);
     return {
       events: await eventsPromise,
     };
@@ -24,9 +18,9 @@ export const getEventsByYear = createAsyncThunk(
 export interface EventsState {
   years: number[];
   selectedYear: number;
-  events: tba.Event[];
+  events: Event[];
   loading: boolean;
-  selectedEvent: tba.Event | null;
+  selectedEvent: Event | null;
 }
 
 const initialState: EventsState = {
@@ -44,10 +38,7 @@ const eventsSlice = createSlice({
     setSelectedYear: (state, action: PayloadAction<number>): void => {
       state.selectedYear = action.payload;
     },
-    setSelectedEvent: (
-      state,
-      action: PayloadAction<tba.Event | null>
-    ): void => {
+    setSelectedEvent: (state, action: PayloadAction<Event | null>): void => {
       state.selectedEvent = action.payload;
     },
   },
