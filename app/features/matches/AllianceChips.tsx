@@ -11,7 +11,8 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       display: 'flex',
-      justifyContent: 'space-evenly',
+      justifyContent: 'center',
+      flexWrap: 'wrap',
       '& > *': {
         margin: theme.spacing(0.1),
       },

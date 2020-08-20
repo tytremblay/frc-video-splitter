@@ -47,16 +47,22 @@ export default function MatchAutoComplete({
       renderInput={(params) => (
         <TextField {...params} label={label} variant="outlined" />
       )}
-      groupBy={(option) => moment.unix(option.actual_time).format('MM-DD-Y')}
+      groupBy={(option) =>
+        option.actual_time
+          ? moment.unix(option.actual_time).format('MM-DD-Y')
+          : option.comp_level
+      }
       renderOption={(option) => {
         return (
           <>
             {formatMatchKey(option.key)}
-            <Chip
-              className={classes.timeChip}
-              size="small"
-              label={moment.unix(option.actual_time).format('h:mm a')}
-            />
+            {option.actual_time && (
+              <Chip
+                className={classes.timeChip}
+                size="small"
+                label={moment.unix(option.actual_time).format('h:mm a')}
+              />
+            )}
           </>
         );
       }}

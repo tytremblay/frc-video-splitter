@@ -10,15 +10,17 @@ import TableRow from '@material-ui/core/TableRow';
 import moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
 import Button from '@material-ui/core/Button';
-import { Forward } from '@material-ui/icons';
+import { Forward, PinDrop } from '@material-ui/icons';
 import AllianceChips from './AllianceChips';
 import {
   selectMatchesState,
   setVideoSeekSeconds,
   slicedMatchesSelector,
+  adjustTimestamps,
 } from './matchesSlice';
 import { Match } from './Match';
 import { formatMatchKey, getTimeStamps } from '../../utils/helpers';
+import TimestampPicker from './TimestampPicker';
 
 momentDurationFormatSetup(moment);
 
@@ -33,17 +35,24 @@ const useStyles = makeStyles({
     backgroundColor: '#4caf50',
     color: 'white',
   },
+  unknownTimeButton: {
+    backgroundColor: 'white',
+    color: '#4caf50',
+  },
 });
 
 export default function MatchesTable() {
   const dispatch = useDispatch();
-  const { firstMatchVideoOffsetSeconds } = useSelector(selectMatchesState);
+  const classes = useStyles();
+  const { firstMatchVideoOffsetSeconds, adjustedTimestamps } = useSelector(
+    selectMatchesState
+  );
 
   const slicedMatches = useSelector(slicedMatchesSelector);
 
-  const classes = useStyles();
-
-  const firstMatchTime = moment.unix(slicedMatches[0]?.actual_time);
+  const firstMatchTime = slicedMatches[0]?.actual_time
+    ? moment.unix(slicedMatches[0]?.actual_time)
+    : undefined;
 
   return (
     <TableContainer className={classes.container}>
@@ -59,11 +68,18 @@ export default function MatchesTable() {
         </TableHead>
         <TableBody>
           {slicedMatches.map((match: Match) => {
-            const { start, results } = getTimeStamps(
-              match,
-              firstMatchTime,
-              moment.duration(firstMatchVideoOffsetSeconds, 'seconds')
-            );
+            const adjustedTimestamp = adjustedTimestamps[match.key];
+
+            if (adjustedTimestamp)
+              console.log('adjusted stamp', adjustedTimestamp);
+
+            const timeStamps =
+              adjustedTimestamps[match.key] ||
+              getTimeStamps(
+                match,
+                firstMatchTime,
+                moment.duration(firstMatchVideoOffsetSeconds, 'seconds')
+              );
 
             return (
               <TableRow key={match.key}>
@@ -77,28 +93,26 @@ export default function MatchesTable() {
                   <AllianceChips color="blue" teamKeys={match.blue_alliance} />
                 </TableCell>
                 <TableCell align="center">
-                  <Button
-                    variant="contained"
-                    className={classes.timeButton}
-                    endIcon={<Forward />}
-                    onClick={() =>
-                      dispatch(setVideoSeekSeconds(start.as('seconds')))
-                    }
-                  >
-                    {start.format('h:mm:ss', { trim: false })}
-                  </Button>
+                  <TimestampPicker
+                    timeStamp={timeStamps.startSeconds}
+                    onSet={(newStart) => {
+                      const newTimestamps = { ...timeStamps };
+                      newTimestamps.startSeconds = newStart;
+                      dispatch(adjustTimestamps(newTimestamps));
+                    }}
+                  />
                 </TableCell>
                 <TableCell align="center">
-                  <Button
-                    variant="contained"
-                    className={classes.timeButton}
-                    endIcon={<Forward />}
-                    onClick={() =>
-                      dispatch(setVideoSeekSeconds(results.as('seconds')))
-                    }
-                  >
-                    {results.format('h:mm:ss', { trim: false })}
-                  </Button>
+                  <TimestampPicker
+                    timeStamp={timeStamps.resultsSeconds}
+                    onSet={(newResults) => {
+                      console.log('old results: ', timeStamps.resultsSeconds);
+                      console.log('new results: ', newResults);
+                      const newTimestamps = { ...timeStamps };
+                      newTimestamps.resultsSeconds = newResults;
+                      dispatch(adjustTimestamps(newTimestamps));
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             );

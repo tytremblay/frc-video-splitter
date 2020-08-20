@@ -4,21 +4,36 @@ import {
   PayloadAction,
   createSelector,
 } from '@reduxjs/toolkit';
-import * as _ from 'lodash';
+import sortBy from 'lodash/sortBy';
 // eslint-disable-next-line import/no-cycle
 import { RootState } from '../../store';
-import { Match as TbaMatch } from '../tba-api/api';
+import { Match as TbaMatch, CompLevel } from '../tba-api/api';
 import { matchFromTbaMatch, Match } from './Match';
 import { TbaApiInstance as tbaApi } from '../tba-api/tbaApiInstance';
+import { MatchTimestamps } from '../../utils/helpers';
 
 export const getMatches = createAsyncThunk(
   'matches/get',
   async (eventKey: string) => {
     const matchesPromise = tbaApi.matches.getEventMatches(eventKey);
     const tbaMatches = await matchesPromise;
-    tbaMatches.sort((a, b) => (a.actual_time || 0) - (b.actual_time || 0));
 
-    const matches = tbaMatches.map((tbaMatch: TbaMatch) =>
+    const compLevelSort = [
+      CompLevel.Qm,
+      CompLevel.Ef,
+      CompLevel.Qf,
+      CompLevel.Sf,
+      CompLevel.F,
+    ];
+
+    const sortedMatches = sortBy(tbaMatches, [
+      'actual_time',
+      (match) => {
+        return compLevelSort.indexOf(match.comp_level);
+      },
+    ]);
+
+    const matches = sortedMatches.map((tbaMatch: TbaMatch) =>
       matchFromTbaMatch(tbaMatch)
     );
 
@@ -37,7 +52,7 @@ export const slicedMatchesSelector = createSelector(
       ? matchesState.matches.indexOf(matchesState.firstMatch)
       : 0;
     const toIndex = matchesState.lastMatch
-      ? matchesState.matches.indexOf(matchesState.lastMatch)
+      ? matchesState.matches.indexOf(matchesState.lastMatch) + 1
       : matchesState.matches.length - 1;
 
     const slicedMatches = matchesState.matches.slice(fromIndex, toIndex);
@@ -54,6 +69,7 @@ export interface MatchesState {
   videoSeekSeconds: number;
   currentVideoSeconds: number;
   loading: boolean;
+  adjustedTimestamps: { [key: string]: MatchTimestamps };
 }
 
 const initialState: MatchesState = {
@@ -64,6 +80,7 @@ const initialState: MatchesState = {
   videoSeekSeconds: 0,
   currentVideoSeconds: 0,
   loading: false,
+  adjustedTimestamps: {},
 };
 
 const matchesSlice = createSlice({
@@ -85,6 +102,16 @@ const matchesSlice = createSlice({
     setCurrentVideoSeconds: (state, action: PayloadAction<number>): void => {
       state.currentVideoSeconds = action.payload;
     },
+    clearMatches: (state): void => {
+      state.matches = [];
+      state.firstMatch = undefined;
+      state.lastMatch = undefined;
+      state.firstMatchVideoOffsetSeconds = 0;
+      state.adjustedTimestamps = {};
+    },
+    adjustTimestamps: (state, action: PayloadAction<MatchTimestamps>): void => {
+      state.adjustedTimestamps[action.payload.matchKey] = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getMatches.pending, (state, action) => {
@@ -103,6 +130,8 @@ export const {
   setFirstMatchVideoOffset,
   setVideoSeekSeconds,
   setCurrentVideoSeconds,
+  clearMatches,
+  adjustTimestamps,
 } = matchesSlice.actions;
 
 export const selectMatchesState = (state: RootState) => state.matches;
