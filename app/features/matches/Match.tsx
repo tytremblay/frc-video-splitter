@@ -4,8 +4,9 @@ export interface Match {
   key: string;
   red_alliance: string[];
   blue_alliance: string[];
-  actual_time: number;
-  post_result_time: number;
+  comp_level: string;
+  actual_time: number | undefined;
+  post_result_time: number | undefined;
 }
 
 export function matchFromTbaMatch(tbaMatch: TbaMatch): Match {
@@ -13,7 +14,8 @@ export function matchFromTbaMatch(tbaMatch: TbaMatch): Match {
     key: tbaMatch.key,
     red_alliance: tbaMatch.alliances?.red?.team_keys || [],
     blue_alliance: tbaMatch.alliances?.blue?.team_keys || [],
-    actual_time: tbaMatch.actual_time || 0,
-    post_result_time: tbaMatch.post_result_time || 0,
+    comp_level: tbaMatch.comp_level.toString(),
+    actual_time: tbaMatch.actual_time,
+    post_result_time: tbaMatch.post_result_time,
   };
 }

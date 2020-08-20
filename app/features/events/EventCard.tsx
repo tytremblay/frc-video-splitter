@@ -16,6 +16,7 @@ import {
 import EventsSelector from './EventsSelector';
 
 import { Event } from '../tba-api/api';
+import { getMatches, clearMatches } from '../matches/matchesSlice';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -40,13 +41,19 @@ export default function EventsCard(): JSX.Element {
   const { events, loading, years, selectedYear, selectedEvent } = useSelector(
     selectEvents
   );
-  const sortedEvents = sortBy(events, ['week', 'name']);
+  const sortedEvents = sortBy(events, ['event_type', 'name']);
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleYearChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const year = event.target.value as number;
     dispatch(setSelectedEvent(null));
+    dispatch(clearMatches());
     dispatch(setSelectedYear(year));
     dispatch(getEventsByYear(year));
+  };
+
+  const handleEventChange = (value: Event | null) => {
+    dispatch(setSelectedEvent(value));
+    dispatch(getMatches(`${value?.key}`));
   };
 
   useEffect(() => {
@@ -61,7 +68,7 @@ export default function EventsCard(): JSX.Element {
           <Select
             label="Year"
             value={selectedYear}
-            onChange={handleChange}
+            onChange={handleYearChange}
             variant="outlined"
             className={classes.formControl}
           >
@@ -80,8 +87,8 @@ export default function EventsCard(): JSX.Element {
               <EventsSelector
                 options={sortedEvents}
                 selectedOption={selectedEvent}
-                handleChange={(newValue: Event) =>
-                  dispatch(setSelectedEvent(newValue))
+                handleChange={(newValue: Event | null) =>
+                  handleEventChange(newValue)
                 }
               />
             )

@@ -4,7 +4,7 @@ import moment from 'moment';
 import { RootState, AppThunk } from '../../store';
 // eslint-disable-next-line import/no-cycle
 import { slicedMatchesSelector } from '../matches/matchesSlice';
-import { getTimeStamps } from '../../utils/helpers';
+import { getTimeStamps, formatMatchKey } from '../../utils/helpers';
 import { Match } from '../matches/Match';
 
 export interface MatchSplitState {
@@ -41,35 +41,49 @@ const initialState: SplitterState = {
 const getFilesSelector = (state: RootState) => state.files.files;
 const splitterSelector = (state: RootState) => state.splitter;
 const matchesSelector = (state: RootState) => state.matches;
+const eventsSelector = (state: RootState) => state.events;
 
 export const splitDetailsSelector = createSelector(
-  [matchesSelector, splitterSelector, getFilesSelector, slicedMatchesSelector],
-  (matchesState, splitter, files, slicedMatches) => {
+  [
+    eventsSelector,
+    matchesSelector,
+    splitterSelector,
+    getFilesSelector,
+    slicedMatchesSelector,
+  ],
+  (eventsState, matchesState, splitter, files, slicedMatches) => {
     const firstMatchTime = moment.unix(slicedMatches[0]?.actual_time);
 
     const details = slicedMatches.map((match: Match) => {
-      const { start, length } = getTimeStamps(
-        match,
-        firstMatchTime,
-        moment.duration(matchesState.firstMatchVideoOffsetSeconds, 'seconds')
-      );
+      const timeStamps =
+        matchesState.adjustedTimestamps[match.key] ||
+        getTimeStamps(
+          match,
+          firstMatchTime,
+          moment.duration(matchesState.firstMatchVideoOffsetSeconds, 'seconds')
+        );
 
-      const paddedLength = length
-        .clone()
-        .add(splitter.beforePadSeconds, 'seconds')
-        .add(splitter.afterPadSeconds, 'seconds');
+      const paddedLength =
+        timeStamps.resultsSeconds -
+        timeStamps.startSeconds +
+        splitter.beforePadSeconds +
+        splitter.afterPadSeconds;
+
+      const fileName = `${formatMatchKey(match.key)} - ${
+        eventsState.selectedYear
+      } ${eventsState.selectedEvent?.name}`;
 
       const outputFile =
         splitter.outputDirectory === '/'
-          ? `${splitter.outputDirectory}${match.key}.mp4`
-          : `${splitter.outputDirectory}/${match.key}.mp4`;
+          ? `${splitter.outputDirectory}${fileName}.mp4`
+          : `${splitter.outputDirectory}/${fileName}.mp4`;
 
       return {
         matchKey: match.key,
         inputFile: files[0],
         outputFile,
-        startSeconds: start.asSeconds() - splitter.beforePadSeconds,
-        durationSeconds: paddedLength.asSeconds(),
+        startSeconds: timeStamps.startSeconds - splitter.beforePadSeconds,
+        durationSeconds: paddedLength,
       };
     });
     return details;

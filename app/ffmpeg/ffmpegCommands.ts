@@ -10,47 +10,50 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path.replace(
 
 setFfmpegPath(ffmpegPath);
 
-const progressReportRateMs = 2000;
+const progressReportRateMs = 1000;
 
 export function checkVersion(): void {
   console.log(`ffmpegPath: ${ffmpegPath}`);
 }
 
-export async function split(event: IpcMainEvent, details: SplitDetails) {
+export async function split(
+  event: IpcMainEvent,
+  details: SplitDetails
+): Promise<null> {
   let lastProgressSent = moment.now();
 
-  FfmpegCommand(details.inputFile)
-    .on('start', (ffmpegCommand) => {
-      event.reply('split-start', {
-        matchKey: details.matchKey,
-        ffmpegCommand,
-      });
-      /// log something maybe
-    })
-    .on('progress', (data) => {
-      const msSinceLastUpdate = moment.now() - lastProgressSent;
-      if (msSinceLastUpdate < progressReportRateMs) return;
+  return new Promise((resolve, reject) => {
+    FfmpegCommand(details.inputFile)
+      .on('start', (ffmpegCommand) => {
+        event.reply('split-start', {
+          matchKey: details.matchKey,
+          ffmpegCommand,
+        });
+      })
+      .on('progress', (data) => {
+        const msSinceLastUpdate = moment.now() - lastProgressSent;
+        if (msSinceLastUpdate < progressReportRateMs) return;
 
-      const currentSeconds = moment.duration(data.timemark).asSeconds();
-      const totalSeconds = details.durationSeconds;
+        const currentSeconds = moment.duration(data.timemark).asSeconds();
+        const totalSeconds = details.durationSeconds;
 
-      event.reply('split-progress', {
-        matchKey: details.matchKey,
-        percent: (currentSeconds / totalSeconds) * 100,
-      });
-      lastProgressSent = moment.now();
-    })
-    .on('end', () => {
-      event.reply('split-end', { matchKey: details.matchKey });
-      /// encoding is complete, so callback or move on at this point
-    })
-    .on('error', (error) => {
-      console.log(`slitting error`, error);
-      /// error handling
-    })
-    .addInputOption(`-ss ${details.startSeconds}`)
-    .addOutputOption([`-t ${details.durationSeconds}`])
-    .addOutputOption([`-threads 1`])
-    .output(`${details.outputFile}`)
-    .run();
+        event.reply('split-progress', {
+          matchKey: details.matchKey,
+          percent: (currentSeconds / totalSeconds) * 100,
+        });
+        lastProgressSent = moment.now();
+      })
+      .on('end', () => {
+        event.reply('split-end', { matchKey: details.matchKey });
+        resolve();
+      })
+      .on('error', (error) => {
+        reject(error);
+      })
+      .addInputOption(`-ss ${details.startSeconds}`)
+      .addOutputOption([`-t ${details.durationSeconds}`])
+      .addOutputOption([`-threads 3`])
+      .output(`${details.outputFile}`)
+      .run();
+  });
 }

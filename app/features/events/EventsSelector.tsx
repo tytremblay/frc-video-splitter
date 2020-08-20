@@ -17,7 +17,7 @@ export default function ComboBox({
   selectedOption,
 }: {
   options: Event[];
-  handleChange: (newValue: Event) => { payload: Event | null; type: string };
+  handleChange: (newValue: Event | null) => void;
   selectedOption: Event | null;
 }) {
   const classes = useStyles();
@@ -36,6 +36,7 @@ export default function ComboBox({
       renderInput={(params) => (
         <TextField {...params} label="Event" variant="outlined" />
       )}
+      groupBy={(option) => option.event_type_string}
     />
   );
 }

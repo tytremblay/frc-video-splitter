@@ -131,11 +131,10 @@ app.on('activate', () => {
 });
 
 ipcMain.on('split', async (event, allDetails: SplitDetails[]) => {
-  Promise.all(
-    allDetails.map(async (details) => {
-      await split(event, details);
-    })
-  )
-    .then(event.reply('split-end', 'Done'))
-    .catch((event) => console.log('caught something while splitting', event));
+  for (const details of allDetails) {
+    await split(event, details).catch((error) =>
+      event.reply('split-error', error)
+    );
+  }
+  event.reply('split-end', 'Done');
 });

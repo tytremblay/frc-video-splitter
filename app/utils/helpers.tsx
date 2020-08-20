@@ -2,9 +2,10 @@ import moment from 'moment';
 import { Match } from '../features/matches/Match';
 
 export interface MatchTimestamps {
-  start: moment.Duration;
-  results: moment.Duration;
-  length: moment.Duration;
+  matchKey: string;
+  startSeconds: number | undefined;
+  resultsSeconds: number | undefined;
+  lengthSeconds: number | undefined;
 }
 
 export function getFrcYears(): number[] {
@@ -24,20 +25,43 @@ export function formatMatchKey(matchKey: string): string {
 
 export function getTimeStamps(
   match: Match,
-  firstMatchTime: moment.Moment,
+  firstMatchTime: moment.Moment | undefined,
   firstMatchOffset: moment.Duration
 ): MatchTimestamps {
-  const startTime = moment.unix(match.actual_time);
-  const resultsTime = moment.unix(match.post_result_time);
-  const matchLength = moment.duration(resultsTime.diff(startTime));
+  if (!firstMatchTime) {
+    return {
+      matchKey: match.key,
+      startSeconds: undefined,
+      resultsSeconds: undefined,
+      lengthSeconds: undefined,
+    };
+  }
+  const startTime = match.actual_time
+    ? moment.unix(match.actual_time)
+    : undefined;
+  const resultsTime = match.post_result_time
+    ? moment.unix(match.post_result_time)
+    : undefined;
+
   const matchStart = firstMatchOffset
     .clone()
-    .add(moment.duration(startTime.diff(firstMatchTime)));
+    .add(moment.duration(startTime?.diff(firstMatchTime)));
+
+  if (!resultsTime) {
+    return {
+      matchKey: match.key,
+      startSeconds: matchStart.as('seconds'),
+      resultsSeconds: undefined,
+      lengthSeconds: undefined,
+    };
+  }
+  const matchLength = moment.duration(resultsTime?.diff(startTime));
   const matchResults = matchStart.clone().add(matchLength);
 
   return {
-    start: matchStart,
-    results: matchResults,
-    length: matchLength,
+    matchKey: match.key,
+    startSeconds: matchStart.as('seconds'),
+    resultsSeconds: matchResults.as('seconds'),
+    lengthSeconds: matchLength.as('seconds'),
   };
 }
