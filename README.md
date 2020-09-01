@@ -1,5 +1,5 @@
 Like the app?  [Support me on Patreon.](https://www.patreon.com/tytremblay)
-![Support me on Patreon](resources/readme/patreon.png | width=100)
+![Support me on Patreon](resources/readme/patreon.png)
 
 ## Installation:
 
