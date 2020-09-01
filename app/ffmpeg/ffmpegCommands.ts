@@ -51,8 +51,12 @@ export async function split(
         reject(error);
       })
       .addInputOption(`-ss ${details.startSeconds}`)
-      .addOutputOption([`-t ${details.durationSeconds}`])
-      .addOutputOption([`-threads 3`])
+      .addOutputOptions([
+        `-t ${details.durationSeconds}`,
+        `-threads 3`,
+        '-vcodec copy',
+        '-acodec copy',
+      ])
       .output(`${details.outputFile}`)
       .run();
   });

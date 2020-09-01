@@ -157,27 +157,25 @@ export default class MenuBuilder {
         {
           label: 'Learn More',
           click() {
-            shell.openExternal('https://electronjs.org');
+            shell.openExternal(
+              'https://github.com/tytremblay/frc-video-splitter-3'
+            );
           },
         },
         {
           label: 'Documentation',
           click() {
             shell.openExternal(
-              'https://github.com/electron/electron/tree/master/docs#readme'
+              'https://github.com/tytremblay/frc-video-splitter-3/blob/master/README.md'
             );
           },
         },
         {
-          label: 'Community Discussions',
+          label: 'Submit Issues',
           click() {
-            shell.openExternal('https://www.electronjs.org/community');
-          },
-        },
-        {
-          label: 'Search Issues',
-          click() {
-            shell.openExternal('https://github.com/electron/electron/issues');
+            shell.openExternal(
+              'https://github.com/tytremblay/frc-video-splitter-3/issues'
+            );
           },
         },
       ],
@@ -258,27 +256,25 @@ export default class MenuBuilder {
           {
             label: 'Learn More',
             click() {
-              shell.openExternal('https://electronjs.org');
+              shell.openExternal(
+                'https://github.com/tytremblay/frc-video-splitter-3'
+              );
             },
           },
           {
             label: 'Documentation',
             click() {
               shell.openExternal(
-                'https://github.com/electron/electron/tree/master/docs#readme'
+                'https://github.com/tytremblay/frc-video-splitter-3/blob/master/README.md'
               );
             },
           },
           {
-            label: 'Community Discussions',
+            label: 'Submit Issues',
             click() {
-              shell.openExternal('https://www.electronjs.org/community');
-            },
-          },
-          {
-            label: 'Search Issues',
-            click() {
-              shell.openExternal('https://github.com/electron/electron/issues');
+              shell.openExternal(
+                'https://github.com/tytremblay/frc-video-splitter-3/issues'
+              );
             },
           },
         ],
