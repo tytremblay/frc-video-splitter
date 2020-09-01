@@ -1,4 +1,5 @@
-Like the app?  [Support me on patreon.](https://www.patreon.com/tytremblay)
+Like the app?  [Support me on Patreon.](https://www.patreon.com/tytremblay)
+![Support me on Patreon](resource/readme/patreon.png)
 
 ## Installation:
 
