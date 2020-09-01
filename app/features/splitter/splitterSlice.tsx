@@ -73,10 +73,12 @@ export const splitDetailsSelector = createSelector(
         eventsState.selectedYear
       } ${eventsState.selectedEvent?.name}`;
 
+      const fileExtension = files[0].split('.').pop();
+
       const outputFile =
         splitter.outputDirectory === '/'
-          ? `${splitter.outputDirectory}${fileName}.mp4`
-          : `${splitter.outputDirectory}/${fileName}.mp4`;
+          ? `${splitter.outputDirectory}${fileName}.${fileExtension}`
+          : `${splitter.outputDirectory}/${fileName}.${fileExtension}`;
 
       return {
         matchKey: match.key,
