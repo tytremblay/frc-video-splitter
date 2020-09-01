@@ -1,5 +1,5 @@
 Like the app?  [Support me on Patreon.](https://www.patreon.com/tytremblay)
-![Support me on Patreon](resources/readme/patreon.png)
+![Support me on Patreon](resources/readme/patreon.png | width=100)
 
 ## Installation:
 
@@ -37,23 +37,3 @@ Choose the installer for your OS [here](https://github.com/tytremblay/frc-video-
 1. Click `Choose Folder` to choose an output folder for the match videos.
 2. Adjust the extra padding time if desired.
 3. Click `Split All` to split all matches, or split matches individually.
-
-### Upload
-
-[Coming soon]
-
-## Starting Development
-
-Start the app in the `dev` environment. This starts the renderer process in [**hot-module-replacement**](https://webpack.js.org/guides/hmr-react/) mode and starts a webpack dev server that sends hot updates to the renderer process:
-
-```bash
-yarn dev
-```
-
-## Packaging for Production
-
-To package apps for the local platform:
-
-```bash
-yarn package
-```
