@@ -3,7 +3,7 @@ Like the app?  [Support me on Patreon.](https://www.patreon.com/tytremblay)
 
 ## Installation:
 
-Choose the installer for your OS [here](https://github.com/tytremblay/frc-video-splitter-3/releases/tag/v0.0.10).
+Choose the installer for your OS [here](https://github.com/tytremblay/frc-video-splitter-3/releases).
 
 ## How To Use:
 
