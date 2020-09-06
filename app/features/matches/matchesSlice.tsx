@@ -31,6 +31,9 @@ export const getMatches = createAsyncThunk(
       (match) => {
         return compLevelSort.indexOf(match.comp_level);
       },
+      (match) => {
+        return match.match_number;
+      },
     ]);
 
     const matches = sortedMatches.map((tbaMatch: TbaMatch) =>
@@ -114,7 +117,7 @@ const matchesSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getMatches.pending, (state, action) => {
+    builder.addCase(getMatches.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(getMatches.fulfilled, (state, action) => {

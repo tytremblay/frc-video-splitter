@@ -1,19 +1,14 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { ThemeProvider } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
+import { ipcRenderer } from 'electron';
 import WorkflowManager from '../features/workflow/WorkflowManager';
-import { selectWorkflow } from '../features/workflow/workflowSlice';
+import { selectWorkflow, setTheme } from '../features/workflow/workflowSlice';
 import MatchesPanel from '../features/matches/MatchesPanel';
 import SplitterPanel from '../features/splitter/SplitterPanel';
-
-const useStyles = makeStyles({
-  steps: {
-    height: '100%',
-    maxHeight: 'fill-available',
-  },
-});
+import getTheme from '../utils/Theme';
 
 function handleWorkflow(step: number) {
   switch (step) {
@@ -31,15 +26,21 @@ function handleWorkflow(step: number) {
 }
 
 export default function Home(): JSX.Element {
-  const { currentStep } = useSelector(selectWorkflow);
-  const classes = useStyles();
+  const dispatch = useDispatch();
+  const { currentStep, theme } = useSelector(selectWorkflow);
+
+  useEffect(() => {
+    ipcRenderer.on('set-theme', (_, arg: string) => {
+      dispatch(setTheme(arg[0]));
+    });
+  }, []);
 
   return (
-    <>
+    <ThemeProvider theme={getTheme(theme)}>
       <div>
         <WorkflowManager />
       </div>
       <Box height="100%">{handleWorkflow(currentStep)}</Box>
-    </>
+    </ThemeProvider>
   );
 }
