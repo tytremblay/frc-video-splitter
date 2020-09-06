@@ -1,6 +1,3 @@
-Like the app?  [Support me on Patreon.](https://www.patreon.com/tytremblay)
-[![Support me on Patreon.](resources/readme/patreon.png)](https://www.patreon.com/tytremblay)
-
 ## Installation:
 
 Choose the installer for your OS [here](https://github.com/tytremblay/frc-video-splitter-3/releases).
