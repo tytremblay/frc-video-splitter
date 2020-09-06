@@ -6,30 +6,42 @@ import {
   MenuItemConstructorOptions,
 } from 'electron';
 
+import MenuTemplateBuilder from './menuTemplateBuilder';
+
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
   submenu?: DarwinMenuItemConstructorOptions[] | Menu;
 }
 
+function isDev(): boolean {
+  return (
+    process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true'
+  );
+}
+
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
 
+  templateBuilder: MenuTemplateBuilder;
+
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
+    this.templateBuilder = new MenuTemplateBuilder(
+      mainWindow,
+      process.platform,
+      isDev()
+    );
   }
 
   buildMenu(): Menu {
-    if (
-      process.env.NODE_ENV === 'development' ||
-      process.env.DEBUG_PROD === 'true'
-    ) {
+    if (isDev()) {
       this.setupDevelopmentEnvironment();
     }
 
     const template =
       process.platform === 'darwin'
         ? this.buildDarwinTemplate()
-        : this.buildDefaultTemplate();
+        : this.templateBuilder.getMenuOptions();
 
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
@@ -188,99 +200,5 @@ export default class MenuBuilder {
         : subMenuViewProd;
 
     return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
-  }
-
-  buildDefaultTemplate() {
-    const templateDefault = [
-      {
-        label: '&File',
-        submenu: [
-          {
-            label: '&Open',
-            accelerator: 'Ctrl+O',
-          },
-          {
-            label: '&Close',
-            accelerator: 'Ctrl+W',
-            click: () => {
-              this.mainWindow.close();
-            },
-          },
-        ],
-      },
-      {
-        label: '&View',
-        submenu:
-          process.env.NODE_ENV === 'development' ||
-          process.env.DEBUG_PROD === 'true'
-            ? [
-                {
-                  label: '&Reload',
-                  accelerator: 'Ctrl+R',
-                  click: () => {
-                    this.mainWindow.webContents.reload();
-                  },
-                },
-                {
-                  label: 'Toggle &Full Screen',
-                  accelerator: 'F11',
-                  click: () => {
-                    this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen()
-                    );
-                  },
-                },
-                {
-                  label: 'Toggle &Developer Tools',
-                  accelerator: 'Alt+Ctrl+I',
-                  click: () => {
-                    this.mainWindow.webContents.toggleDevTools();
-                  },
-                },
-              ]
-            : [
-                {
-                  label: 'Toggle &Full Screen',
-                  accelerator: 'F11',
-                  click: () => {
-                    this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen()
-                    );
-                  },
-                },
-              ],
-      },
-      {
-        label: 'Help',
-        submenu: [
-          {
-            label: 'Learn More',
-            click() {
-              shell.openExternal(
-                'https://github.com/tytremblay/frc-video-splitter-3'
-              );
-            },
-          },
-          {
-            label: 'Documentation',
-            click() {
-              shell.openExternal(
-                'https://github.com/tytremblay/frc-video-splitter-3/blob/master/README.md'
-              );
-            },
-          },
-          {
-            label: 'Submit Issues',
-            click() {
-              shell.openExternal(
-                'https://github.com/tytremblay/frc-video-splitter-3/issues'
-              );
-            },
-          },
-        ],
-      },
-    ];
-
-    return templateDefault;
   }
 }

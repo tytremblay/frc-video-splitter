@@ -14,7 +14,7 @@ import path from 'path';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import MenuBuilder from './menu';
+import MenuBuilder from './menu/menu';
 
 import { split } from './ffmpeg/ffmpegCommands';
 import { SplitDetails } from './features/splitter/splitterSlice';
@@ -131,10 +131,8 @@ app.on('activate', () => {
 });
 
 ipcMain.on('split', async (event, allDetails: SplitDetails[]) => {
-  for (const details of allDetails) {
-    await split(event, details).catch((error) =>
-      event.reply('split-error', error)
-    );
-  }
+  allDetails.forEach((d) =>
+    split(event, d).catch((error) => event.reply('split-error', error))
+  );
   event.reply('split-end', 'Done');
 });
