@@ -1,7 +1,7 @@
 {
   "name": "frc-video-splitter-3",
   "productName": "FRC Video Splitter",
-  "version": "1.2",
+  "version": "1.1.1",
   "description": "Automatically split FRC match videos from large recordings.",
   "scripts": {
     "build": "yarn build-main && yarn build-renderer",
