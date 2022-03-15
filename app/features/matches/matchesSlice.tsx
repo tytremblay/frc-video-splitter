@@ -54,9 +54,10 @@ export const slicedMatchesSelector = createSelector(
     const fromIndex = matchesState.firstMatch
       ? matchesState.matches.indexOf(matchesState.firstMatch)
       : 0;
+
     const toIndex = matchesState.lastMatch
       ? matchesState.matches.indexOf(matchesState.lastMatch) + 1
-      : matchesState.matches.length - 1;
+      : undefined;
 
     const slicedMatches = matchesState.matches.slice(fromIndex, toIndex);
 

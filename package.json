@@ -1,7 +1,7 @@
 {
   "name": "frc-video-splitter-3",
   "productName": "FRC Video Splitter",
-  "version": "0.1.1",
+  "version": "1.2",
   "description": "Automatically split FRC match videos from large recordings.",
   "scripts": {
     "build": "yarn build-main && yarn build-renderer",
@@ -63,7 +63,8 @@
       "package.json"
     ],
     "dmg": {
-      "contents": [{
+      "contents": [
+        {
           "x": 130,
           "y": 220
         },
@@ -106,11 +107,13 @@
     "email": "ty.tremblay@gmail.com",
     "url": "https://github.com/tytremblay"
   },
-  "contributors": [{
-    "name": "Ty Tremblay",
-    "email": "ty.tremblay@gmail.com",
-    "url": "https://github.com/tytremblay"
-  }],
+  "contributors": [
+    {
+      "name": "Ty Tremblay",
+      "email": "ty.tremblay@gmail.com",
+      "url": "https://github.com/tytremblay"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tytremblay/frc-video-splitter-3/issues"
@@ -289,17 +292,19 @@
   },
   "browserslist": [],
   "prettier": {
-    "overrides": [{
-      "files": [
-        ".prettierrc",
-        ".babelrc",
-        ".eslintrc",
-        ".stylelintrc"
-      ],
-      "options": {
-        "parser": "json"
+    "overrides": [
+      {
+        "files": [
+          ".prettierrc",
+          ".babelrc",
+          ".eslintrc",
+          ".stylelintrc"
+        ],
+        "options": {
+          "parser": "json"
+        }
       }
-    }],
+    ],
     "singleQuote": true
   },
   "stylelint": {
