@@ -27,6 +27,7 @@ import {
   setAfterMatchSeconds,
   setBeforeScoreSeconds,
   setAfterScoreSeconds,
+  setConcurrentSplitLimit,
 } from './splitterSlice';
 import { formatMatchKey } from '../../utils/helpers';
 
@@ -79,6 +80,7 @@ export default function SplitterTable() {
     beforeScoreSeconds,
     afterScoreSeconds,
     outputDirectory,
+    concurrentSplitLimit,
   } = useSelector(selectSplitter);
 
   const classes = useStyles();
@@ -204,13 +206,29 @@ export default function SplitterTable() {
             <TableCell>Output</TableCell>
             <TableCell>Video Length</TableCell>
             <TableCell align="right">
+              <TextField
+                className={classes.extraSeconds}
+                type="number"
+                size="small"
+                defaultValue={concurrentSplitLimit}
+                label="Concurrent Limit"
+                variant="outlined"
+                onChange={(event) =>
+                  dispatch(
+                    setConcurrentSplitLimit(parseInt(event.target.value, 10))
+                  )
+                }
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
               <Button
                 variant="contained"
                 color="primary"
                 size="medium"
                 endIcon={<DeviceHub />}
                 onClick={() => {
-                  ipcRenderer.send('split', splitDetails);
+                  ipcRenderer.send('split', splitDetails, concurrentSplitLimit);
                 }}
               >
                 Split All
@@ -250,7 +268,9 @@ export default function SplitterTable() {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={() => ipcRenderer.send('split', [splitDetail])}
+                      onClick={() =>
+                        ipcRenderer.send('split', [splitDetail], 1)
+                      }
                     >
                       Split
                     </Button>

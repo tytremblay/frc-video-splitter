@@ -1,14 +1,10 @@
+import asyncPool from 'tiny-async-pool';
 import {
   buildComplexFilter,
   concatVideoFilesCmd,
   getRandomString,
   splitVideoFileCmd,
 } from '../app/ffmpeg/ffmpegCommands';
-
-const fs = require('fs');
-const os = require('os');
-
-const path = require('path');
 
 describe('Video Split Component', () => {
   it('test buildComplexFilter', () => {
@@ -79,7 +75,19 @@ describe('Video Split Component', () => {
     const expectedCmd = `-f concat -safe 0 -i ${scriptFilePath} -y -c copy output.mp4`;
     const cmdStr = cmd._getArguments().join(' ');
     expect(cmdStr).toEqual(expectedCmd);
-    // console.log(cmdStr);
+    console.log(cmdStr);
     // console.log(scriptFilePath);
+  });
+
+  it('runs limited number of promises together', async () => {
+    console.log('Here');
+    async function workToDo(): Promise<void> {
+      console.log('Doing Work');
+    }
+    const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+    for await (const datum of asyncPool(4, data, workToDo)) {
+      console.log('here?', datum);
+    }
   });
 });

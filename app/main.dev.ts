@@ -18,6 +18,7 @@ import MenuBuilder from './menu/menu';
 
 import { splitFixedLength } from './ffmpeg/ffmpegCommands';
 import { SplitFixedDetails } from './features/splitter/splitterSlice';
+import pLimit, { LimitFunction } from './utils/p-limit';
 
 app.allowRendererProcessReuse = true;
 
@@ -130,12 +131,32 @@ app.on('activate', () => {
   if (mainWindow === null) createWindow();
 });
 
-ipcMain.on('split', async (event, allDetails: SplitFixedDetails[]) => {
-  allDetails.forEach((d) =>
-    // @todo limit concurrency
-    splitFixedLength(event, d).catch((error) =>
-      event.reply('split-error', error)
-    )
-  );
-  event.reply('split-end', 'Done');
-});
+ipcMain.on(
+  'split',
+  async (
+    event,
+    allDetails: SplitFixedDetails[],
+    concurrentSplitLimit: number | undefined
+  ) => {
+    if (!concurrentSplitLimit) {
+      concurrentSplitLimit = 1;
+    }
+    const limit = pLimit(concurrentSplitLimit);
+
+    const work = allDetails.map(
+      (d): LimitFunction => {
+        return limit(async () => {
+          // console.log('Splitting', d.matchKey);
+          await splitFixedLength(event, d).catch((error) =>
+            event.reply('split-error', error)
+          );
+          // console.log('Splitting done', d.matchKey);
+        });
+      }
+    );
+
+    await Promise.all(work);
+
+    event.reply('split-end', 'Done');
+  }
+);

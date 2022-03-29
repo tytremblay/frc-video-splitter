@@ -104,7 +104,7 @@ export const concatVideoFilesCmd = (
 export const splitVideoFile = (
   inputFilePath: string,
   block: SplitBlock,
-  progress?: (data: FfmpegFluentProgressData) => null
+  progress?: (data: FfmpegFluentProgressData) => void
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const { cmd: genCmd, clipPath } = splitVideoFileCmd(inputFilePath, block);
@@ -152,18 +152,32 @@ export async function splitFixedLength(
   event: IpcMainEvent,
   details: SplitFixedDetails
 ): Promise<void> {
-  // let lastProgressSent = moment.now();
+  let lastProgressSent = moment.now();
 
   event.reply('split-start', {
     matchKey: details.matchKey,
   });
 
   const videoParts = await Promise.all(
-    details.blocks.map((block) => splitVideoFile(details.inputFile, block))
+    details.blocks.map((block) =>
+      splitVideoFile(details.inputFile, block, (progress) => {
+        const msSinceLastUpdate = moment.now() - lastProgressSent;
+        if (msSinceLastUpdate < progressReportRateMs) return;
+        lastProgressSent = moment.now();
+
+        event.reply('split-progress', {
+          matchKey: details.matchKey,
+          percent: progress.percent * 100,
+        });
+      })
+    )
   );
-  console.log('videoParts', videoParts);
 
   await concatVideoFiles(videoParts, details.outputFile, (progress) => {
+    const msSinceLastUpdate = moment.now() - lastProgressSent;
+    if (msSinceLastUpdate < progressReportRateMs) return;
+    lastProgressSent = moment.now();
+
     event.reply('split-progress', {
       matchKey: details.matchKey,
       percent: progress.percent * 100,
@@ -171,42 +185,4 @@ export async function splitFixedLength(
   });
 
   event.reply('split-end', { matchKey: details.matchKey });
-
-  // Ffmpeg(details.inputFile)
-  //   .on('start', (ffmpegCommand) => {
-  //     console.log(`Command is : ${ffmpegCommand}`);
-  //     event.reply('split-start', {
-  //       matchKey: details.matchKey,
-  //       ffmpegCommand,
-  //     });
-  //   })
-  //   .on('progress', (data: FfmpegFluentProgressData) => {
-  //     const msSinceLastUpdate = moment.now() - lastProgressSent;
-  //     if (msSinceLastUpdate < progressReportRateMs) return;
-  //     console.log(data);
-  //
-  //     event.reply('split-progress', {
-  //       matchKey: details.matchKey,
-  //       percent: data.percent * 100,
-  //     });
-  //
-  //     lastProgressSent = moment.now();
-  //   })
-  //   .on('end', () => {
-  //     event.reply('split-end', { matchKey: details.matchKey });
-  //     resolve();
-  //   })
-  //   .on('error', (error) => {
-  //     reject(error);
-  //   })
-  //   .complexFilter(buildComplexFilter(details.blocks))
-  //   .outputOptions([
-  //     '-map [out]',
-  //     // '-threads 3',
-  //     // '-vcodec copy',
-  //     // '-acodec copy',
-  //   ])
-  //   .output(`${details.outputFile}`)
-  //   .run();
-  // });
 }

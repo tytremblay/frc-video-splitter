@@ -42,6 +42,7 @@ export interface SplitterState {
   afterScoreSeconds: number;
   outputDirectory: string;
   activelySplitting: boolean;
+  concurrentSplitLimit: number;
   matchSplitStates: { [matchKey: string]: MatchSplitState };
 }
 
@@ -52,8 +53,9 @@ const initialState: SplitterState = {
   matchLengthSeconds: 2 * 60 + 15 + 15,
   afterMatchSeconds: 10,
   beforeScoreSeconds: 5,
-  afterScoreSeconds: 5,
+  afterScoreSeconds: 20,
   outputDirectory: defaultOutputDirectory,
+  concurrentSplitLimit: 3,
   activelySplitting: false,
   matchSplitStates: {},
 };
@@ -125,7 +127,6 @@ export const splitDetailsSelector = createSelector(
         ],
       };
     });
-    console.log(`details`, details);
     return details;
   }
 );
@@ -155,6 +156,9 @@ const splitterSlice = createSlice({
     setActivelySplitting: (state, action: PayloadAction<boolean>): void => {
       state.activelySplitting = action.payload;
     },
+    setConcurrentSplitLimit: (state, action: PayloadAction<number>): void => {
+      state.concurrentSplitLimit = action.payload;
+    },
     setMatchSplitState: (
       state,
       action: PayloadAction<MatchSplitState>
@@ -173,6 +177,7 @@ export const {
   setOutputDirectory,
   setActivelySplitting,
   setMatchSplitState,
+  setConcurrentSplitLimit,
 } = splitterSlice.actions;
 
 export const selectSplitter = (state: RootState) => state.splitter;
