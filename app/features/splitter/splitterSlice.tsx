@@ -102,8 +102,6 @@ export const splitDetailsSelector = createSelector(
           ? `${splitter.outputDirectory}${fileName}.${fileExtension}`
           : `${splitter.outputDirectory}/${fileName}.${fileExtension}`;
 
-      // console.log("Total Duration", matchLengthSeconds + afterMatchSeconds + splitter.beforePadSeconds+splitter.afterPadSeconds + splitter.beforePadSeconds);
-
       return {
         matchKey: match.key,
         inputFile: files[0],

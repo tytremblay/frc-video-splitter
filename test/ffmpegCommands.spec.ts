@@ -1,23 +1,11 @@
 import asyncPool from 'tiny-async-pool';
 import {
-  buildComplexFilter,
   concatVideoFilesCmd,
   getRandomString,
   splitVideoFileCmd,
 } from '../app/ffmpeg/ffmpegCommands';
 
 describe('Video Split Component', () => {
-  it('test buildComplexFilter', () => {
-    const blocks = [
-      { startSeconds: 60, durationSeconds: 5 },
-      { startSeconds: 120, durationSeconds: 5 },
-    ];
-    const filter = buildComplexFilter(blocks);
-
-    expect(filter).toMatchSnapshot();
-    console.log('filter', filter);
-  });
-
   it('reduces duration', () => {
     const blocks = [
       { startSeconds: 60, durationSeconds: 5 },

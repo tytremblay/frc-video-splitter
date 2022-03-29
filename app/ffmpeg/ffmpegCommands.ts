@@ -28,27 +28,6 @@ export const getRandomString = (): string => {
   return crypto.randomBytes(4).readUInt32LE(0);
 };
 
-export const buildComplexFilter = (blocks: SplitBlock[]): string[] => {
-  const out: string[] = [];
-  let concat = '';
-  for (let idx = 0; idx < blocks.length; idx += 1) {
-    const blk = blocks[idx];
-    out.push(
-      `[0:v]trim=${blk.startSeconds}:${
-        blk.startSeconds + blk.durationSeconds
-      },setpts=PTS-STARTPTS[v${idx}]`
-    );
-    out.push(
-      `[0:a]atrim=${blk.startSeconds}:${
-        blk.startSeconds + blk.durationSeconds
-      },asetpts=PTS-STARTPTS[a${idx}]`
-    );
-    concat += `[v${idx}][a${idx}]`;
-  }
-  out.push(`${concat}concat=n=${blocks.length}:v=1:a=1[out]`);
-  return out;
-};
-
 export interface FfmpegFluentProgressData {
   frames: number; // 5245,
   currentFps: number; // 41,
