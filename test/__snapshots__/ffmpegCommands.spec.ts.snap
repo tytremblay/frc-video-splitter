@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Video Split Component test buildComplexFilter 1`] = `
+Array [
+  "[0:v]trim=60:65,setpts=PTS-STARTPTS[v0]",
+  "[0:a]atrim=60:65,asetpts=PTS-STARTPTS[a0]",
+  "[0:v]trim=120:125,setpts=PTS-STARTPTS[v1]",
+  "[0:a]atrim=120:125,asetpts=PTS-STARTPTS[a1]",
+  "[v0][a0][v1][a1]concat=n=2:v=1:a=1[out]",
+]
+`;

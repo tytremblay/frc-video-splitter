@@ -7,20 +7,18 @@ import {
   TableCell,
   TableBody,
   Button,
-  Chip,
   LinearProgress,
   TextField,
   InputAdornment,
 } from '@material-ui/core';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { green } from '@material-ui/core/colors';
 import moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { Check, DeviceHub, FolderOpen } from '@material-ui/icons';
 import {
-  SplitDetails,
+  SplitFixedDetails,
   splitDetailsSelector,
   selectSplitter,
   setOutputDirectory,
@@ -66,7 +64,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function SplitterTable() {
   const dispatch = useDispatch();
   const splitDetails = useSelector(splitDetailsSelector);
-  const { matchSplitStates, beforePadSeconds, afterPadSeconds } = useSelector(
+  const { matchSplitStates, beforePadSeconds, afterPadSeconds, outputDirectory } = useSelector(
     selectSplitter
   );
 
@@ -93,7 +91,7 @@ export default function SplitterTable() {
             <TableCell>Match</TableCell>
             <TableCell>Source File</TableCell>
             <TableCell>
-              Output File
+              Output Folder: ({outputDirectory})
               <Button
                 className={classes.openButton}
                 onClick={() => handleBrowse()}
@@ -116,8 +114,7 @@ export default function SplitterTable() {
                   onChange={(event) =>
                     dispatch(
                       setBeforePadSeconds(parseInt(event.target.value, 10))
-                    )
-                  }
+                    )}
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -137,8 +134,7 @@ export default function SplitterTable() {
                   onChange={(event) =>
                     dispatch(
                       setAfterPadSeconds(parseInt(event.target.value, 10))
-                    )
-                  }
+                    )}
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -167,7 +163,7 @@ export default function SplitterTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {splitDetails.map((splitDetail: SplitDetails) => {
+          {splitDetails.map((splitDetail: SplitFixedDetails) => {
             const splitState = matchSplitStates[splitDetail.matchKey] || {
               matchKey: splitDetail.matchKey,
               active: false,
@@ -185,7 +181,7 @@ export default function SplitterTable() {
                 <TableCell>{`${beforePadSeconds}s / ${afterPadSeconds}s`}</TableCell>
                 <TableCell>
                   {moment
-                    .duration(splitDetail.durationSeconds, 'seconds')
+                    .duration(splitDetail.blocks.map(b=>b.durationSeconds).reduce((prev, cur)=>prev+cur, 0), 'seconds')
                     .format()}
                 </TableCell>
                 <TableCell align="right">

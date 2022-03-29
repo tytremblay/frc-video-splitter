@@ -22,18 +22,36 @@ export interface SplitDetails {
   durationSeconds: number;
 }
 
+export interface SplitBlock {
+  startSeconds: number;
+  durationSeconds: number;
+}
+
+export interface SplitFixedDetails {
+  matchKey: string;
+  inputFile: string;
+  outputFile: string;
+  blocks: SplitBlock[];
+}
+
 export interface SplitterState {
   beforePadSeconds: number;
   afterPadSeconds: number;
+  teleopLengthSeconds: number;
+  autoLengthSeconds: number;
   outputDirectory: string;
   activelySplitting: boolean;
   matchSplitStates: { [matchKey: string]: MatchSplitState };
 }
 
+const defaultOutputDirectory = './';
+
 const initialState: SplitterState = {
   beforePadSeconds: 5,
   afterPadSeconds: 20,
-  outputDirectory: '/',
+  teleopLengthSeconds: 2 * 60 + 15,
+  autoLengthSeconds: 15,
+  outputDirectory: defaultOutputDirectory,
   activelySplitting: false,
   matchSplitStates: {},
 };
@@ -51,8 +69,8 @@ export const splitDetailsSelector = createSelector(
     getFilesSelector,
     slicedMatchesSelector,
   ],
-  (eventsState, matchesState, splitter, files, slicedMatches) => {
-    const firstMatchTime = moment.unix(slicedMatches[0]?.actual_time);
+  (eventsState, matchesState, splitter, files, slicedMatches): SplitFixedDetails[] => {
+    const firstMatchTime = moment.unix(slicedMatches[0]?.actual_time || 0);
 
     const details = slicedMatches.map((match: Match) => {
       const timeStamps =
@@ -63,12 +81,6 @@ export const splitDetailsSelector = createSelector(
           moment.duration(matchesState.firstMatchVideoOffsetSeconds, 'seconds')
         );
 
-      const paddedLength =
-        timeStamps.resultsSeconds -
-        timeStamps.startSeconds +
-        splitter.beforePadSeconds +
-        splitter.afterPadSeconds;
-
       const fileName = `${formatMatchKey(match.key)} - ${
         eventsState.selectedYear
       } ${eventsState.selectedEvent?.name}`;
@@ -76,18 +88,38 @@ export const splitDetailsSelector = createSelector(
       const fileExtension = files[0].split('.').pop();
 
       const outputFile =
-        splitter.outputDirectory === '/'
+        splitter.outputDirectory === defaultOutputDirectory
           ? `${splitter.outputDirectory}${fileName}.${fileExtension}`
           : `${splitter.outputDirectory}/${fileName}.${fileExtension}`;
+
+      // @todo make this configurable MatchLengthSeconds and AfterMatchSeconds
+      const teleopLengthSeconds = 2 * 60 + 15;
+      const autoLengthSeconds = 15;
+      const matchLengthSeconds = teleopLengthSeconds + autoLengthSeconds;
+
+      const afterMatchSeconds = 15;
+
+      // console.log("Total Duration", matchLengthSeconds + afterMatchSeconds + splitter.beforePadSeconds+splitter.afterPadSeconds + splitter.beforePadSeconds);
 
       return {
         matchKey: match.key,
         inputFile: files[0],
         outputFile,
-        startSeconds: timeStamps.startSeconds - splitter.beforePadSeconds,
-        durationSeconds: paddedLength,
+        blocks: [
+          // Match
+          {
+            startSeconds: timeStamps.startSeconds - splitter.beforePadSeconds,
+            durationSeconds: matchLengthSeconds + afterMatchSeconds + splitter.beforePadSeconds,
+          },
+          // Results
+          {
+            startSeconds: timeStamps.resultsSeconds - splitter.beforePadSeconds,
+            durationSeconds: splitter.afterPadSeconds + splitter.beforePadSeconds,
+          },
+        ],
       };
     });
+    console.log(`details`, details);
     return details;
   }
 );

@@ -16,8 +16,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu/menu';
 
-import { split } from './ffmpeg/ffmpegCommands';
-import { SplitDetails } from './features/splitter/splitterSlice';
+import { splitFixedLength } from './ffmpeg/ffmpegCommands';
+import { SplitDetails, SplitFixedDetails } from "./features/splitter/splitterSlice";
 
 app.allowRendererProcessReuse = true;
 
@@ -130,9 +130,10 @@ app.on('activate', () => {
   if (mainWindow === null) createWindow();
 });
 
-ipcMain.on('split', async (event, allDetails: SplitDetails[]) => {
+ipcMain.on('split', async (event, allDetails: SplitFixedDetails[]) => {
   allDetails.forEach((d) =>
-    split(event, d).catch((error) => event.reply('split-error', error))
+    // @todo limit concurrency
+    splitFixedLength(event, d).catch((error) => event.reply('split-error', error))
   );
   event.reply('split-end', 'Done');
 });
