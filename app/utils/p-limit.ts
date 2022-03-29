@@ -1,4 +1,4 @@
-// import Queue from 'yocto-queue';
+// Source: https://github.com/sindresorhus/p-limit/blob/main/index.js
 
 import Queue from './yocto-queue';
 

@@ -146,11 +146,9 @@ ipcMain.on(
     const work = allDetails.map(
       (d): LimitFunction => {
         return limit(async () => {
-          // console.log('Splitting', d.matchKey);
           await splitFixedLength(event, d).catch((error) =>
             event.reply('split-error', error)
           );
-          // console.log('Splitting done', d.matchKey);
         });
       }
     );
