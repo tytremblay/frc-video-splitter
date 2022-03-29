@@ -17,7 +17,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu/menu';
 
 import { splitFixedLength } from './ffmpeg/ffmpegCommands';
-import { SplitDetails, SplitFixedDetails } from "./features/splitter/splitterSlice";
+import { SplitFixedDetails } from './features/splitter/splitterSlice';
 
 app.allowRendererProcessReuse = true;
 
@@ -133,7 +133,9 @@ app.on('activate', () => {
 ipcMain.on('split', async (event, allDetails: SplitFixedDetails[]) => {
   allDetails.forEach((d) =>
     // @todo limit concurrency
-    splitFixedLength(event, d).catch((error) => event.reply('split-error', error))
+    splitFixedLength(event, d).catch((error) =>
+      event.reply('split-error', error)
+    )
   );
   event.reply('split-end', 'Done');
 });

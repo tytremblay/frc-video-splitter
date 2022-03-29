@@ -22,8 +22,11 @@ import {
   splitDetailsSelector,
   selectSplitter,
   setOutputDirectory,
-  setAfterPadSeconds,
-  setBeforePadSeconds,
+  setBeforeMatchSeconds,
+  setMatchLengthSeconds,
+  setAfterMatchSeconds,
+  setBeforeScoreSeconds,
+  setAfterScoreSeconds,
 } from './splitterSlice';
 import { formatMatchKey } from '../../utils/helpers';
 
@@ -47,7 +50,11 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: 100,
     },
     openButton: {
-      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+    },
+    outputDirPicker: {
+      marginBottom: theme.spacing(1.5),
+      marginRight: theme.spacing(0.5),
     },
     extraSecondsWrapper: {
       display: 'flex',
@@ -64,9 +71,15 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function SplitterTable() {
   const dispatch = useDispatch();
   const splitDetails = useSelector(splitDetailsSelector);
-  const { matchSplitStates, beforePadSeconds, afterPadSeconds, outputDirectory } = useSelector(
-    selectSplitter
-  );
+  const {
+    matchSplitStates,
+    beforeMatchSeconds,
+    matchLengthSeconds,
+    afterMatchSeconds,
+    beforeScoreSeconds,
+    afterScoreSeconds,
+    outputDirectory,
+  } = useSelector(selectSplitter);
 
   const classes = useStyles();
 
@@ -85,67 +98,110 @@ export default function SplitterTable() {
 
   return (
     <TableContainer className={classes.container}>
+      <div className={classes.outputDirPicker}>
+        <Button
+          className={classes.openButton}
+          onClick={() => handleBrowse()}
+          variant="contained"
+          color="primary"
+          startIcon={<FolderOpen />}
+        >
+          Choose Output Folder
+        </Button>
+        Output Directory: ({outputDirectory})
+      </div>
+      <div className={classes.extraSecondsWrapper}>
+        <TextField
+          className={classes.extraSeconds}
+          type="number"
+          size="small"
+          defaultValue={beforeMatchSeconds}
+          label="Before Match"
+          variant="outlined"
+          onChange={(event) =>
+            dispatch(setBeforeMatchSeconds(parseInt(event.target.value, 10)))
+          }
+          InputLabelProps={{
+            shrink: true,
+          }}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">s</InputAdornment>,
+          }}
+        />
+        <TextField
+          className={classes.extraSeconds}
+          type="number"
+          size="small"
+          defaultValue={matchLengthSeconds}
+          label="Match Length"
+          variant="outlined"
+          onChange={(event) =>
+            dispatch(setMatchLengthSeconds(parseInt(event.target.value, 10)))
+          }
+          InputLabelProps={{
+            shrink: true,
+          }}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">s</InputAdornment>,
+          }}
+        />
+        <TextField
+          className={classes.extraSeconds}
+          type="number"
+          size="small"
+          defaultValue={afterMatchSeconds}
+          label="After Match"
+          variant="outlined"
+          onChange={(event) =>
+            dispatch(setAfterMatchSeconds(parseInt(event.target.value, 10)))
+          }
+          InputLabelProps={{
+            shrink: true,
+          }}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">s</InputAdornment>,
+          }}
+        />
+        <TextField
+          className={classes.extraSeconds}
+          type="number"
+          size="small"
+          defaultValue={beforeScoreSeconds}
+          label="Before Score"
+          variant="outlined"
+          onChange={(event) =>
+            dispatch(setBeforeScoreSeconds(parseInt(event.target.value, 10)))
+          }
+          InputLabelProps={{
+            shrink: true,
+          }}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">s</InputAdornment>,
+          }}
+        />
+        <TextField
+          className={classes.extraSeconds}
+          type="number"
+          size="small"
+          defaultValue={afterScoreSeconds}
+          label="After Score"
+          variant="outlined"
+          onChange={(event) =>
+            dispatch(setAfterScoreSeconds(parseInt(event.target.value, 10)))
+          }
+          InputLabelProps={{
+            shrink: true,
+          }}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">s</InputAdornment>,
+          }}
+        />
+      </div>
       <Table stickyHeader size="small" aria-label="split videos table">
         <TableHead>
           <TableRow>
             <TableCell>Match</TableCell>
-            <TableCell>Source File</TableCell>
-            <TableCell>
-              Output Folder: ({outputDirectory})
-              <Button
-                className={classes.openButton}
-                onClick={() => handleBrowse()}
-                variant="contained"
-                color="primary"
-                startIcon={<FolderOpen />}
-              >
-                Choose Folder
-              </Button>
-            </TableCell>
-            <TableCell>
-              <div className={classes.extraSecondsWrapper}>
-                <TextField
-                  className={classes.extraSeconds}
-                  type="number"
-                  size="small"
-                  defaultValue={beforePadSeconds}
-                  label="Before"
-                  variant="outlined"
-                  onChange={(event) =>
-                    dispatch(
-                      setBeforePadSeconds(parseInt(event.target.value, 10))
-                    )}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">s</InputAdornment>
-                    ),
-                  }}
-                />
-                <TextField
-                  className={classes.extraSeconds}
-                  type="number"
-                  size="small"
-                  defaultValue={afterPadSeconds}
-                  label="After"
-                  variant="outlined"
-                  onChange={(event) =>
-                    dispatch(
-                      setAfterPadSeconds(parseInt(event.target.value, 10))
-                    )}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">s</InputAdornment>
-                    ),
-                  }}
-                />
-              </div>
-            </TableCell>
+            <TableCell>Output</TableCell>
             <TableCell>Video Length</TableCell>
             <TableCell align="right">
               <Button
@@ -176,12 +232,17 @@ export default function SplitterTable() {
                 <TableCell component="th" scope="row">
                   {formatMatchKey(splitDetail.matchKey)}
                 </TableCell>
-                <TableCell>{splitDetail.inputFile}</TableCell>
-                <TableCell>{`${splitDetail.outputFile}`}</TableCell>
-                <TableCell>{`${beforePadSeconds}s / ${afterPadSeconds}s`}</TableCell>
+                <TableCell>{`${splitDetail.outputFile.slice(
+                  outputDirectory.length + 1
+                )}`}</TableCell>
                 <TableCell>
                   {moment
-                    .duration(splitDetail.blocks.map(b=>b.durationSeconds).reduce((prev, cur)=>prev+cur, 0), 'seconds')
+                    .duration(
+                      splitDetail.blocks
+                        .map((b) => b.durationSeconds)
+                        .reduce((prev, cur) => prev + cur, 0),
+                      'seconds'
+                    )
                     .format()}
                 </TableCell>
                 <TableCell align="right">
