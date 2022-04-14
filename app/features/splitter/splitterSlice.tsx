@@ -22,18 +22,40 @@ export interface SplitDetails {
   durationSeconds: number;
 }
 
+export interface SplitBlock {
+  startSeconds: number;
+  durationSeconds: number;
+}
+
+export interface SplitFixedDetails {
+  matchKey: string;
+  inputFile: string;
+  outputFile: string;
+  blocks: SplitBlock[];
+}
+
 export interface SplitterState {
-  beforePadSeconds: number;
-  afterPadSeconds: number;
+  beforeMatchSeconds: number;
+  matchLengthSeconds: number;
+  afterMatchSeconds: number;
+  beforeScoreSeconds: number;
+  afterScoreSeconds: number;
   outputDirectory: string;
   activelySplitting: boolean;
+  concurrentSplitLimit: number;
   matchSplitStates: { [matchKey: string]: MatchSplitState };
 }
 
+const defaultOutputDirectory = './';
+
 const initialState: SplitterState = {
-  beforePadSeconds: 5,
-  afterPadSeconds: 20,
-  outputDirectory: '/',
+  beforeMatchSeconds: 5,
+  matchLengthSeconds: 2 * 60 + 15 + 15,
+  afterMatchSeconds: 10,
+  beforeScoreSeconds: 5,
+  afterScoreSeconds: 20,
+  outputDirectory: defaultOutputDirectory,
+  concurrentSplitLimit: 3,
   activelySplitting: false,
   matchSplitStates: {},
 };
@@ -51,8 +73,14 @@ export const splitDetailsSelector = createSelector(
     getFilesSelector,
     slicedMatchesSelector,
   ],
-  (eventsState, matchesState, splitter, files, slicedMatches) => {
-    const firstMatchTime = moment.unix(slicedMatches[0]?.actual_time);
+  (
+    eventsState,
+    matchesState,
+    splitter,
+    files,
+    slicedMatches
+  ): SplitFixedDetails[] => {
+    const firstMatchTime = moment.unix(slicedMatches[0]?.actual_time || 0);
 
     const details = slicedMatches.map((match: Match) => {
       const timeStamps =
@@ -63,12 +91,6 @@ export const splitDetailsSelector = createSelector(
           moment.duration(matchesState.firstMatchVideoOffsetSeconds, 'seconds')
         );
 
-      const paddedLength =
-        timeStamps.resultsSeconds -
-        timeStamps.startSeconds +
-        splitter.beforePadSeconds +
-        splitter.afterPadSeconds;
-
       const fileName = `${formatMatchKey(match.key)} - ${
         eventsState.selectedYear
       } ${eventsState.selectedEvent?.name}`;
@@ -76,7 +98,7 @@ export const splitDetailsSelector = createSelector(
       const fileExtension = files[0].split('.').pop();
 
       const outputFile =
-        splitter.outputDirectory === '/'
+        splitter.outputDirectory === defaultOutputDirectory
           ? `${splitter.outputDirectory}${fileName}.${fileExtension}`
           : `${splitter.outputDirectory}/${fileName}.${fileExtension}`;
 
@@ -84,8 +106,23 @@ export const splitDetailsSelector = createSelector(
         matchKey: match.key,
         inputFile: files[0],
         outputFile,
-        startSeconds: timeStamps.startSeconds - splitter.beforePadSeconds,
-        durationSeconds: paddedLength,
+        blocks: [
+          // Match
+          {
+            startSeconds: timeStamps.startSeconds - splitter.beforeMatchSeconds,
+            durationSeconds:
+              splitter.beforeMatchSeconds +
+              splitter.matchLengthSeconds +
+              splitter.afterMatchSeconds,
+          },
+          // Results
+          {
+            startSeconds:
+              timeStamps.resultsSeconds - splitter.beforeScoreSeconds,
+            durationSeconds:
+              splitter.beforeScoreSeconds + splitter.afterScoreSeconds,
+          },
+        ],
       };
     });
     return details;
@@ -96,17 +133,29 @@ const splitterSlice = createSlice({
   name: 'splitter',
   initialState,
   reducers: {
-    setBeforePadSeconds: (state, action: PayloadAction<number>): void => {
-      state.beforePadSeconds = action.payload;
+    setBeforeMatchSeconds: (state, action: PayloadAction<number>): void => {
+      state.beforeMatchSeconds = action.payload;
     },
-    setAfterPadSeconds: (state, action: PayloadAction<number>): void => {
-      state.afterPadSeconds = action.payload;
+    setMatchLengthSeconds: (state, action: PayloadAction<number>): void => {
+      state.matchLengthSeconds = action.payload;
+    },
+    setAfterMatchSeconds: (state, action: PayloadAction<number>): void => {
+      state.afterMatchSeconds = action.payload;
+    },
+    setBeforeScoreSeconds: (state, action: PayloadAction<number>): void => {
+      state.beforeScoreSeconds = action.payload;
+    },
+    setAfterScoreSeconds: (state, action: PayloadAction<number>): void => {
+      state.afterScoreSeconds = action.payload;
     },
     setOutputDirectory: (state, action: PayloadAction<string>): void => {
       state.outputDirectory = action.payload;
     },
     setActivelySplitting: (state, action: PayloadAction<boolean>): void => {
       state.activelySplitting = action.payload;
+    },
+    setConcurrentSplitLimit: (state, action: PayloadAction<number>): void => {
+      state.concurrentSplitLimit = action.payload;
     },
     setMatchSplitState: (
       state,
@@ -118,11 +167,15 @@ const splitterSlice = createSlice({
 });
 
 export const {
-  setBeforePadSeconds,
-  setAfterPadSeconds,
+  setBeforeMatchSeconds,
+  setMatchLengthSeconds,
+  setAfterMatchSeconds,
+  setBeforeScoreSeconds,
+  setAfterScoreSeconds,
   setOutputDirectory,
   setActivelySplitting,
   setMatchSplitState,
+  setConcurrentSplitLimit,
 } = splitterSlice.actions;
 
 export const selectSplitter = (state: RootState) => state.splitter;
