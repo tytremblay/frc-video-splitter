@@ -55,6 +55,11 @@ module.exports = (api) => {
       require('@babel/plugin-syntax-import-meta'),
       [require('@babel/plugin-proposal-class-properties'), { loose: true }],
       require('@babel/plugin-proposal-json-strings'),
+      [require('@babel/plugin-transform-private-methods'), { loose: true }],
+      [
+        require('@babel/plugin-transform-private-property-in-object'),
+        { loose: true },
+      ],
 
       ...(development ? developmentPlugins : productionPlugins),
     ],

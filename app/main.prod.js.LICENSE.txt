@@ -1,7 +1,9 @@
 /*! http://mths.be/fromcodepoint v0.1.0 by @mathias */
 
-//! moment.js
+/*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */
 
-//! moment.js language configuration
+/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
+
+//! moment.js
 
 //! moment.js locale configuration
