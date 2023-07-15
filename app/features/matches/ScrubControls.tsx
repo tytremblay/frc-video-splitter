@@ -8,6 +8,7 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       display: 'flex',
       justifyContent: 'space-around',
+      flexWrap: 'wrap',
     },
   })
 );
@@ -19,28 +20,47 @@ export interface ScrubControlsProps {
 export default function ScrubControls(props: ScrubControlsProps): JSX.Element {
   const classes = useStyles();
   const { handleScrub } = props;
+
+  const scrubOptions = [
+    1,
+    5,
+    10,
+    30,
+    2 * 60 + 15,
+    5 * 60,
+  ];
+
+  
+
+  const forwardControls = scrubOptions.map((duration) => {
+    return (
+      <Button
+        key={duration}
+        endIcon={<FastForward />}
+        onClick={() => handleScrub(duration)}
+      >
+        {duration}
+      </Button>
+    );
+  });
+
+  const rewindControls = scrubOptions.reverse().map((duration) => {
+    duration = duration * -1;
+    return (
+      <Button
+        key={duration}
+        startIcon={<FastRewind />}
+        onClick={() => handleScrub(duration)}
+      >
+        {duration}
+      </Button>
+    );
+  });
+
   return (
     <div className={classes.root}>
-      <ButtonGroup color="primary">
-        <Button startIcon={<FastRewind />} onClick={() => handleScrub(-30)}>
-          30
-        </Button>
-        <Button startIcon={<FastRewind />} onClick={() => handleScrub(-10)}>
-          10
-        </Button>
-        <Button startIcon={<FastRewind />} onClick={() => handleScrub(-1)}>
-          1
-        </Button>
-        <Button endIcon={<FastForward />} onClick={() => handleScrub(1)}>
-          1
-        </Button>
-        <Button endIcon={<FastForward />} onClick={() => handleScrub(10)}>
-          10
-        </Button>
-        <Button endIcon={<FastForward />} onClick={() => handleScrub(30)}>
-          30
-        </Button>
-      </ButtonGroup>
+      <ButtonGroup color="primary">{rewindControls}</ButtonGroup>
+      <ButtonGroup color="primary">{forwardControls}</ButtonGroup>
     </div>
   );
 }
