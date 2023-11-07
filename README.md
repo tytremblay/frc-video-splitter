@@ -1,36 +1,38 @@
-## Installation:
+<p align="center"><img src="https://i.imgur.com/a9QWW0v.png"></p>
 
-Choose the installer for your OS [here](https://github.com/tytremblay/frc-video-splitter-3/releases).
+## Usage
 
-## How To Use:
+### Create an App
 
-### Configure Matches
+```
+# with npx
+$ npx create-nextron-app my-app --example with-tailwindcss
 
-1. Choose a Year
-2. Choose an event from the dropdown (autocomplete works)
+# with yarn
+$ yarn create nextron-app my-app --example with-tailwindcss
 
-![Choose an event](resources/readme/chooseEvent.png)
+# with pnpm
+$ pnpm dlx create-nextron-app my-app --example with-tailwindcss
+```
 
-3. Click `Get Matches`
-4. Choose a video
-5. Scrub through the video until the first match in the video starts
-   1. We recommend when the MC says "Drivers, behind the lines!" (or that year's equivalent).
+### Install Dependencies
 
-![Choose a video](resources/readme/chooseVideo.png)
+```
+$ cd my-app
 
-6. Click the `Set First Match Time` botton
-7. Select the key of the first match in the video in the `First Match` input.
-8. Select the key of the last match in the video in the `Last Match` input.
-   1. You can use the green buttons to seek the match video to that time stamp. Useful for verifying your match selections.
+# using yarn or npm
+$ yarn (or `npm install`)
 
-![Choose a video](resources/readme/firstAndLastMatch.png)
+# using pnpm
+$ pnpm install --shamefully-hoist
+```
 
-8. Click `Next`
+### Use it
 
-### Split Matches
+```
+# development mode
+$ yarn dev (or `npm run dev` or `pnpm run dev`)
 
-![Split Matches](resources/readme/split.png)
-
-1. Click `Choose Folder` to choose an output folder for the match videos.
-2. Adjust the extra padding time if desired.
-3. Click `Split All` to split all matches, or split matches individually.
+# production build
+$ yarn build (or `npm run build` or `pnpm run build`)
+```
