@@ -35,7 +35,3 @@ jobs:
           MODE: 'production'
           TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
         run: yarn build
-
-      - name: Compile & release Electron app
-        id: release-to-github        
-        run: yarn release
