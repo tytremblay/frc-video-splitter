@@ -15,7 +15,7 @@
     "build": "nextron build",
     "postinstall": "electron-builder install-app-deps",
     "publish": "electron-builder",
-    "release": "electron-builder",
+    "release": "electron-builder --publish always",
     "updateVersion": "semantic-release"
   },
   "release": {
