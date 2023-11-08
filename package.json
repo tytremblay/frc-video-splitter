@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "name": "frc-video-splitter",
   "description": "Split FRC match videos into individual matches",
   "version": "4.0.0",
