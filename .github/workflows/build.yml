@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --network-timeout 600000
 
-      - name: publish
-        run: yarn publish
+      - name: build
+        run: yarn build
 
         env:
           TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
