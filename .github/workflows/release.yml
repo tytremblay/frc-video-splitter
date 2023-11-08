@@ -15,7 +15,7 @@ jobs:
   upload_artifacts:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [windows-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -28,7 +28,7 @@ jobs:
 
       - run: yarn install --frozen-lockfile
         env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1        
 
       - name: Build the app
         env:
