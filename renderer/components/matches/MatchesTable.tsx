@@ -9,9 +9,10 @@ import { MatchesTableHeader } from './MatchesTableHeader';
 import { MatchRow } from './MatchRow';
 import { addBlankMatch, setMatches, setMatchesFromTBA, useMatches } from '../../state/useMatches';
 
+const tbaKey: string | undefined = __TBA_API_KEY__;
 
 async function getMatches(eventKey: string) {
-  const req = await fetch(`https://www.thebluealliance.com/api/v3/event/${eventKey}/matches`, { headers: { 'X-TBA-Auth-Key': '5c86cepWKD99NPe4M7WZVAF9N7LwKVdXpWmkRIRYBYdUrPCG1OaaF9DkvegcttFr' } });
+  const req = await fetch(`https://www.thebluealliance.com/api/v3/event/${eventKey}/matches`, { headers: { 'X-TBA-Auth-Key': '' } });
   const res = await req.json() as TBAMatch[];
 
   return res;

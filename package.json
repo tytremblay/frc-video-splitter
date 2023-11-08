@@ -4,11 +4,16 @@
   "description": "Split FRC match videos into individual matches",
   "version": "4.0.0",
   "author": "Ty Tremblay <ty.tremblay@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tytremblay/frc-video-splitter"},
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
     "build": "nextron build",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "publish": "electron-builder",
+    "release": "electron-builder"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
