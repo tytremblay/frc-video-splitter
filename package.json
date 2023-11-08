@@ -19,7 +19,18 @@
     "updateVersion": "semantic-release"
   },
   "release": {
-    "branches": ["main", "next"]
+    "branches": ["main", "next", "alpha"],
+    "plugins": [
+    "@semantic-release/commit-analyzer",
+    "semantic-release-export-data",
+    "@semantic-release/npm",
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "package-lock.json"]
+      }
+    ]
+  ]
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
