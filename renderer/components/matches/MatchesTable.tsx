@@ -9,7 +9,7 @@ import { MatchesTableHeader } from './MatchesTableHeader';
 import { MatchRow } from './MatchRow';
 import { addBlankMatch, setMatches, setMatchesFromTBA, useMatches } from '../../state/useMatches';
 
-const tbaKey: string | undefined = __TBA_API_KEY__;
+const tbaKey: string | undefined = process.env.__TBA_API_KEY__;
 
 async function getMatches(eventKey: string) {
   const req = await fetch(`https://www.thebluealliance.com/api/v3/event/${eventKey}/matches`, { headers: { 'X-TBA-Auth-Key': tbaKey } });
