@@ -18,6 +18,9 @@
     "release": "electron-builder",
     "updateVersion": "semantic-release"
   },
+  "release": {
+    "branches": ["main", "next"]
+  },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@ffmpeg/ffmpeg": "^0.12.7",
