@@ -1,0 +1,129 @@
+name: Release A New Version
+on: [workflow_call, workflow_dispatch]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: 'bash'
+env:
+  GH_TOKEN: ${{ secrets.github_token }}
+
+jobs:
+  get-next-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: yarn install --frozen-lockfile
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+      - run: yarn semantic-release --dry-run
+        id: get-next-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+    outputs:
+      new-release-published: ${{ steps.get-next-version.outputs.new-release-published }}
+      new-release-version: ${{ steps.get-next-version.outputs.new-release-version }}
+
+  draft:
+    needs: [get-next-version]
+    runs-on: ubuntu-latest
+    if: needs.get-next-version.outputs.new-release-published == 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Show version
+        run: echo "Next Version is ${{ needs.get-next-version.outputs.new-release-version }} (${{ github.ref_name }})"
+
+      - name: Get last git tag
+        id: tag
+        run: echo "last-tag=$(git describe --tags --abbrev=0 || git rev-list --max-parents=0 ${{github.ref}})" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        uses: ./.github/actions/release-notes
+        id: release-note
+        with:
+          from: ${{ steps.tag.outputs.last-tag }}
+          to: ${{ github.ref }}
+          include-commit-body: true
+          include-abbreviated-commit: true
+
+      - name: Delete outdated drafts
+        uses: hugo19941994/delete-draft-releases@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release Draft
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+        with:
+          prerelease: true
+          draft: true
+          tag_name: v${{ needs.get-next-version.outputs.new-release-version }}
+          name: v${{ needs.get-next-version.outputs.new-release-version }}
+          body: ${{ steps.release-note.outputs.release-note }}
+    outputs:
+      release-note: ${{ steps.release-note.outputs.release-note }}
+      version: ${{ needs.get-next-version.outputs.new-release-version }}
+
+  upload_artifacts:
+    needs: [draft]
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+
+      - run: yarn install --frozen-lockfile
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
+      - name: Prepare release notes
+        env:
+          RELEASE_NOTE: ${{ needs.draft.outputs.release-note }}
+        run: echo "$RELEASE_NOTE" >> ./buildResources/release-notes.md
+
+      - name: Show version
+        run: echo "Next Version is ${{ needs.draft.outputs.version }} (${{ github.ref_name }})"
+
+      - name: Update and push version tag
+        run: yarn updateVersion
+
+      - name: Write next version to meta.json
+        run: echo "{\"version\":\"${{ needs.draft.outputs.version }}\"}" >| ./buildResources/meta.json
+
+      - name: Build the app
+        env:
+          MODE: 'production'
+          TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
+        run: yarn build
+
+      - name: Compile & release Electron app
+        id: release-to-github
+        env:
+          VITE_APP_VERSION: ${{ needs.draft.outputs.version }}
+        run: yarn release
+
+      - name: Delete tag for failed release
+        if: steps.release-to-github.outcome == 'failure'
+        run: git push --delete origin v${{ needs.draft.outputs.version }}```
