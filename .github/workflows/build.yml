@@ -1,12 +1,6 @@
 name: Build/release
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+on: [push]
 
 jobs:
   release:
@@ -29,7 +23,7 @@ jobs:
         run: yarn install --network-timeout 600000
 
       - name: publish
-        run: yarn publish --access public --new-version ${{ github.ref }}
+        run: yarn publish
 
         env:
           TBA_API_KEY: ${{ secrets.TBA_API_KEY }}

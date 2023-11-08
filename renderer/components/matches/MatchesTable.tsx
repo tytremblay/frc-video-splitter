@@ -12,7 +12,7 @@ import { addBlankMatch, setMatches, setMatchesFromTBA, useMatches } from '../../
 const tbaKey: string | undefined = __TBA_API_KEY__;
 
 async function getMatches(eventKey: string) {
-  const req = await fetch(`https://www.thebluealliance.com/api/v3/event/${eventKey}/matches`, { headers: { 'X-TBA-Auth-Key': '' } });
+  const req = await fetch(`https://www.thebluealliance.com/api/v3/event/${eventKey}/matches`, { headers: { 'X-TBA-Auth-Key': tbaKey } });
   const res = await req.json() as TBAMatch[];
 
   return res;
