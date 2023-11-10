@@ -1,1 +1,1 @@
-export * from './MatchesTable'
+export * from './MatchesList'

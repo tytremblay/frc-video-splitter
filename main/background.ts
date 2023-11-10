@@ -1,20 +1,28 @@
-import path from 'path'
+import { config } from 'dotenv'
 import { app, dialog, ipcMain } from 'electron'
 import serve from 'electron-serve'
+import path from 'path'
 import { createWindow } from './helpers'
-import { SplitFixedDetails } from './helpers/ffmpegCommands';
+import { SplitFixedDetails } from './helpers/ffmpegCommands'
+
+config()
 
 const isProd = process.env.NODE_ENV === 'production'
 
-async function handleFileOpen () {
-  const { canceled, filePaths } = await dialog.showOpenDialog({properties: ['openFile'], filters: [{name: 'Videos', extensions: ['mp4', 'mov', 'avi', 'mkv']}]})
+async function handleFileOpen() {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [{ name: 'Videos', extensions: ['mp4', 'mov', 'avi', 'mkv'] }],
+  })
   if (!canceled) {
     return filePaths[0]
   }
 }
 
-async function handleDirectoryOpen () {
-  const { canceled, filePaths } = await dialog.showOpenDialog({properties: ['openDirectory']})
+async function handleDirectoryOpen() {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  })
   if (!canceled) {
     return filePaths[0]
   }
@@ -33,8 +41,8 @@ if (isProd) {
   ipcMain.handle('dialog:openDirectory', handleDirectoryOpen)
   ipcMain.handle('split:start', async (event, details: SplitFixedDetails[]) => {
     const { splitFixedLength } = await import('./helpers/ffmpegCommands')
-    const work = details.map(async (detail) => 
-      await splitFixedLength(event, detail)
+    const work = details.map(
+      async (detail) => await splitFixedLength(event, detail)
     )
     await Promise.all(work)
     event.sender.send('split-end', { matchKey: details[0].matchKey })
@@ -64,4 +72,3 @@ app.on('window-all-closed', () => {
 ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
-

@@ -1,25 +1,31 @@
-import { create } from 'zustand';
+import { create } from 'zustand'
 
 interface VideoState {
-  currentSeconds: number,
+  currentSeconds: number
+  seekSeconds: number
   path: string
 }
 
 export const useVideo = create<VideoState>((set, get) => ({
   currentSeconds: 0,
-  path: ""
+  seekSeconds: 0,
+  path: '',
 }))
 
-export function setCurrentSeconds(seconds:number) {
+export function setCurrentSeconds(seconds: number) {
   useVideo.setState({
-    currentSeconds: seconds
+    currentSeconds: seconds,
   })
-  
 }
 
-export function setVideoPath(path:string) {
+export function setVideoPath(path: string) {
   useVideo.setState({
-    path
+    path,
   })
-  
+}
+
+export function seekSeconds(seconds: number) {
+  useVideo.setState({
+    seekSeconds: seconds,
+  })
 }
