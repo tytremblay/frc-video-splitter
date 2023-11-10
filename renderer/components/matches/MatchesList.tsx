@@ -1,13 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useEvent } from '../../state'
-import {
-  addBlankMatch,
-  setMatchesFromTBA,
-  useMatches,
-} from '../../state/useMatches'
+import { setMatchesFromTBA, useMatches } from '../../state/useMatches'
 import { TBAMatch } from '../../tba/TBATypes'
 import { MatchItem } from './MatchItem'
+import { NoMatches } from './NoMatches'
 
 const tbaKey: string | undefined =
   '5c86cepWKD99NPe4M7WZVAF9N7LwKVdXpWmkRIRYBYdUrPCG1OaaF9DkvegcttFr'
@@ -65,15 +62,7 @@ export function MatchesList() {
   return (
     <div className="inline-block min-w-full align-middle">
       {matches.length === 0 ? (
-        <div className="w-full flex flex-col items-center justify-center mt-4">
-          <div className="text-xl font-white uppercase">No Matches Found</div>
-          <button
-            onClick={() => addBlankMatch(0)}
-            className="rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20"
-          >
-            Add Manual Match
-          </button>
-        </div>
+        <NoMatches />
       ) : (
         <ul className="divide-y divide-white/5">
           {matches.map((match, i) => (

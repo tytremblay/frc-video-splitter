@@ -13,10 +13,12 @@ export type SplitterMatch = {
 
 export interface MatchesState {
   matches: SplitterMatch[]
+  selectedMatchIds: string[]
 }
 
 export const useMatches = create<MatchesState>((set, get) => ({
   matches: [],
+  selectedMatchIds: [],
 }))
 
 export function setMatches(matches: SplitterMatch[]) {
@@ -67,4 +69,45 @@ export function updateMatch(index: number, data: Partial<SplitterMatch>) {
   useMatches.setState({
     matches,
   })
+}
+
+export function removeMatch(matchId: string) {
+  const matches = [...useMatches.getState().matches].filter(
+    (m) => m.id !== matchId
+  )
+  useMatches.setState({
+    matches,
+  })
+}
+
+export function setSelectedMatchIds(matchIds: string[]) {
+  useMatches.setState({
+    selectedMatchIds: matchIds,
+  })
+}
+
+export function selectMatches(...matchIds: string[]) {
+  const selectedMatchIds = new Set([
+    ...useMatches.getState().selectedMatchIds,
+    ...matchIds,
+  ])
+  setSelectedMatchIds(Array.from(selectedMatchIds))
+}
+
+export function deselectMatches(...matchIds: string[]) {
+  const selectedMatchIds = new Set(useMatches.getState().selectedMatchIds)
+  matchIds.forEach((id) => selectedMatchIds.delete(id))
+  setSelectedMatchIds(Array.from(selectedMatchIds))
+}
+
+export function clearSelectedMatches() {
+  setSelectedMatchIds([])
+}
+
+export function toggleMatchSelection(matchId: string) {
+  if (useMatches.getState().selectedMatchIds.includes(matchId)) {
+    deselectMatches(matchId)
+  } else {
+    selectMatches(matchId)
+  }
 }

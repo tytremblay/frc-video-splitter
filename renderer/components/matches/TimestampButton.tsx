@@ -21,7 +21,7 @@ export function TimestampButton(props: TimestampButtonProps) {
   return (
     <button
       onClick={props.onClick}
-      className="text-gray-400 bg-gray-400/10 hover:bg-blue-400/40 ring-gray-400/20 rounded-md px-1.5 py-1 text-sm font-semibold shadow-sm flex flex-row items-center gap-1"
+      className="rounded bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-white/20 flex flex-row items-center gap-1"
     >
       <ClockIcon className="h-4 w-4" />
       {props.timestampSeconds !== undefined && label}

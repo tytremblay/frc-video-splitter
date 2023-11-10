@@ -1,8 +1,14 @@
 import { ChevronRightIcon } from '@heroicons/react/20/solid'
 import { clsx } from 'clsx'
 import { useMemo } from 'react'
-import { SplitterMatch, updateMatch } from '../../state/useMatches'
+import {
+  SplitterMatch,
+  toggleMatchSelection,
+  updateMatch,
+  useMatches,
+} from '../../state/useMatches'
 import { seekSeconds, useVideo } from '../../state/useVideo'
+import { MenuButton } from './MenuButton'
 import { TimestampButton } from './TimestampButton'
 
 export interface MatchItemProps {
@@ -21,6 +27,7 @@ const environments = {
 }
 
 export function MatchItem(props: MatchItemProps) {
+  const selectedMatches = useMatches((state) => state.selectedMatchIds)
   const status = useMemo(() => {
     if (props.match.fromSeconds && props.match.toSeconds) {
       return 'readyToSplit'
@@ -31,7 +38,13 @@ export function MatchItem(props: MatchItemProps) {
   return (
     <li
       key={props.match.id}
-      className="relative flex items-center space-x-4 p-4 hover:bg-gray-600/10"
+      className={clsx(
+        'relative flex items-center space-x-4 p-4 ',
+        selectedMatches.includes(props.match.id)
+          ? 'bg-gray-600/50 hover:bg-gray-600/70'
+          : 'hover:bg-gray-600/20'
+      )}
+      onClick={() => toggleMatchSelection(props.match.id)}
     >
       <div className="min-w-0 flex-auto">
         <div className="flex items-center gap-x-3">
@@ -94,6 +107,7 @@ export function MatchItem(props: MatchItemProps) {
           />
         </div>
       )}
+      <MenuButton match={props.match} />
     </li>
   )
 }
