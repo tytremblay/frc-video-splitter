@@ -1,31 +1,25 @@
-import { LightBulbIcon, PencilIcon, PlusCircleIcon } from '@heroicons/react/20/solid';
-import Head from 'next/head';
-import { useState } from 'react';
-import { VideoPlayer } from '../components/video';
-import { MatchesList } from '../components/matches';
-import { TBAEvent } from '../tba/TBATypes';
-import { EventHeader } from '../components/event';
-import { SplittingSection } from '../components/splitting/SplittingSection';
-
-
+import Head from 'next/head'
+import { EventHeader } from '../components/event'
+import { MatchesList } from '../components/matches'
+import { SplittingSection } from '../components/splitting/SplittingSection'
+import { VideoPlayer } from '../components/video'
 
 export default function HomePage() {
-
   return (
     <>
       <Head>
         <title>FRCVideoSplitter</title>
       </Head>
-      <div className='grid grid-cols-2 gap-2'>
-        <div className='flex flex-col justify-start gap-2 p-2'>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col justify-between gap-2 p-2">
           <EventHeader />
           <VideoPlayer />
-          <SplittingSection outputDir='C:\Users\jacob\Videos\FRC' />
+          <SplittingSection />
         </div>
-        <div className='overflow-y-auto w-full'>
+        <div className="overflow-y-auto w-full">
           <MatchesList />
         </div>
       </div>
     </>
-  );
+  )
 }

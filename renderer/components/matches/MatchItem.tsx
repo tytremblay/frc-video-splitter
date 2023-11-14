@@ -1,39 +1,52 @@
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
-import { clsx } from 'clsx'
-import { useMemo } from 'react'
+import { clsx } from 'clsx';
+import { useMemo } from 'react';
 import {
   SplitterMatch,
   toggleMatchSelection,
   updateMatch,
   useMatches,
-} from '../../state/useMatches'
-import { seekSeconds, useVideo } from '../../state/useVideo'
-import { MenuButton } from './MenuButton'
-import { TimestampButton } from './TimestampButton'
+} from '../../state/useMatches';
+import { useVideo } from '../../state/useVideo';
+import { Badge } from '../badges/Badge';
+import { MenuButton } from './MenuButton';
+import { TimestampButton } from './TimestampButton';
 
 export interface MatchItemProps {
-  match: SplitterMatch
-  index: number
+  match: SplitterMatch;
+  index: number;
 }
 const statuses = {
   new: 'text-gray-500 bg-gray-100/10',
   readyToSplit: 'text-green-400 bg-green-400/10',
   error: 'text-rose-400 bg-rose-400/10',
-}
-
-const environments = {
-  setTime: 'text-gray-400 bg-gray-400/10 ring-gray-400/20',
-  Production: 'text-indigo-400 bg-indigo-400/10 ring-indigo-400/30',
-}
+};
 
 export function MatchItem(props: MatchItemProps) {
-  const selectedMatches = useMatches((state) => state.selectedMatchIds)
+  const selectedMatches = useMatches((state) => state.selectedMatchIds);
+  const percentages = useMatches((state) => state.matchSplitPercentages);
   const status = useMemo(() => {
-    if (props.match.fromSeconds && props.match.toSeconds) {
-      return 'readyToSplit'
+    if (
+      props.match.fromSeconds !== undefined &&
+      props.match.toSeconds !== undefined
+    ) {
+      return 'readyToSplit';
     }
-    return 'new'
-  }, [props.match.fromSeconds, props.match.toSeconds])
+    return 'new';
+  }, [props.match.fromSeconds, props.match.toSeconds]);
+
+  const badgeText = useMemo(() => {
+    if (status === 'new') {
+      return 'Set Timestamps';
+    }
+    if (status === 'readyToSplit') {
+      if (percentages[props.match.id] === undefined) {
+        return 'Ready to Split';
+      }
+
+      return `${percentages[props.match.id]}%`;
+    }
+    return 'Error';
+  }, [status, percentages, props.match.id]);
 
   return (
     <li
@@ -69,13 +82,9 @@ export function MatchItem(props: MatchItemProps) {
             <TimestampButton
               timestampSeconds={props.match.fromSeconds}
               onClick={() => {
-                console.log(
-                  `setting fromSeconds to ${useVideo.getState().currentSeconds}`
-                )
-
                 updateMatch(props.index, {
                   fromSeconds: useVideo.getState().currentSeconds,
-                })
+                });
               }}
             />
             <span className="text-gray-400">to</span>
@@ -90,24 +99,9 @@ export function MatchItem(props: MatchItemProps) {
           </div>
         </div>
       </div>
-      <div
-        className={clsx(
-          environments.setTime,
-          'rounded-full flex-none py-1 px-2 text-xs font-medium ring-1 ring-inset'
-        )}
-      >
-        TBD
-      </div>
-      {props.match.fromSeconds && (
-        <div className="rounded-full bg-gray-400/10 hover:bg-gray-400/40">
-          <ChevronRightIcon
-            className="h-5 w-5 flex-none text-gray-400"
-            aria-hidden="true"
-            onClick={() => seekSeconds(props.match.fromSeconds)}
-          />
-        </div>
-      )}
+      <Badge type={status === 'new' ? 'info' : 'success'} text={badgeText} />
+
       <MenuButton match={props.match} />
     </li>
-  )
+  );
 }

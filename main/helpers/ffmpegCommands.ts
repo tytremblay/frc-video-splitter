@@ -1,8 +1,8 @@
-import { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
-import path from 'path';
-import os from 'os';
-import fs from 'fs';
+import { IpcMainInvokeEvent } from 'electron';
 import Ffmpeg, { setFfmpegPath } from 'fluent-ffmpeg';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 export interface SplitBlock {
   startSeconds: number;
@@ -10,7 +10,7 @@ export interface SplitBlock {
 }
 
 export interface SplitFixedDetails {
-  matchKey: string;
+  id: string;
   inputFile: string;
   outputFile: string;
   blocks: SplitBlock[];
@@ -139,23 +139,25 @@ export async function splitFixedLength(
   details: SplitFixedDetails
 ): Promise<void> {
   let lastProgressSent = Date.now();
-
+  let reportsSent = 0;
 
   event.sender.send('split-start', {
-    matchKey: details.matchKey,
+    id: details.id,
   });
 
   const videoParts = await Promise.all(
     details.blocks.map((block) =>
       splitVideoFile(details.inputFile, block, (progress) => {
+        console.log('progress', progress);
         const msSinceLastUpdate = Date.now() - lastProgressSent;
-        if (msSinceLastUpdate < progressReportRateMs) return;
+        if (msSinceLastUpdate < progressReportRateMs && reportsSent > 0) return;
         lastProgressSent = Date.now();
 
         event.sender.send('split-progress', {
-          matchKey: details.matchKey,
-          percent: progress.percent * 100,
+          id: details.id,
+          percent: 100,
         });
+        reportsSent++;
       })
     )
   );
@@ -166,10 +168,10 @@ export async function splitFixedLength(
     lastProgressSent = Date.now();
 
     event.sender.send('split-progress', {
-      matchKey: details.matchKey,
+      id: details.id,
       percent: progress.percent * 100,
     });
   });
 
-  event.sender.send('split-end', { matchKey: details.matchKey });
+  event.sender.send('split-end', { matchKey: details.id });
 }

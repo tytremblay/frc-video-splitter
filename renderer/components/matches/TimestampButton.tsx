@@ -10,7 +10,7 @@ interface TimestampButtonProps {
 export function TimestampButton(props: TimestampButtonProps) {
   const label = useMemo(() => {
     if (!props.timestampSeconds) {
-      return '00:00:00'
+      return '00:00'
     }
     const duration = Duration.fromMillis(props.timestampSeconds * 1000)
     if (duration.hours > 0) {
