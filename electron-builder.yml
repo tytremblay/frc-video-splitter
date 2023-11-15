@@ -9,4 +9,4 @@ files:
     filter:
       - package.json
       - app
-publish: null
+publish: [github]
