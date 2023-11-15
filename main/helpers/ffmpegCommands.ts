@@ -41,16 +41,16 @@ export interface FfmpegFluentProgressData {
   currentKbps: number; // 3635.6,
   targetSize: number; // 77683,
   timemark: string; // '00:02:55.04',
-  percent: number; // 0.730807798968402
 }
 
 export const splitVideoFileCmd = (
   inputFilePath: string,
   block: SplitBlock
 ): { cmd: Ffmpeg.FfmpegCommand; clipPath: string } => {
+  const extension = path.extname(inputFilePath);
   const clipPath = path.join(
     os.tmpdir(),
-    `clip-${getRandomString()}.mp4` // @todo don't assume mp4
+    `clip-${getRandomString()}.${extension}` // @todo don't assume mp4
   );
 
   const cmd = Ffmpeg(inputFilePath)
@@ -169,7 +169,7 @@ export async function splitFixedLength(
 
     event.sender.send('split-progress', {
       id: details.id,
-      percent: progress.percent * 100,
+      percent: 100,
     });
   });
 

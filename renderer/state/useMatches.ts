@@ -77,7 +77,7 @@ export function addBlankMatch(index: number) {
   addMatch(
     {
       id: uuid(),
-      name: '',
+      name: `Match ${index + 1}`,
       description: '',
       sourceVideoPath: '',
       splitPercentage: 0,

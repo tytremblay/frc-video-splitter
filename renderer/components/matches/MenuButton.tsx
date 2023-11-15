@@ -1,12 +1,13 @@
-import { Menu, Transition } from '@headlessui/react'
-import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
-import clsx from 'clsx'
-import { Fragment } from 'react'
-import { SplitterMatch, removeMatch } from '../../state/useMatches'
-import { seekSeconds } from '../../state/useVideo'
+import { Menu, Transition } from '@headlessui/react';
+import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
+import clsx from 'clsx';
+import { Fragment } from 'react';
+import { SplitterMatch } from '../../state/useMatches';
+import { seekSeconds } from '../../state/useVideo';
 
 export interface MenuButtonProps {
-  match: SplitterMatch
+  match: SplitterMatch;
+  onEdit: () => void;
 }
 
 export function MenuButton(props: MenuButtonProps) {
@@ -46,14 +47,14 @@ export function MenuButton(props: MenuButtonProps) {
                   active ? 'bg-gray-50' : '',
                   'block px-3 py-1 text-sm leading-6 text-gray-900'
                 )}
-                onClick={() => removeMatch(props.match.id)}
+                onClick={() => props.onEdit()}
               >
-                Remove Match
+                Edit Match
               </div>
             )}
           </Menu.Item>
         </Menu.Items>
       </Transition>
     </Menu>
-  )
+  );
 }

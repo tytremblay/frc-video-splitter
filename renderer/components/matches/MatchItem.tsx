@@ -1,14 +1,10 @@
 import { clsx } from 'clsx';
 import { useMemo } from 'react';
-import {
-  SplitterMatch,
-  toggleMatchSelection,
-  updateMatch,
-  useMatches,
-} from '../../state/useMatches';
+import { SplitterMatch, updateMatch, useMatches } from '../../state/useMatches';
 import { useVideo } from '../../state/useVideo';
 import { Badge } from '../badges/Badge';
-import { MenuButton } from './MenuButton';
+import { MatchDescription } from './MatchDescription';
+import { MatchTitle } from './MatchTitle';
 import { TimestampButton } from './TimestampButton';
 
 export interface MatchItemProps {
@@ -57,7 +53,6 @@ export function MatchItem(props: MatchItemProps) {
           ? 'bg-gray-600/50 hover:bg-gray-600/70'
           : 'hover:bg-gray-600/20'
       )}
-      onClick={() => toggleMatchSelection(props.match.id)}
     >
       <div className="min-w-0 flex-auto">
         <div className="flex items-center gap-x-3">
@@ -67,18 +62,17 @@ export function MatchItem(props: MatchItemProps) {
           >
             <div className="h-2 w-2 rounded-full bg-current" />
           </div>
-          <h2 className="min-w-0 text-sm font-semibold leading-6 text-white">
+          <h2 className="min-w-0 text-sm font-semibold leading-6 text-white flex-grow">
             <div className="flex gap-x-2">
-              <span className="truncate">{props.match.name}</span>
+              <MatchTitle match={props.match} index={props.index} />
               <span className="text-gray-400">/</span>
-              <span className="whitespace-nowrap font-light text-gray-400">
-                {props.match.description}
-              </span>
+              <MatchDescription match={props.match} index={props.index} />
             </div>
           </h2>
         </div>
         <div className="mt-3 ml-6 flex items-center gap-x-2.5 text-xs leading-5 text-gray-400">
           <div className="flex flex-row gap-4 align-middle items-center">
+            <span className="text-gray-400">from</span>
             <TimestampButton
               timestampSeconds={props.match.fromSeconds}
               onClick={() => {
@@ -100,8 +94,6 @@ export function MatchItem(props: MatchItemProps) {
         </div>
       </div>
       <Badge type={status === 'new' ? 'info' : 'success'} text={badgeText} />
-
-      <MenuButton match={props.match} />
     </li>
   );
 }

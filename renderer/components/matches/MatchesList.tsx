@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useEvent } from '../../state';
 import {
-  SplitEndEvent,
   SplitProgressEvent,
   SplitStartEvent,
   setMatchSplitStatus,
@@ -68,11 +67,8 @@ export function MatchesList() {
     );
     window.ipc.on('split-progress', (progress: SplitProgressEvent) => {
       console.log(progress);
-      setMatchSplitStatus(progress.id, 50);
+      setMatchSplitStatus(progress.id, 100);
     });
-    window.ipc.on('split-end', (progress: SplitEndEvent) =>
-      setMatchSplitStatus(progress.id, 100)
-    );
   }, []);
 
   if (tbaMatches.isLoading) return <div>Loading Matches...</div>;
