@@ -1,33 +1,25 @@
-name: Build/release
-
-on: push
-
+name: Release a New Version
+on:
+  release:
+    types: [created]
 jobs:
   release:
-    runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v4
-
-      - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'yarn'
+      - name: install dependencies
+        run: yarn install
 
-      - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
-
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+      - name: Release
+        run: yarn release
         env:
-          NEXT_PUBLIC_TBA_KEY: ${{ secrets.NEXT_PUBLIC_TBA_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
