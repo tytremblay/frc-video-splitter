@@ -37,7 +37,7 @@ export function SplittingSection() {
   }, [outputDir, validMatches, video.path]);
   return (
     <div className="lg:col-start-3 lg:row-end-1 m-1 ">
-      <div className="rounded-lg ring-1 ring-white/20">
+      <div className="rounded-lg">
         <div className="flex flex-row justify-between p-6 items-center">
           <div className="flex flex-row gap-2">
             <FolderOpenIcon

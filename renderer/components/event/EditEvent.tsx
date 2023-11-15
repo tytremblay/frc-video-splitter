@@ -1,75 +1,74 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { DateTime } from 'luxon'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { setEvent, setEventFromTBA, useEvent } from '../../state'
-import { TBAEvent } from '../../tba/TBATypes'
-import { Button } from '../buttons'
-import { Dropdown, DropdownOption } from '../dropdown'
-import { Input } from '../input'
-import { Select, SelectOption } from '../select'
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { DateTime } from 'luxon';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { setEvent, setEventFromTBA, useEvent } from '../../state';
+import { TBAEvent } from '../../tba/TBATypes';
+import { Button } from '../buttons';
+import { Dropdown, DropdownOption } from '../dropdown';
+import { Input } from '../input';
+import { Select, SelectOption } from '../select';
 
 async function getEvents(year: number) {
   const res = await fetch(
     `https://www.thebluealliance.com/api/v3/events/${encodeURIComponent(year)}`,
     {
       headers: {
-        'X-TBA-Auth-Key':
-          '5c86cepWKD99NPe4M7WZVAF9N7LwKVdXpWmkRIRYBYdUrPCG1OaaF9DkvegcttFr',
+        'X-TBA-Auth-Key': window.ipc.tbaKey,
       },
     }
-  )
-  const events = (await res.json()) as TBAEvent[]
+  );
+  const events = (await res.json()) as TBAEvent[];
 
-  return events.sort((a, b) => a.start_date.localeCompare(b.start_date))
+  return events.sort((a, b) => a.start_date.localeCompare(b.start_date));
 }
 
 interface EditEventProps {
-  onEditingComplete: () => void
+  onEditingComplete: () => void;
 }
 
 export function EditEvent(props: EditEventProps) {
-  const event = useEvent()
+  const event = useEvent();
 
   const handleTBAEvent = useCallback((value: TBAEvent) => {
-    setEventFromTBA(value)
-  }, [])
+    setEventFromTBA(value);
+  }, []);
 
   const handleDone = useCallback(() => {
-    props.onEditingComplete()
-  }, [props])
+    props.onEditingComplete();
+  }, [props]);
 
-  const [year, setYear] = useState(DateTime.now().year)
+  const [year, setYear] = useState(DateTime.now().year);
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const events = useQuery({
     queryKey: ['events', year],
     queryFn: async () => getEvents(year),
-  })
+  });
 
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ['events'] })
-  }, [year])
+    queryClient.invalidateQueries({ queryKey: ['events'] });
+  }, [year]);
 
   const yearOptions = useMemo<SelectOption<number>[]>(() => {
-    const years = []
+    const years = [];
     for (let i = 1992; i <= DateTime.now().year; i++) {
-      years.push(i)
+      years.push(i);
     }
     return years.map((o) => ({
       id: o.toString(),
       value: o,
       displayValue: o.toString(),
-    }))
-  }, [])
+    }));
+  }, []);
 
   const eventOptions = useMemo<DropdownOption<TBAEvent>[]>(() => {
-    if (!events.data) return []
+    if (!events.data) return [];
     return events.data.map((o) => ({
       name: o.name,
       value: o,
       secondaryText: `${o.start_date} to ${o.end_date}`,
-    }))
-  }, [events])
+    }));
+  }, [events]);
 
   return (
     <div className="flex flex-col justify-between items-center w-full gap-4 rounded-lg shadow-sm ring-1 ring-white/20 p-2">
@@ -91,7 +90,7 @@ export function EditEvent(props: EditEventProps) {
                 label="Select Event from TBA (optional)"
                 selectedOption={event.tbaEvent}
                 onSelect={(option) => {
-                  handleTBAEvent(option)
+                  handleTBAEvent(option);
                 }}
                 options={eventOptions}
               />
@@ -147,5 +146,5 @@ export function EditEvent(props: EditEventProps) {
         </Button>
       </div>
     </div>
-  )
+  );
 }

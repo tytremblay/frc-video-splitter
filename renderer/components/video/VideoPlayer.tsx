@@ -1,22 +1,27 @@
-import clsx from 'clsx'
-import { useCallback, useEffect, useRef } from 'react'
-import ReactPlayer from 'react-player'
-import { setCurrentSeconds, setVideoPath, useVideo } from '../../state/useVideo'
-import AddVideo from './AddVideo'
-import { SeekButtons } from './SeekButtons'
+import clsx from 'clsx';
+import { useCallback, useEffect, useRef } from 'react';
+import ReactPlayer from 'react-player';
+import {
+  setCurrentSeconds,
+  setLength,
+  setVideoPath,
+  useVideo,
+} from '../../state/useVideo';
+import AddVideo from './AddVideo';
+import { SeekButtons } from './SeekButtons';
 
 export function VideoPlayer() {
-  const video = useVideo()
-  const playerRef = useRef<ReactPlayer>(null)
+  const video = useVideo();
+  const playerRef = useRef<ReactPlayer>(null);
 
   const openFile = useCallback(async () => {
-    const file = await window.ipc.openFile()
-    setVideoPath(file)
-  }, [])
+    const file = await window.ipc.openFile();
+    setVideoPath(file);
+  }, []);
 
   useEffect(() => {
-    playerRef.current?.seekTo(video.seekSeconds, 'seconds')
-  }, [video.seekSeconds])
+    playerRef.current?.seekTo(video.seekSeconds, 'seconds');
+  }, [video.seekSeconds]);
 
   return (
     <div
@@ -33,6 +38,7 @@ export function VideoPlayer() {
             width="100%"
             height="100%"
             onProgress={(state) => setCurrentSeconds(state.playedSeconds)}
+            onDuration={(duration) => setLength(duration)}
           />
         </div>
       ) : (
@@ -48,5 +54,5 @@ export function VideoPlayer() {
         }
       />
     </div>
-  )
+  );
 }

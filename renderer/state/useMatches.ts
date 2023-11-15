@@ -10,6 +10,8 @@ export type SplitterMatch = {
   fromSeconds?: number;
   toSeconds?: number;
   splitPercentage: number;
+  startTime?: number;
+  resultsTime?: number;
 };
 
 export interface MatchesState {
@@ -58,6 +60,8 @@ export function setMatchesFromTBA(tbaEvent: TBAEvent, tbaMatches: TBAMatch[]) {
       .join(', ')}`,
     sourceVideoPath: '',
     splitPercentage: 0,
+    startTime: t.actual_time,
+    resultsTime: t.post_result_time,
   }));
   useMatches.setState({ matches });
 }
@@ -140,5 +144,28 @@ export function setMatchSplitStatus(matchId: string, percent: number) {
   matchSplitStates[matchId] = percent;
   useMatches.setState({
     matchSplitPercentages: matchSplitStates,
+  });
+}
+
+export function autoFillTimeStamps(
+  startingMatchIndex: number,
+  startingVideoSeconds: number,
+  videoLength: number
+) {
+  const matches = [...useMatches.getState().matches];
+  let currentVideoSeconds = startingVideoSeconds;
+  for (let i = startingMatchIndex; currentVideoSeconds < videoLength; i++) {
+    const match = { ...matches[i] };
+    if (!match) break;
+    match.fromSeconds = currentVideoSeconds;
+    currentVideoSeconds =
+      match.fromSeconds + (match.resultsTime - match.startTime);
+    if (currentVideoSeconds > videoLength) break;
+    match.toSeconds = currentVideoSeconds;
+    matches[i] = match;
+    currentVideoSeconds += matches[i + 1]?.startTime - match.resultsTime;
+  }
+  useMatches.setState({
+    matches,
   });
 }

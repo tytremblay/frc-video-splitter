@@ -1,32 +1,31 @@
-import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { SplitFixedDetails } from './helpers/ffmpegCommands';
 
 const handler = {
   send(channel: string, value: unknown) {
-    ipcRenderer.send(channel, value)
+    ipcRenderer.send(channel, value);
   },
   on(channel: string, callback: (...args: unknown[]) => void) {
     const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
-      callback(...args)
-    ipcRenderer.on(channel, subscription)
+      callback(...args);
+    ipcRenderer.on(channel, subscription);
 
     return () => {
-      ipcRenderer.removeListener(channel, subscription)
-    }
+      ipcRenderer.removeListener(channel, subscription);
+    };
   },
   openFile() {
-    return ipcRenderer.invoke('dialog:openFile')
+    return ipcRenderer.invoke('dialog:openFile');
   },
   openDirectory() {
-    return ipcRenderer.invoke('dialog:openDirectory')
+    return ipcRenderer.invoke('dialog:openDirectory');
   },
   splitMatches(details: SplitFixedDetails[]) {
-    return ipcRenderer.invoke('split:start', details)
-  }
-  
-  
-}
+    return ipcRenderer.invoke('split:start', details);
+  },
+  tbaKey: process.env.NEXT_PUBLIC_TBA_KEY,
+};
 
-contextBridge.exposeInMainWorld('ipc', handler)
+contextBridge.exposeInMainWorld('ipc', handler);
 
-export type IpcHandler = typeof handler
+export type IpcHandler = typeof handler;

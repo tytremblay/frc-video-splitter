@@ -1,8 +1,14 @@
 import { clsx } from 'clsx';
 import { useMemo } from 'react';
-import { SplitterMatch, updateMatch, useMatches } from '../../state/useMatches';
-import { useVideo } from '../../state/useVideo';
+import {
+  SplitterMatch,
+  autoFillTimeStamps,
+  updateMatch,
+  useMatches,
+} from '../../state/useMatches';
+import { seekSeconds, useVideo } from '../../state/useVideo';
 import { Badge } from '../badges/Badge';
+import { Button } from '../buttons';
 import { MatchDescription } from './MatchDescription';
 import { MatchTitle } from './MatchTitle';
 import { TimestampButton } from './TimestampButton';
@@ -32,7 +38,7 @@ export function MatchItem(props: MatchItemProps) {
 
   const badgeText = useMemo(() => {
     if (status === 'new') {
-      return 'Set Timestamps';
+      return 'Needs Timestamps';
     }
     if (status === 'readyToSplit') {
       if (percentages[props.match.id] === undefined) {
@@ -75,25 +81,42 @@ export function MatchItem(props: MatchItemProps) {
             <span className="text-gray-400">from</span>
             <TimestampButton
               timestampSeconds={props.match.fromSeconds}
-              onClick={() => {
+              onSet={() => {
                 updateMatch(props.index, {
                   fromSeconds: useVideo.getState().currentSeconds,
                 });
               }}
+              onSeek={() => seekSeconds(props.match.fromSeconds)}
             />
             <span className="text-gray-400">to</span>
             <TimestampButton
               timestampSeconds={props.match.toSeconds}
-              onClick={() =>
+              onSet={() =>
                 updateMatch(props.index, {
                   toSeconds: useVideo.getState().currentSeconds,
                 })
               }
+              onSeek={() => seekSeconds(props.match.toSeconds)}
             />
           </div>
         </div>
       </div>
       <Badge type={status === 'new' ? 'info' : 'success'} text={badgeText} />
+      {props.match.startTime && props.match.resultsTime && (
+        <Button
+          secondary
+          size="sm"
+          onClick={() =>
+            autoFillTimeStamps(
+              props.index,
+              useVideo.getState().currentSeconds,
+              useVideo.getState().lengthSeconds
+            )
+          }
+        >
+          Autofill
+        </Button>
+      )}
     </li>
   );
 }

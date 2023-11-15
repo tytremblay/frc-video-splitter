@@ -148,7 +148,6 @@ export async function splitFixedLength(
   const videoParts = await Promise.all(
     details.blocks.map((block) =>
       splitVideoFile(details.inputFile, block, (progress) => {
-        console.log('progress', progress);
         const msSinceLastUpdate = Date.now() - lastProgressSent;
         if (msSinceLastUpdate < progressReportRateMs && reportsSent > 0) return;
         lastProgressSent = Date.now();

@@ -12,13 +12,10 @@ import { TBAMatch } from '../../tba/TBATypes';
 import { MatchItem } from './MatchItem';
 import { NoMatches } from './NoMatches';
 
-const tbaKey: string | undefined =
-  '5c86cepWKD99NPe4M7WZVAF9N7LwKVdXpWmkRIRYBYdUrPCG1OaaF9DkvegcttFr';
-
 async function getMatches(eventKey: string) {
   const req = await fetch(
     `https://www.thebluealliance.com/api/v3/event/${eventKey}/matches`,
-    { headers: { 'X-TBA-Auth-Key': tbaKey } }
+    { headers: { 'X-TBA-Auth-Key': window.ipc.tbaKey } }
   );
   const res = (await req.json()) as TBAMatch[];
 

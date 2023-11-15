@@ -1,13 +1,16 @@
 import { config } from 'dotenv';
 import { app, dialog, ipcMain } from 'electron';
+import isDev from 'electron-is-dev';
 import serve from 'electron-serve';
 import path from 'path';
 import { createWindow } from './helpers';
 import { SplitFixedDetails, splitFixedLength } from './helpers/ffmpegCommands';
 
-config();
-
 const isProd = process.env.NODE_ENV === 'production';
+
+config({
+  path: isDev ? '.env.dev' : '.env.prod',
+});
 
 async function handleFileOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog({

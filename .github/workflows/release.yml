@@ -28,10 +28,10 @@ jobs:
 
       - run: yarn install --frozen-lockfile
         env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1        
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
       - name: Build the app
         env:
           MODE: 'production'
-          TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
+          NEXT_PUBLIC_TBA_KEY: ${{ secrets.NEXT_PUBLIC_TBA_KEY }}
         run: yarn build

@@ -5,6 +5,9 @@ module.exports = {
     unoptimized: true,
   },
   webpack: (config) => {
-    return config
+    return config;
   },
-}
+  env: {
+    NEXT_PUBLIC_TBA_KEY: process.env.NEXT_PUBLIC_TBA_KEY,
+  },
+};
