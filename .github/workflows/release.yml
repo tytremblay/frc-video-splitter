@@ -1,7 +1,6 @@
 name: Release a New Version
-on:
-  release:
-    types: [created]
+on: [push]
+
 jobs:
   release:
     strategy:
