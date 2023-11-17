@@ -25,7 +25,14 @@ jobs:
       - name: install dependencies
         run: npm install
       - name: build
+        run: npm run make
         env:
           MODE: 'production'
           TBA_KEY: ${{ secrets.NEXT_PUBLIC_TBA_KEY }}
+          FLUENTFFMPEG_COV: 'false'
+      - name: publish
         run: npm run publish
+        env:
+          MODE: 'production'
+          TBA_KEY: ${{ secrets.NEXT_PUBLIC_TBA_KEY }}
+          FLUENTFFMPEG_COV: 'false'
