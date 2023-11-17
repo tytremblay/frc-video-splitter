@@ -5,9 +5,6 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    shell: 'bash'
 env:
   GH_TOKEN: ${{ secrets.github_token }}
 
