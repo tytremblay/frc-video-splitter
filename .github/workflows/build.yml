@@ -1,4 +1,4 @@
-name: Build Cross Platform Executables
+name: Build And Release
 on: [push]
 
 concurrency:
