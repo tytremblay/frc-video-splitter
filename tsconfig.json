@@ -1,19 +1,21 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "ES6",
     "allowJs": true,
+    "module": "commonjs",
     "skipLibCheck": true,
-    "strict": false,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "incremental": true,
     "esModuleInterop": true,
-    "module": "esnext",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve"
+    "paths": {
+      "*": ["node_modules/*"]
+    },
+    "jsx": "react-jsx"
   },
-  "exclude": ["node_modules", "renderer/next.config.js", "app", "dist"]
+  "include": ["src/**/*"],
+  "files": ["src/preload.d.ts"]
 }

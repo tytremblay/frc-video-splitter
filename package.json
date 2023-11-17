@@ -1,26 +1,50 @@
 {
-  "license": "MIT",
   "name": "frc-video-splitter",
-  "description": "Split FRC match videos into individual matches",
+  "productName": "frc-video-splitter",
   "version": "4.0.0-alpha1",
-  "author": "Ty Tremblay <ty.tremblay@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tytremblay/frc-video-splitter"
-  },
-  "main": "app/background.js",
+  "description": "Split FRC match videos into individual matches",
+  "main": ".webpack/main",
   "scripts": {
-    "dev": "nextron",
-    "build": "nextron build",
-    "postinstall": "electron-builder install-app-deps",
-    "release": "electron-builder --publish always"
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts,.tsx ."
   },
-  "release": {
-    "branches": [
-      "main",
-      "next",
-      "alpha"
-    ]
+  "keywords": [],
+  "author": {
+    "name": "Ty Tremblay",
+    "email": "ty.tremblay@gmail.com"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.0.0",
+    "@electron-forge/maker-deb": "^7.0.0",
+    "@electron-forge/maker-rpm": "^7.0.0",
+    "@electron-forge/maker-squirrel": "^7.0.0",
+    "@electron-forge/maker-zip": "^7.0.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.0.0",
+    "@electron-forge/plugin-webpack": "^7.0.0",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@types/uuid": "^9.0.7",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "@vercel/webpack-asset-relocator-loader": "1.7.3",
+    "autoprefixer": "^10.4.16",
+    "css-loader": "^6.0.0",
+    "electron": "27.1.0",
+    "eslint": "^8.0.1",
+    "eslint-plugin-import": "^2.25.0",
+    "fork-ts-checker-webpack-plugin": "^7.2.13",
+    "node-loader": "^2.0.0",
+    "postcss": "^8.4.31",
+    "postcss-loader": "^7.3.3",
+    "style-loader": "^3.0.0",
+    "tailwindcss": "^3.3.5",
+    "ts-loader": "^9.2.2",
+    "ts-node": "^10.0.0",
+    "typescript": "~4.5.4"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
@@ -34,31 +58,14 @@
     "@types/luxon": "^3.3.3",
     "clsx": "^2.0.0",
     "dotenv": "^16.3.1",
-    "electron-is-dev": "^2.0.0",
-    "electron-serve": "^1.1.0",
-    "electron-store": "^8.1.0",
+    "electron-squirrel-startup": "^1.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "luxon": "^3.4.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-player": "^2.13.0",
-    "semantic-release": "^22.0.7",
-    "semantic-release-export-data": "^1.0.1",
     "tailwind-merge": "^2.0.0",
     "uuid": "^9.0.1",
     "zustand": "^4.4.3"
-  },
-  "devDependencies": {
-    "@types/node": "^18.11.18",
-    "@types/react": "^18.0.26",
-    "autoprefixer": "^10.4.16",
-    "electron": "^26.2.2",
-    "electron-builder": "^24.6.4",
-    "next": "^12.3.4",
-    "nextron": "^8.12.0",
-    "postcss": "^8.4.30",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "tailwindcss": "^3.3.3",
-    "typescript": "^5.2.2"
-  },
-  "packageManager": "yarn@4.0.2"
+  }
 }
