@@ -21,11 +21,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'yarn'
+          cache: 'npm'
       - name: install dependencies
-        run: yarn install
+        run: npm install
       - name: build
         env:
           MODE: 'production'
-          NEXT_PUBLIC_TBA_KEY: ${{ secrets.NEXT_PUBLIC_TBA_KEY }}
-        run: yarn build
+          TBA_KEY: ${{ secrets.NEXT_PUBLIC_TBA_KEY }}
+        run: npm run publish
