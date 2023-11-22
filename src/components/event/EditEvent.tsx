@@ -1,26 +1,12 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { setEvent, setEventFromTBA, useEvent } from '../../state';
+import { useTbaEvents } from '../../tba';
 import { TBAEvent } from '../../tba/TBATypes';
 import { Button } from '../buttons';
 import { Dropdown, DropdownOption } from '../dropdown';
 import { Input } from '../input';
 import { Select, SelectOption } from '../select';
-
-async function getEvents(year: number) {
-  const res = await fetch(
-    `https://www.thebluealliance.com/api/v3/events/${encodeURIComponent(year)}`,
-    {
-      headers: {
-        'X-TBA-Auth-Key': window.ipc.tbaKey,
-      },
-    }
-  );
-  const events = (await res.json()) as TBAEvent[];
-
-  return events.sort((a, b) => a.start_date.localeCompare(b.start_date));
-}
 
 interface EditEventProps {
   onEditingComplete: () => void;
@@ -39,15 +25,7 @@ export function EditEvent(props: EditEventProps) {
 
   const [year, setYear] = useState(DateTime.now().year);
 
-  const queryClient = useQueryClient();
-  const events = useQuery({
-    queryKey: ['events', year],
-    queryFn: async () => getEvents(year),
-  });
-
-  useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ['events'] });
-  }, [year]);
+  const events = useTbaEvents(year);
 
   const yearOptions = useMemo<SelectOption<number>[]>(() => {
     const years = [];

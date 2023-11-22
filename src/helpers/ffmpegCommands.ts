@@ -1,10 +1,10 @@
+import { path as ffmpegInstalledPath } from '@ffmpeg-installer/ffmpeg';
 import { IpcMainInvokeEvent } from 'electron';
 import Ffmpeg, { setFfmpegPath } from 'fluent-ffmpeg';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
-import * as ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 
 export interface SplitBlock {
   startSeconds: number;
@@ -18,10 +18,7 @@ export interface SplitFixedDetails {
   blocks: SplitBlock[];
 }
 
-const ffmpegPath = ffmpegInstaller.path.replace(
-  'app.asar',
-  'app.asar.unpacked'
-);
+const ffmpegPath = ffmpegInstalledPath;
 
 setFfmpegPath(ffmpegPath);
 
@@ -50,7 +47,7 @@ export const splitVideoFileCmd = (
   const extension = path.extname(inputFilePath);
   const clipPath = path.join(
     os.tmpdir(),
-    `clip-${getRandomString()}.${extension}` // @todo don't assume mp4
+    `clip-${getRandomString()}.${extension}`
   );
 
   const cmd = Ffmpeg(inputFilePath)

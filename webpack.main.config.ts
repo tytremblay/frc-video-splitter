@@ -1,7 +1,8 @@
+import path from 'path';
 import type { Configuration } from 'webpack';
 
-import { rules } from './webpack.rules';
 import { plugins } from './webpack.plugins';
+import { rules } from './webpack.rules';
 
 export const mainConfig: Configuration = {
   /**
@@ -16,5 +17,11 @@ export const mainConfig: Configuration = {
   plugins,
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
+    modules: ['node_modules'],
+  },
+
+  output: {
+    path: path.join(__dirname, 'src'),
+    libraryTarget: 'commonjs2',
   },
 };

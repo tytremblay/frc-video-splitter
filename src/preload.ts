@@ -26,10 +26,8 @@ const handler = {
   splitMatches(details: SplitFixedDetails[]) {
     return ipcRenderer.invoke('split:start', details);
   },
-  tbaKey: process.env.TBA_KEY,
 };
 
 export type IpcHandler = typeof handler;
 
 contextBridge.exposeInMainWorld('ipc', handler);
-
