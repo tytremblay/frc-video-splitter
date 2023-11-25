@@ -30,7 +30,7 @@ export function Dropdown<T>(props: DropdownProps<T>) {
     <Combobox
       as="div"
       value={props.selectedOption}
-      onChange={(option) => props.onSelect(option)}
+      onChange={(option) => props.onSelect && props.onSelect(option)}
     >
       {props.label && (
         <Combobox.Label className="block text-sm font-medium leading-6 text-gray-400">

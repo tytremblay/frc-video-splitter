@@ -18,7 +18,7 @@ export interface SplitFixedDetails {
   blocks: SplitBlock[];
 }
 
-const ffmpegPath = ffmpegInstalledPath;
+const ffmpegPath = ffmpegInstalledPath.replace('app.asar', 'app.asar.unpacked');
 
 setFfmpegPath(ffmpegPath);
 

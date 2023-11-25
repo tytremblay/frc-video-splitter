@@ -1,7 +1,8 @@
-export const content = [
-  './src/**/*.{js,ts,jsx,tsx}',
-];
-export const theme = {
-  extend: {},
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [require('@tailwindcss/forms'), require('tailwind-scrollbar')],
 };
-export const plugins = [require('@tailwindcss/forms')];

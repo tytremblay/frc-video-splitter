@@ -49,9 +49,9 @@ export function EditEvent(props: EditEventProps) {
   }, [events]);
 
   return (
-    <div className="flex flex-col justify-between items-center w-full gap-4 rounded-lg shadow-sm ring-1 ring-white/20 p-2">
-      <div className="flex flex-col justify-start items-start w-full gap-4 border-b border-white/10 pb-12">
-        <div className="grid grid-cols-4 w-full gap-4 ">
+    <div className="flex flex-col justify-between items-center gap-4 rounded-lg shadow-sm ring-1 ring-white/20 p-2">
+      <div className="flex flex-col justify-start items-start gap-4 border-b border-white/10 pb-12">
+        <div className="grid grid-cols-4 gap-4 w-full ">
           <div className="col-span-1">
             <Select
               selectedOption={yearOptions.find((y) => y.value === year)}
@@ -60,7 +60,7 @@ export function EditEvent(props: EditEventProps) {
               options={yearOptions}
             />
           </div>
-          <div className="col-span-3">
+          <div className="col-span-3 w-full">
             {events.isLoading ? (
               <span>Loading Events...</span>
             ) : (
@@ -76,7 +76,7 @@ export function EditEvent(props: EditEventProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 w-full">
+        <div className="grid grid-cols-4 gap-4">
           <Input
             name="name"
             label="Event Name"
@@ -116,7 +116,7 @@ export function EditEvent(props: EditEventProps) {
         </div>
       </div>
       <div className="flex flex-row justify-end gap-4 items-center w-full">
-        <Button onClick={() => handleDone()} secondary={true} size="md">
+        <Button onClick={() => handleDone()} secondary size="md">
           Cancel
         </Button>
         <Button onClick={() => handleDone()} size="md">

@@ -17,7 +17,10 @@ export function MatchesList() {
   const tbaMatches = useTbaMatches(tbaEvent);
 
   useEffect(
-    () => tbaMatches.data && setMatchesFromTBA(tbaEvent, tbaMatches.data),
+    () =>
+      tbaMatches.data &&
+      tbaEvent &&
+      setMatchesFromTBA(tbaEvent, tbaMatches.data),
     [tbaMatches.data]
   );
 
@@ -35,17 +38,15 @@ export function MatchesList() {
   if (tbaMatches.isError)
     return <div>Error Loading Matches: {tbaMatches.error.message}</div>;
 
-  return (
-    <div className="inline-block min-w-full align-middle">
-      {matches.length === 0 ? (
-        <NoMatches />
-      ) : (
-        <ul className="divide-y divide-white/5">
-          {matches.map((match, i) => (
-            <MatchItem key={match.id} match={match} index={i} />
-          ))}
-        </ul>
-      )}
+  return matches.length === 0 ? (
+    <NoMatches />
+  ) : (
+    <div className="flex overflow-y-auto w-full scrollbar-thin scrollbar-thumb-white/20">
+      <ul className="divide-y divide-white/10 w-full">
+        {matches.map((match, i) => (
+          <MatchItem key={match.id} match={match} index={i} />
+        ))}
+      </ul>
     </div>
   );
 }

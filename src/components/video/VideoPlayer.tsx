@@ -25,9 +25,7 @@ export function VideoPlayer() {
 
   return (
     <div
-      className={clsx(
-        'flex flex-col justify-start items-center p-4 transition-transform aspect-video'
-      )}
+      className={clsx('flex flex-col justify-start items-center aspect-video')}
     >
       {video.path ? (
         <div className="rounded-lg flex flex-col justify-center items-center w-full overflow-clip">

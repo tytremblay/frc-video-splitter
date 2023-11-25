@@ -156,14 +156,15 @@ export function autoFillTimeStamps(
   let currentVideoSeconds = startingVideoSeconds;
   for (let i = startingMatchIndex; currentVideoSeconds < videoLength; i++) {
     const match = { ...matches[i] };
-    if (!match) break;
+    const nextMatch = matches[i + 1];
+    if (!match || match.resultsTime === undefined || match.startTime ===undefined || nextMatch?.startTime === undefined) break;
     match.fromSeconds = currentVideoSeconds;
     currentVideoSeconds =
       match.fromSeconds + (match.resultsTime - match.startTime);
     if (currentVideoSeconds > videoLength) break;
     match.toSeconds = currentVideoSeconds;
     matches[i] = match;
-    currentVideoSeconds += matches[i + 1]?.startTime - match.resultsTime;
+    currentVideoSeconds += nextMatch.startTime - match.resultsTime;
   }
   useMatches.setState({
     matches,

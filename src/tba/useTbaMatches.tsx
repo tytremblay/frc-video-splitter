@@ -26,7 +26,7 @@ function matchSorter(a: TBAMatch, b: TBAMatch) {
 export function useTbaMatches(tbaEvent?: TBAEvent) {
   const tbaMatches = useQuery({
     queryKey: ['matches', tbaEvent?.key],
-    queryFn: async () => getMatches(tbaEvent.key),
+    queryFn: async () => getMatches(tbaEvent?.key),
     enabled: !!tbaEvent?.key,
     select: (data) => data.sort(matchSorter),
   });

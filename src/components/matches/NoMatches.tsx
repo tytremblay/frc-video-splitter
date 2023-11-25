@@ -1,9 +1,9 @@
-import { PlusIcon } from '@heroicons/react/20/solid'
-import { addBlankMatch } from '../../state/useMatches'
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { addBlankMatch } from '../../state/useMatches';
 
 export function NoMatches() {
   return (
-    <div className="text-center mt-12">
+    <div className="text-center mt-12 w-full">
       <svg
         className="mx-auto h-12 w-12 text-gray-400"
         fill="none"
@@ -34,5 +34,5 @@ export function NoMatches() {
         </button>
       </div>
     </div>
-  )
+  );
 }

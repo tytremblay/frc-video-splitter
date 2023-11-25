@@ -3,53 +3,43 @@
   "productName": "frc-video-splitter",
   "version": "4.0.0-alpha1",
   "description": "Split FRC match videos into individual matches",
-  "main": ".webpack/main",
-  "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
-  },
-  "keywords": [],
+  "main": "dist-electron/main/index.js",
   "author": {
     "name": "Ty Tremblay",
     "email": "ty.tremblay@gmail.com"
   },
   "license": "MIT",
+  "debug": {
+    "env": {
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && electron-builder",
+    "preview": "vite preview",
+    "pree2e": "vite build --mode=test",
+    "e2e": "playwright test"
+  },
   "devDependencies": {
-    "@electron-forge/cli": "^7.0.0",
-    "@electron-forge/maker-deb": "^7.0.0",
-    "@electron-forge/maker-rpm": "^7.0.0",
-    "@electron-forge/maker-squirrel": "^7.0.0",
-    "@electron-forge/maker-zip": "^7.0.0",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.0.0",
-    "@electron-forge/plugin-webpack": "^7.0.0",
-    "@electron-forge/publisher-github": "^7.0.0",
-    "@timfish/forge-externals-plugin": "^0.2.1",
-    "@types/fs-extra": "^11.0.4",
-    "@types/react": "^18.2.37",
-    "@types/react-dom": "^18.2.15",
+    "@playwright/test": "^1.37.1",
+    "@types/fluent-ffmpeg": "^2.1.23",
+    "@types/luxon": "^3.3.3",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
     "@types/uuid": "^9.0.7",
-    "@types/webpack-node-externals": "^3.0.4",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
-    "@vercel/webpack-asset-relocator-loader": "1.7.3",
+    "@vitejs/plugin-react": "^4.0.4",
     "autoprefixer": "^10.4.16",
-    "css-loader": "^6.0.0",
-    "electron": "27.1.0",
-    "eslint": "^8.0.1",
-    "eslint-plugin-import": "^2.25.0",
-    "fork-ts-checker-webpack-plugin": "^7.2.13",
-    "node-loader": "^2.0.0",
+    "electron": "^26.0.0",
+    "electron-builder": "^24.6.3",
     "postcss": "^8.4.31",
-    "postcss-loader": "^7.3.3",
-    "style-loader": "^3.0.0",
-    "tailwindcss": "^3.3.5",
-    "ts-loader": "^9.2.2",
-    "ts-node": "^10.0.0",
-    "typescript": "~4.5.4",
-    "webpack-node-externals": "^3.0.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-scrollbar": "^3.0.5",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.9",
+    "vite-plugin-electron": "^0.15.3",
+    "vite-plugin-electron-renderer": "^0.14.5"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
@@ -59,19 +49,17 @@
     "@heroicons/react": "^2.0.18",
     "@tailwindcss/forms": "^0.5.6",
     "@tanstack/react-query": "^5.0.0",
-    "@types/fluent-ffmpeg": "^2.1.23",
-    "@types/luxon": "^3.3.3",
     "clsx": "^2.0.0",
-    "dotenv": "^16.3.1",
-    "electron-squirrel-startup": "^1.0.0",
+    "electron-updater": "^6.1.1",
     "fluent-ffmpeg": "^2.1.2",
-    "fs-extra": "^11.1.1",
     "luxon": "^3.4.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "react-player": "^2.13.0",
     "tailwind-merge": "^2.0.0",
+    "tailwindcss": "^3.3.5",
     "uuid": "^9.0.1",
     "zustand": "^4.4.3"
+  },
+  "engines": {
+    "node": "^14.18.0 || >=16.0.0"
   }
 }

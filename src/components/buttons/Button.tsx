@@ -16,16 +16,16 @@ const buttonSizeStyles: Record<ButtonSizes, string> = {
   xl: 'rounded-md px-3.5 py-2.5 text-sm ',
 };
 
-export function Button(props: ButtonProps) {
+export function Button({ size, secondary, ...props }: ButtonProps) {
   return (
     <button
       className={cn(
         'font-semibold text-white shadow-sm ',
-        props.secondary
+        secondary
           ? 'bg-white/10 hover:bg-white/20'
           : 'bg-indigo-500 hover:bg-indigo-400 disabled:bg-indigo-300 disabled:text-indigo-500 disabled:cursor-not-allowed',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500',
-        buttonSizeStyles[props.size],
+        buttonSizeStyles[size],
         props.className
       )}
       {...props}

@@ -54,7 +54,7 @@ export function MatchItem(props: MatchItemProps) {
     <li
       key={props.match.id}
       className={clsx(
-        'relative flex items-center space-x-4 p-4 ',
+        'relative flex items-center space-x-4 p-2',
         selectedMatches.includes(props.match.id)
           ? 'bg-gray-600/50 hover:bg-gray-600/70'
           : 'hover:bg-gray-600/20'
@@ -86,7 +86,9 @@ export function MatchItem(props: MatchItemProps) {
                   fromSeconds: useVideo.getState().currentSeconds,
                 });
               }}
-              onSeek={() => seekSeconds(props.match.fromSeconds)}
+              onSeek={() =>
+                props.match.fromSeconds && seekSeconds(props.match.fromSeconds)
+              }
             />
             <span className="text-gray-400">to</span>
             <TimestampButton
@@ -96,7 +98,9 @@ export function MatchItem(props: MatchItemProps) {
                   toSeconds: useVideo.getState().currentSeconds,
                 })
               }
-              onSeek={() => seekSeconds(props.match.toSeconds)}
+              onSeek={() =>
+                props.match.toSeconds && seekSeconds(props.match.toSeconds)
+              }
             />
           </div>
         </div>
