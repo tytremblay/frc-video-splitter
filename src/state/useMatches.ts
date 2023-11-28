@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { create } from 'zustand';
 import { TBAEvent, TBAMatch } from '../tba/TBATypes';
+import { videoEndPaddingSeconds } from './settings';
 
 export type SplitterMatch = {
   id: string;
@@ -157,14 +158,25 @@ export function autoFillTimeStamps(
   for (let i = startingMatchIndex; currentVideoSeconds < videoLength; i++) {
     const match = { ...matches[i] };
     const nextMatch = matches[i + 1];
-    if (!match || match.resultsTime === undefined || match.startTime ===undefined || nextMatch?.startTime === undefined) break;
+    if (
+      !match ||
+      match.resultsTime === undefined ||
+      match.startTime === undefined ||
+      (nextMatch && nextMatch?.startTime === undefined)
+    ) {
+      break;
+    }
     match.fromSeconds = currentVideoSeconds;
-    currentVideoSeconds =
-      match.fromSeconds + (match.resultsTime - match.startTime);
-    if (currentVideoSeconds > videoLength) break;
-    match.toSeconds = currentVideoSeconds;
+    const matchLength = match.resultsTime - match.startTime;
+    currentVideoSeconds += matchLength;
+    if (currentVideoSeconds > videoLength) {
+      currentVideoSeconds = videoLength;
+    }
+    match.toSeconds = currentVideoSeconds + videoEndPaddingSeconds.value;
     matches[i] = match;
-    currentVideoSeconds += nextMatch.startTime - match.resultsTime;
+    if (nextMatch && nextMatch.startTime !== undefined) {
+      currentVideoSeconds += nextMatch.startTime - match.resultsTime;
+    }
   }
   useMatches.setState({
     matches,

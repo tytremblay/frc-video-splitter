@@ -1,12 +1,18 @@
 import { DateTime } from 'luxon';
 import { useCallback, useMemo, useState } from 'react';
-import { setEvent, setEventFromTBA, useEvent } from '../../state';
+import {
+  setEvent,
+  setEventFromTBA,
+  useEvent,
+  videoEndPaddingSeconds,
+} from '../../state';
 import { useTbaEvents } from '../../tba';
 import { TBAEvent } from '../../tba/TBATypes';
 import { Button } from '../buttons';
 import { Dropdown, DropdownOption } from '../dropdown';
 import { Input } from '../input';
 import { Select, SelectOption } from '../select';
+import { OutputDirectory } from '../splitting';
 
 interface EditEventProps {
   onEditingComplete: () => void;
@@ -50,69 +56,84 @@ export function EditEvent(props: EditEventProps) {
 
   return (
     <div className="flex flex-col justify-between items-center gap-4 rounded-lg shadow-sm ring-1 ring-white/20 p-2">
-      <div className="flex flex-col justify-start items-start gap-4 border-b border-white/10 pb-12">
-        <div className="grid grid-cols-4 gap-4 w-full ">
-          <div className="col-span-1">
-            <Select
-              selectedOption={yearOptions.find((y) => y.value === year)}
-              label="Year"
-              onSelect={(option) => setYear(option)}
-              options={yearOptions}
+      <div className="flex flex-col justify-start items-start gap-4 border-b border-white/10 pb-6 w-full">
+        <div className="flex flex-col gap-2 w-full ">
+          <div className="flex flex-row gap-2 items-end w-full">
+            <div className="basis-1/4">
+              <Select
+                selectedOption={yearOptions.find((y) => y.value === year)}
+                label="Year"
+                onSelect={(option) => setYear(option)}
+                options={yearOptions}
+              />
+            </div>
+            <div className="flex-grow">
+              {events.isLoading ? (
+                <span>Loading Events...</span>
+              ) : (
+                <Dropdown
+                  label="Select Event from TBA (optional)"
+                  selectedOption={event.tbaEvent}
+                  onSelect={(option) => {
+                    handleTBAEvent(option);
+                  }}
+                  options={eventOptions}
+                />
+              )}
+            </div>
+          </div>
+          <div className="flex flex-row gap-2 items-end w-full">
+            <Input
+              name="name"
+              label="Event Name"
+              type="text"
+              id="name"
+              placeholder="Event Name"
+              value={event.name}
+              onChange={(evt) => setEvent({ name: evt.target.value })}
+            />
+            <Input
+              name="location"
+              label="Location"
+              type="text"
+              id="location"
+              placeholder="Location"
+              value={event.location}
+              onChange={(evt) => setEvent({ location: evt.target.value })}
+            />
+            <Input
+              name="startDate"
+              label="Start Date"
+              type="date"
+              id="startDate"
+              placeholder="Start Date"
+              value={event.startDate}
+              onChange={(evt) => setEvent({ startDate: evt.target.value })}
+            />
+            <Input
+              name="endDate"
+              label="End Date"
+              type="date"
+              id="endDate"
+              placeholder="End Date"
+              value={event.endDate}
+              onChange={(evt) => setEvent({ endDate: evt.target.value })}
+            />
+            <OutputDirectory />
+          </div>
+          <div className="flex flex-row gap-2 items-end w-full">
+            <Input
+              name="videoEndPaddingSeconds"
+              label="Additional Video Padding (s)"
+              type="number"
+              id="videoEndPaddingSeconds"
+              placeholder="Match Schedule"
+              value={videoEndPaddingSeconds.value}
+              onChange={(evt) =>
+                (videoEndPaddingSeconds.value = parseInt(evt.target.value))
+              }
             />
           </div>
-          <div className="col-span-3 w-full">
-            {events.isLoading ? (
-              <span>Loading Events...</span>
-            ) : (
-              <Dropdown
-                label="Select Event from TBA (optional)"
-                selectedOption={event.tbaEvent}
-                onSelect={(option) => {
-                  handleTBAEvent(option);
-                }}
-                options={eventOptions}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-4">
-          <Input
-            name="name"
-            label="Event Name"
-            type="text"
-            id="name"
-            placeholder="Event Name"
-            value={event.name}
-            onChange={(value) => setEvent({ name: value })}
-          />
-          <Input
-            name="location"
-            label="Location"
-            type="text"
-            id="location"
-            placeholder="Location"
-            value={event.location}
-            onChange={(value) => setEvent({ location: value })}
-          />
-          <Input
-            name="startDate"
-            label="Start Date"
-            type="date"
-            id="startDate"
-            placeholder="Start Date"
-            value={event.startDate}
-            onChange={(value) => setEvent({ startDate: value })}
-          />
-          <Input
-            name="endDate"
-            label="End Date"
-            type="date"
-            id="endDate"
-            placeholder="End Date"
-            value={event.endDate}
-            onChange={(value) => setEvent({ endDate: value })}
-          />
         </div>
       </div>
       <div className="flex flex-row justify-end gap-4 items-center w-full">

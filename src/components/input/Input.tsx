@@ -1,17 +1,11 @@
-import { HTMLInputTypeAttribute } from 'react'
+import { ComponentProps } from 'react';
 
-interface InputProps {
-  name: string
-  label?: string
-  type: HTMLInputTypeAttribute
-  id: string
-  placeholder?: string
-  value?: string
-  onChange?: (value: string) => void
-}
+type InputProps = ComponentProps<'input'> & {
+  label?: string;
+};
 export function Input(props: InputProps) {
   return (
-    <div className="w-full">
+    <div>
       <label
         htmlFor={props.name}
         className="block text-sm font-medium leading-6 text-gray-400"
@@ -26,9 +20,9 @@ export function Input(props: InputProps) {
           className="block w-full rounded-md border-0 py-1.5 text-white  bg-white/10 placeholder:text-gray-400 focus:ring02 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           placeholder={props.placeholder}
           value={props.value}
-          onChange={(e) => props.onChange && props.onChange(e.target.value)}
+          onChange={props.onChange}
         />
       </div>
     </div>
-  )
+  );
 }

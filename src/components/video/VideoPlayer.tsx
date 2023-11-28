@@ -7,6 +7,7 @@ import {
   setVideoPath,
   useVideo,
 } from '../../state/useVideo';
+import { Button } from '../buttons';
 import AddVideo from './AddVideo';
 import { SeekButtons } from './SeekButtons';
 
@@ -51,6 +52,9 @@ export function VideoPlayer() {
           )
         }
       />
+      <Button secondary size="md" onClick={() => setVideoPath('')}>
+        Remove Video
+      </Button>
     </div>
   );
 }

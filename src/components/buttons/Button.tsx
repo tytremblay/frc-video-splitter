@@ -22,7 +22,7 @@ export function Button({ size, secondary, ...props }: ButtonProps) {
       className={cn(
         'font-semibold text-white shadow-sm ',
         secondary
-          ? 'bg-white/10 hover:bg-white/20'
+          ? 'bg-white/10 hover:bg-white/20 disabled:bg-white/10 disabled:text-white/20 disabled:cursor-not-allowed'
           : 'bg-indigo-500 hover:bg-indigo-400 disabled:bg-indigo-300 disabled:text-indigo-500 disabled:cursor-not-allowed',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500',
         buttonSizeStyles[size],

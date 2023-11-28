@@ -111,14 +111,31 @@ export function MatchItem(props: MatchItemProps) {
           secondary
           size="sm"
           onClick={() =>
+            props.match.fromSeconds &&
             autoFillTimeStamps(
               props.index,
-              useVideo.getState().currentSeconds,
+              props.match.fromSeconds,
               useVideo.getState().lengthSeconds
             )
           }
+          disabled={props.match.fromSeconds === undefined}
         >
           Autofill
+        </Button>
+      )}
+      {(props.match.fromSeconds !== undefined ||
+        props.match.toSeconds !== undefined) && (
+        <Button
+          secondary
+          size="sm"
+          onClick={() =>
+            updateMatch(props.index, {
+              fromSeconds: undefined,
+              toSeconds: undefined,
+            })
+          }
+        >
+          Reset
         </Button>
       )}
     </li>

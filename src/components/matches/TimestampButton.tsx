@@ -13,8 +13,8 @@ export function TimestampButton(props: TimestampButtonProps) {
     if (!props.timestampSeconds) {
       return '00:00';
     }
-    const duration = Duration.fromMillis(props.timestampSeconds * 1000);
-    if (duration.hours > 0) {
+    const duration = Duration.fromObject({ seconds: props.timestampSeconds });
+    if (duration.seconds > 3600) {
       return duration.toFormat('hh:mm:ss');
     }
     return duration.toFormat('mm:ss');
