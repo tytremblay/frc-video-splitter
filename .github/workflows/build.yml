@@ -12,7 +12,7 @@ jobs:
   build-executables:
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
 
