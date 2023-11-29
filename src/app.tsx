@@ -5,7 +5,7 @@ import { VideoPlayer } from './components/video';
 
 const queryClient = new QueryClient();
 
-function App() {
+export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex flex-col p-2 h-full">
@@ -18,5 +18,3 @@ function App() {
     </QueryClientProvider>
   );
 }
-
-export default App;
