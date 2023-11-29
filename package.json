@@ -27,6 +27,7 @@
     "@types/luxon": "^3.3.3",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
+    "@types/use-sync-external-store": "^0.0.6",
     "@types/uuid": "^9.0.7",
     "@vitejs/plugin-react": "^4.0.4",
     "autoprefixer": "^10.4.16",
