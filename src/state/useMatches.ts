@@ -51,19 +51,30 @@ export function setMatchesFromTBA(tbaEvent: TBAEvent, tbaMatches: TBAMatch[]) {
     const matchNumber = key.replace(/\D/g, '');
     return parseInt(matchNumber);
   }
-  const matches: SplitterMatch[] = tbaMatches.map((t) => ({
-    id: t.key,
-    name: `${t.comp_level.toUpperCase()}${t.match_number}`,
-    description: `${t.alliances.red.team_keys
+  const matches: SplitterMatch[] = tbaMatches.map((t) => {
+    let name = '';
+    if (t.comp_level === 'qm') {
+      name = `${t.comp_level.toUpperCase()}${t.match_number}`;
+    } else {
+      name = `${t.comp_level.toUpperCase()}${t.set_number}-${t.match_number}`;
+    }
+
+    const description = `${t.alliances.red.team_keys
       .map(matchKeyToNumber)
       .join(', ')} vs ${t.alliances.blue.team_keys
       .map(matchKeyToNumber)
-      .join(', ')}`,
-    sourceVideoPath: '',
-    splitPercentage: 0,
-    startTime: t.actual_time,
-    resultsTime: t.post_result_time,
-  }));
+      .join(', ')}`;
+
+    return {
+      id: t.key,
+      name,
+      description,
+      sourceVideoPath: '',
+      splitPercentage: 0,
+      startTime: t.actual_time,
+      resultsTime: t.post_result_time,
+    };
+  });
   useMatches.setState({ matches });
 }
 

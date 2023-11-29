@@ -12,7 +12,7 @@ jobs:
   build-executables:
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -25,14 +25,8 @@ jobs:
       - name: install dependencies
         run: npm install
       - name: build
-        run: npm run make
+        run: npm run build
         env:
           MODE: 'production'
-          TBA_KEY: ${{ secrets.NEXT_PUBLIC_TBA_KEY }}
-          FLUENTFFMPEG_COV: 'false'
-      - name: publish
-        run: npm run publish
-        env:
-          MODE: 'production'
-          TBA_KEY: ${{ secrets.NEXT_PUBLIC_TBA_KEY }}
+          VITE_TBA_KEY: ${{ secrets.NEXT_PUBLIC_TBA_KEY }}
           FLUENTFFMPEG_COV: 'false'
