@@ -5,7 +5,7 @@ import { VideoPlayer } from './components/video';
 
 const queryClient = new QueryClient();
 
-export function App() {
+export function Splitter() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex flex-col p-2 h-full">
