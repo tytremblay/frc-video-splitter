@@ -29,7 +29,7 @@ export function MatchTitle(props: MatchTitleProps) {
     />
   ) : (
     <h2
-      className="min-w-0 text-sm font-semibold leading-6 text-white truncate cursor-text"
+      className="min-w-0 text-sm font-semibold leading-6 text-white truncate cursor-text uppercase"
       onClick={() => setEditing(true)}
     >
       {props.match.name || 'Add name'}

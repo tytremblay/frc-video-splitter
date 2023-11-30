@@ -52,12 +52,7 @@ export function setMatchesFromTBA(tbaEvent: TBAEvent, tbaMatches: TBAMatch[]) {
     return parseInt(matchNumber);
   }
   const matches: SplitterMatch[] = tbaMatches.map((t) => {
-    let name = '';
-    if (t.comp_level === 'qm') {
-      name = `${t.comp_level.toUpperCase()}${t.match_number}`;
-    } else {
-      name = `${t.comp_level.toUpperCase()}${t.set_number}-${t.match_number}`;
-    }
+    let name = t.key.split('_')[1];
 
     const description = `${t.alliances.red.team_keys
       .map(matchKeyToNumber)
