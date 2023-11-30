@@ -1,13 +1,15 @@
+import { Popover, Transition } from '@headlessui/react';
+import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
 import { clsx } from 'clsx';
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import {
   SplitterMatch,
   autoFillTimeStamps,
+  removeMatch,
   updateMatch,
   useMatches,
 } from '../../state/useMatches';
 import { seekSeconds, useVideo } from '../../state/useVideo';
-import { Badge } from '../badges/Badge';
 import { Button } from '../buttons';
 import { MatchDescription } from './MatchDescription';
 import { MatchTitle } from './MatchTitle';
@@ -54,31 +56,19 @@ export function MatchItem(props: MatchItemProps) {
     <li
       key={props.match.id}
       className={clsx(
-        'relative flex items-center space-x-4 p-2',
+        'flex items-center space-x-4 p-2',
         selectedMatches.includes(props.match.id)
           ? 'bg-gray-600/50 hover:bg-gray-600/70'
           : 'hover:bg-gray-600/20'
       )}
     >
-      <div className="min-w-0 flex-auto">
-        <div className="flex items-center gap-x-3">
-          <div
-            className={clsx(statuses[status], 'flex-none rounded-full p-1')}
-            onClick={() => console.log('clicked match ', props.match.name)}
-          >
-            <div className="h-2 w-2 rounded-full bg-current" />
-          </div>
-          <h2 className="min-w-0 text-sm font-semibold leading-6 text-white flex-grow">
-            <div className="flex gap-x-2">
-              <MatchTitle match={props.match} index={props.index} />
-              <span className="text-gray-400">/</span>
-              <MatchDescription match={props.match} index={props.index} />
-            </div>
-          </h2>
+      <div className="min-w-0 flex-auto flex flex-row gap-2 justify-between items-center">
+        <div className="flex flex-col items-start gap-2 w-full">
+          <MatchTitle match={props.match} index={props.index} />
+          <MatchDescription match={props.match} index={props.index} />
         </div>
-        <div className="mt-3 ml-6 flex items-center gap-x-2.5 text-xs leading-5 text-gray-400">
+        <div className="flex items-center gap-x-2.5 text-xs leading-5 text-gray-400">
           <div className="flex flex-row gap-4 align-middle items-center">
-            <span className="text-gray-400">from</span>
             <TimestampButton
               timestampSeconds={props.match.fromSeconds}
               onSet={() => {
@@ -105,7 +95,6 @@ export function MatchItem(props: MatchItemProps) {
           </div>
         </div>
       </div>
-      <Badge type={status === 'new' ? 'info' : 'success'} text={badgeText} />
       {props.match.startTime && props.match.resultsTime && (
         <Button
           secondary
@@ -123,21 +112,48 @@ export function MatchItem(props: MatchItemProps) {
           Autofill
         </Button>
       )}
-      {(props.match.fromSeconds !== undefined ||
-        props.match.toSeconds !== undefined) && (
-        <Button
-          secondary
-          size="sm"
-          onClick={() =>
-            updateMatch(props.index, {
-              fromSeconds: undefined,
-              toSeconds: undefined,
-            })
-          }
+      <Popover className="relative">
+        <Popover.Button className="inline-flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
+          <EllipsisVerticalIcon
+            className="h-5 w-5 text-gray-500"
+            aria-hidden="true"
+          />
+        </Popover.Button>
+
+        <Transition
+          as={Fragment}
+          enter="transition ease-out duration-200"
+          enterFrom="opacity-0 translate-y-1"
+          enterTo="opacity-100 translate-y-0"
+          leave="transition ease-in duration-150"
+          leaveFrom="opacity-100 translate-y-0"
+          leaveTo="opacity-0 translate-y-1"
         >
-          Reset
-        </Button>
-      )}
+          <Popover.Panel className="absolute z-10 flex w-screen max-w-min -translate-x-full">
+            <div className="w-24 shrink rounded-md bg-gray-400 text-sm font-semibold leading-6 text-gray-900 overflow-clip">
+              <button
+                key={'reset_match'}
+                className="block p-2 hover:text-indigo-600 hover:bg-gray-500 w-full"
+                onClick={() =>
+                  updateMatch(props.index, {
+                    fromSeconds: undefined,
+                    toSeconds: undefined,
+                  })
+                }
+              >
+                Reset
+              </button>
+              <button
+                key={'delete_match'}
+                className="block p-2 hover:text-indigo-600 hover:bg-gray-500 w-full"
+                onClick={() => removeMatch(props.match.id)}
+              >
+                Delete
+              </button>
+            </div>
+          </Popover.Panel>
+        </Transition>
+      </Popover>
     </li>
   );
 }

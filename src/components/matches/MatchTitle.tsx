@@ -28,11 +28,11 @@ export function MatchTitle(props: MatchTitleProps) {
       }
     />
   ) : (
-    <span
+    <h2
       className="min-w-0 text-sm font-semibold leading-6 text-white truncate cursor-text"
       onClick={() => setEditing(true)}
     >
       {props.match.name || 'Add name'}
-    </span>
+    </h2>
   );
 }

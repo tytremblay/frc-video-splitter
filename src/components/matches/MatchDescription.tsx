@@ -9,7 +9,7 @@ export type MatchTitleProps = {
 
 export function MatchDescription(props: MatchTitleProps) {
   const [editing, setEditing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleClickOutside = useCallback(() => {
     setEditing(false);
@@ -18,9 +18,8 @@ export function MatchDescription(props: MatchTitleProps) {
   useOnClickOutside(inputRef, handleClickOutside);
 
   return editing ? (
-    <input
-      className="min-w-0 text-sm font-semibold leading-6 text-white truncate cursor-text bg-white/5 border-none w-full"
-      type="text"
+    <textarea
+      className="text-sm leading-6 text-gray-400 cursor-text bg-white/5 border-none resize w-full"
       value={props.match.description}
       ref={inputRef}
       onChange={(event) =>
@@ -28,11 +27,11 @@ export function MatchDescription(props: MatchTitleProps) {
       }
     />
   ) : (
-    <span
-      className="min-w-0 text-sm leading-6 whitespace-nowrap font-light text-gray-400 truncate cursor-text"
+    <p
+      className="text-sm leading-6 font-light text-gray-400 whitespace-break-spaces cursor-text"
       onClick={() => setEditing(true)}
     >
       {props.match.description || 'Add description'}
-    </span>
+    </p>
   );
 }

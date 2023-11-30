@@ -78,8 +78,11 @@ export function setMatchesFromTBA(tbaEvent: TBAEvent, tbaMatches: TBAMatch[]) {
   useMatches.setState({ matches });
 }
 
-export function addMatch(match: SplitterMatch, index: number) {
+export function addMatch(match: SplitterMatch, index?: number) {
   const oldMatches = [...useMatches.getState().matches];
+  if (index === undefined) {
+    index = oldMatches.length;
+  }
   const newMatches = oldMatches
     .slice(undefined, index)
     .concat(match)
@@ -89,17 +92,14 @@ export function addMatch(match: SplitterMatch, index: number) {
   });
 }
 
-export function addBlankMatch(index: number) {
-  addMatch(
-    {
-      id: uuid(),
-      name: `Match ${index + 1}`,
-      description: '',
-      sourceVideoPath: '',
-      splitPercentage: 0,
-    },
-    index
-  );
+export function addBlankMatch() {
+  addMatch({
+    id: uuid(),
+    name: ``,
+    description: '',
+    sourceVideoPath: '',
+    splitPercentage: 0,
+  });
 }
 
 export function updateMatch(index: number, data: Partial<SplitterMatch>) {

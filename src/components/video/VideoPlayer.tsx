@@ -52,9 +52,11 @@ export function VideoPlayer() {
           )
         }
       />
-      <Button secondary size="md" onClick={() => setVideoPath('')}>
-        Remove Video
-      </Button>
+      {video.path && (
+        <Button secondary size="md" onClick={() => setVideoPath('')}>
+          Remove Video
+        </Button>
+      )}
     </div>
   );
 }
