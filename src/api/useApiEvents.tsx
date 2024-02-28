@@ -6,6 +6,7 @@ import { ApiEvent, Program } from './types';
 export function useApiEvents(program: Program, year: number): UseQueryResult<ApiEvent[], Error> {
   const events = useQuery({
     queryKey: ['events', program, year],
+    retry: false,
     queryFn: async () => {
       if (program == 'frc') {
         const events = await getTbaEvents(year);
