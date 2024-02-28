@@ -1,4 +1,4 @@
-import { outputDirectory } from '@/state';
+import { outputDirectory, separateMatchResults } from '@/state';
 import { useCallback } from 'react';
 import { SplitFixedDetails } from '../../../electron/helpers/ffmpegCommands';
 import { useMatches } from '../../state/useMatches';
@@ -10,21 +10,33 @@ export function SplitButton() {
   const video = useVideo();
 
   const validMatches = matches.filter(
-    (match) => match.fromSeconds !== undefined && match.toSeconds !== undefined
+    (match) => {
+      const hasMatchTimes = match.fromSeconds !== undefined && match.toSeconds !== undefined;
+      const hasResultsTimes = match.toResultsSeconds !== undefined && match.fromResultsSeconds !== undefined;
+      return hasMatchTimes && (separateMatchResults.value ? hasResultsTimes : true);
+    }
   );
 
   const handleSplit = useCallback(async () => {
     const details: SplitFixedDetails[] = validMatches.map((match) => {
+      const blocks = [
+        {
+          startSeconds: match.fromSeconds!,
+          durationSeconds: match.toSeconds! - match.fromSeconds!,
+        },
+      ]
+      if (separateMatchResults.value) {
+        blocks.push({
+          startSeconds: match.fromResultsSeconds!,
+          durationSeconds: match.toResultsSeconds! - match.fromResultsSeconds!,
+        })
+      }
       const details: SplitFixedDetails = {
         id: match.id,
         inputFile: video.path,
-        outputFile: `${outputDirectory.value}\\${match.name}.mp4`,
-        blocks: [
-          {
-            startSeconds: match.fromSeconds!,
-            durationSeconds: match.toSeconds! - match.fromSeconds!,
-          },
-        ],
+        outputDirectory: outputDirectory.value,
+        outputFileName: `${match.name}.mp4`,
+        blocks
       };
       return details;
     });
@@ -36,9 +48,8 @@ export function SplitButton() {
       onClick={handleSplit}
       disabled={validMatches.length === 0 || !outputDirectory.value}
     >
-      {`Split ${validMatches.length} Match${
-        validMatches.length !== 1 ? 'es' : ''
-      }`}
+      {`Split ${validMatches.length} Match${validMatches.length !== 1 ? 'es' : ''
+        }`}
     </Button>
   );
 }

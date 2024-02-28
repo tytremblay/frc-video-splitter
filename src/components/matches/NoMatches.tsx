@@ -20,7 +20,7 @@ export function NoMatches() {
       </svg>
       <h3 className="mt-2 text-sm font-semibold text-gray-900">No matches</h3>
       <p className="mt-1 text-sm text-gray-500">
-        Get started by adding a manual match, or selecting an event from TBA.
+        Get started by adding a manual match, or selecting an event from TBA/FIRST.
       </p>
       <div className="mt-6">
         <AddMatchButton />

@@ -1,28 +1,28 @@
 import { useEffect } from 'react';
+import { useApiMatches } from '../../api';
 import { useEvent } from '../../state';
 import {
   SplitProgressEvent,
   SplitStartEvent,
   setMatchSplitStatus,
-  setMatchesFromTBA,
-  useMatches,
+  setMatchesFromApi,
+  useMatches
 } from '../../state/useMatches';
-import { useTbaMatches } from '../../tba';
 import { AddMatchButton } from './AddMatchButton';
 import { MatchItem } from './MatchItem';
 import { NoMatches } from './NoMatches';
 
 export function MatchesList() {
-  const tbaEvent = useEvent((state) => state.tbaEvent);
+  const apiEvent = useEvent((state) => state.apiEvent);
   const matches = useMatches((state) => state.matches);
-  const tbaMatches = useTbaMatches(tbaEvent);
+  const apiMatches = useApiMatches(apiEvent);
 
   useEffect(
     () =>
-      tbaMatches.data &&
-      tbaEvent &&
-      setMatchesFromTBA(tbaEvent, tbaMatches.data),
-    [tbaMatches.data]
+      apiMatches.data &&
+      apiEvent &&
+      setMatchesFromApi(apiMatches.data),
+    [apiMatches.data]
   );
 
   useEffect(() => {
@@ -35,9 +35,9 @@ export function MatchesList() {
     });
   }, []);
 
-  if (tbaMatches.isLoading) return <div>Loading Matches...</div>;
-  if (tbaMatches.isError)
-    return <div>Error Loading Matches: {tbaMatches.error.message}</div>;
+  if (apiMatches.isLoading) return <div>Loading Matches...</div>;
+  if (apiMatches.isError)
+    return <div>Error Loading Matches: {apiMatches.error.message}</div>;
 
   return matches.length === 0 ? (
     <NoMatches />

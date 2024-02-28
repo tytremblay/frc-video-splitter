@@ -1,7 +1,14 @@
 import { v4 as uuid } from 'uuid';
 import { create } from 'zustand';
-import { TBAEvent, TBAMatch } from '../tba/TBATypes';
-import { videoEndPaddingSeconds } from './settings';
+import { ApiMatch } from '../api/types';
+import {
+  matchLengthSeconds,
+  resultsEndPaddingSeconds,
+  resultsStartPaddingSeconds,
+  separateMatchResults,
+  videoEndPaddingSeconds,
+  videoStartPaddingSeconds,
+} from './settings';
 
 export type SplitterMatch = {
   id: string;
@@ -10,8 +17,11 @@ export type SplitterMatch = {
   sourceVideoPath: string;
   fromSeconds?: number;
   toSeconds?: number;
+  fromResultsSeconds?: number;
+  toResultsSeconds?: number;
   splitPercentage: number;
   startTime?: number;
+  startSeconds?: number;
   resultsTime?: number;
 };
 
@@ -46,28 +56,19 @@ export function setMatches(matches: SplitterMatch[]) {
   });
 }
 
-export function setMatchesFromTBA(tbaEvent: TBAEvent, tbaMatches: TBAMatch[]) {
-  function matchKeyToNumber(key: string) {
-    const matchNumber = key.replace(/\D/g, '');
-    return parseInt(matchNumber);
-  }
-  const matches: SplitterMatch[] = tbaMatches.map((t) => {
-    let name = t.key.split('_')[1];
-
-    const description = `${t.alliances.red.team_keys
-      .map(matchKeyToNumber)
-      .join(', ')} vs ${t.alliances.blue.team_keys
-      .map(matchKeyToNumber)
-      .join(', ')}`;
-
+export function setMatchesFromApi(apiMatches: ApiMatch[]) {
+  const matches: SplitterMatch[] = apiMatches.map((m) => {
+    const description = `${m.redAlliance.join(', ')} vs ${m.blueAlliance.join(
+      ', '
+    )}`;
     return {
-      id: t.key,
-      name,
+      id: m.id,
+      name: m.name,
       description,
       sourceVideoPath: '',
       splitPercentage: 0,
-      startTime: t.actual_time,
-      resultsTime: t.post_result_time,
+      startTime: m.startTime ? m.startTime.getTime() / 1000 : undefined,
+      resultsTime: m.resultsTime ? m.resultsTime.getTime() / 1000 : undefined,
     };
   });
   useMatches.setState({ matches });
@@ -172,16 +173,36 @@ export function autoFillTimeStamps(
     ) {
       break;
     }
-    match.fromSeconds = currentVideoSeconds;
-    const matchLength = match.resultsTime - match.startTime;
-    currentVideoSeconds += matchLength;
-    if (currentVideoSeconds > videoLength) {
+    let matchLength;
+    if (separateMatchResults) {
+      match.fromSeconds = currentVideoSeconds - videoStartPaddingSeconds.value;
+      match.startSeconds = currentVideoSeconds;
+      matchLength = matchLengthSeconds.value;
+
+      match.fromResultsSeconds =
+        currentVideoSeconds +
+        (match.resultsTime - match.startTime) -
+        resultsStartPaddingSeconds.value;
+
+      match.toResultsSeconds =
+        currentVideoSeconds +
+        (match.resultsTime - match.startTime) +
+        resultsEndPaddingSeconds.value;
+    } else {
+      match.fromSeconds = currentVideoSeconds;
+      matchLength = match.resultsTime - match.startTime;
+    }
+    match.toSeconds =
+      currentVideoSeconds + matchLength + videoEndPaddingSeconds.value;
+    currentVideoSeconds = match.toSeconds - videoEndPaddingSeconds.value;
+    if (match.toSeconds > videoLength) {
+      match.toSeconds = videoLength;
       currentVideoSeconds = videoLength;
     }
-    match.toSeconds = currentVideoSeconds + videoEndPaddingSeconds.value;
     matches[i] = match;
     if (nextMatch && nextMatch.startTime !== undefined) {
-      currentVideoSeconds += nextMatch.startTime - match.resultsTime;
+      currentVideoSeconds +=
+        nextMatch.startTime - (match.startTime + matchLength);
     }
   }
   useMatches.setState({
