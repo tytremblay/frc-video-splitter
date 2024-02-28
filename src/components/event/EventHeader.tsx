@@ -4,15 +4,15 @@ import {
   FolderOpenIcon,
 } from '@heroicons/react/24/outline';
 import { useState } from 'react';
-import { outputDirectory, useEvent, videoEndPaddingSeconds } from '../../state';
-import { TBAEvent } from '../../tba/TBATypes';
+import { ApiEvent } from '../../api/types';
+import { matchLengthSeconds, outputDirectory, resultsEndPaddingSeconds, resultsStartPaddingSeconds, separateMatchResults, useEvent, videoEndPaddingSeconds, videoStartPaddingSeconds } from '../../state';
 import { SplitButton } from '../splitting';
 import { EditEvent } from './EditEvent';
 import { EventInfo } from './EventInfo';
 
 interface MatchesHeaderProps {
   editing?: boolean;
-  onEventChange?: (event: TBAEvent) => void;
+  onEventChange?: (event: ApiEvent) => void;
 }
 
 export function EventHeader(props: MatchesHeaderProps) {
@@ -35,7 +35,7 @@ export function EventHeader(props: MatchesHeaderProps) {
             <div className="flex flex-row gap-2 items-center">
               <ClockIcon className="h-6 w-6 text-gray-400" />
               <span className="text-sm text-gray-400">
-                +{videoEndPaddingSeconds}s
+                {separateMatchResults.value ? `Match: ${videoStartPaddingSeconds}s before, ${matchLengthSeconds}s long, ${videoEndPaddingSeconds} after / Results: ${resultsStartPaddingSeconds}s before, ${resultsEndPaddingSeconds} after` : `+${videoEndPaddingSeconds}s`}
               </span>
             </div>
           </div>

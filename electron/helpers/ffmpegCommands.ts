@@ -14,7 +14,8 @@ export interface SplitBlock {
 export interface SplitFixedDetails {
   id: string;
   inputFile: string;
-  outputFile: string;
+  outputDirectory: string;
+  outputFileName: string;
   blocks: SplitBlock[];
 }
 
@@ -158,16 +159,20 @@ export async function splitFixedLength(
     )
   );
 
-  await concatVideoFiles(videoParts, details.outputFile, (progress) => {
-    const msSinceLastUpdate = Date.now() - lastProgressSent;
-    if (msSinceLastUpdate < progressReportRateMs) return;
-    lastProgressSent = Date.now();
+  await concatVideoFiles(
+    videoParts,
+    path.join(details.outputDirectory, details.outputFileName),
+    (progress) => {
+      const msSinceLastUpdate = Date.now() - lastProgressSent;
+      if (msSinceLastUpdate < progressReportRateMs) return;
+      lastProgressSent = Date.now();
 
-    event.sender.send('split-progress', {
-      id: details.id,
-      percent: 100,
-    });
-  });
+      event.sender.send('split-progress', {
+        id: details.id,
+        percent: 100,
+      });
+    }
+  );
 
   event.sender.send('split-end', { matchKey: details.id });
 }

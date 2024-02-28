@@ -1,13 +1,12 @@
-import React from "react";
 import { create } from 'zustand';
-import { TBAEvent } from '../tba/TBATypes';
+import { ApiEvent } from '../api/types';
 
 export interface EventState {
-  name: string,
-  startDate: string,
-  endDate: string,
-  location: string,
-  tbaEvent?: TBAEvent
+  name: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  apiEvent?: ApiEvent;
 }
 
 export const useEvent = create<EventState>((set, get) => ({
@@ -17,19 +16,19 @@ export const useEvent = create<EventState>((set, get) => ({
   location: '',
 }));
 
-export function setEventFromTBA(event: TBAEvent) {
+export function setEventFromApi(event: ApiEvent) {
   useEvent.setState({
     name: event.name,
-    startDate: event.start_date,
-    endDate: event.end_date,
-    location: `${event.location_name}, ${event.city}, ${event.state_prov}, ${event.country}`,
-    tbaEvent: event
+    startDate: event.startDate,
+    endDate: event.endDate,
+    location: `${event.venue}, ${event.city}, ${event.stateProv}, ${event.country}`,
+    apiEvent: event,
   });
 }
 
 export function setEvent(eventData: Partial<EventState>) {
-  useEvent.setState(state => ({
+  useEvent.setState((state) => ({
     ...state,
-    ...eventData
+    ...eventData,
   }));
 }

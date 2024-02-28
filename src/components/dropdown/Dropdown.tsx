@@ -1,7 +1,8 @@
 import { Combobox } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { ViewportList } from 'react-viewport-list';
 
 export interface DropdownOption<T> {
   name: string;
@@ -19,12 +20,16 @@ interface DropdownProps<T> {
 export function Dropdown<T>(props: DropdownProps<T>) {
   const [query, setQuery] = useState('');
 
+  const ref = useRef<HTMLUListElement | null>(
+    null,
+  );
+
   const filteredOptions =
     query === ''
       ? props.options
       : props.options.filter((option) => {
-          return option.name.toLowerCase().includes(query.toLowerCase());
-        });
+        return option.name.toLowerCase().includes(query.toLowerCase());
+      });
 
   return (
     <Combobox
@@ -51,55 +56,60 @@ export function Dropdown<T>(props: DropdownProps<T>) {
         </Combobox.Button>
 
         {filteredOptions.length > 0 && (
-          <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {filteredOptions.map((option) => (
-              <Combobox.Option
-                key={option.name}
-                value={option.value}
-                className={({ active }) =>
-                  clsx(
-                    'relative cursor-default select-none py-2 pl-3 pr-9',
-                    active ? 'bg-indigo-600 text-white' : 'text-gray-900'
-                  )
-                }
-              >
-                {({ active, selected }) => (
-                  <>
-                    <div className="flex">
-                      <span
-                        className={clsx(
-                          'truncate',
-                          selected && 'font-semibold'
-                        )}
-                      >
-                        {option.name}
-                      </span>
-                      {option.secondaryText && (
+          <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" ref={ref}>
+            <ViewportList
+              viewportRef={ref}
+              items={filteredOptions}
+            >
+              {(option) => (
+                <Combobox.Option
+                  key={option.name}
+                  value={option.value}
+                  className={({ active }) =>
+                    clsx(
+                      'relative cursor-default select-none py-2 pl-3 pr-9',
+                      active ? 'bg-indigo-600 text-white' : 'text-gray-900'
+                    )
+                  }
+                >
+                  {({ active, selected }) => (
+                    <>
+                      <div className="flex">
                         <span
                           className={clsx(
-                            'ml-2 truncate text-gray-500',
-                            active ? 'text-indigo-200' : 'text-gray-500'
+                            'truncate',
+                            selected && 'font-semibold'
                           )}
                         >
-                          {`(${option.secondaryText})`}
+                          {option.name}
+                        </span>
+                        {option.secondaryText && (
+                          <span
+                            className={clsx(
+                              'ml-2 truncate text-gray-500',
+                              active ? 'text-indigo-200' : 'text-gray-500'
+                            )}
+                          >
+                            {`(${option.secondaryText})`}
+                          </span>
+                        )}
+                      </div>
+
+                      {selected && (
+                        <span
+                          className={clsx(
+                            'absolute inset-y-0 right-0 flex items-center pr-4',
+                            active ? 'text-white' : 'text-indigo-600'
+                          )}
+                        >
+                          <CheckIcon className="h-5 w-5" aria-hidden="true" />
                         </span>
                       )}
-                    </div>
-
-                    {selected && (
-                      <span
-                        className={clsx(
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                          active ? 'text-white' : 'text-indigo-600'
-                        )}
-                      >
-                        <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                      </span>
-                    )}
-                  </>
-                )}
-              </Combobox.Option>
-            ))}
+                    </>
+                  )}
+                </Combobox.Option>
+              )}
+            </ViewportList>
           </Combobox.Options>
         )}
       </div>

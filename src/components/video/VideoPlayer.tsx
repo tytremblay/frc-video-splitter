@@ -11,6 +11,20 @@ import { Button } from '../buttons';
 import AddVideo from './AddVideo';
 import { SeekButtons } from './SeekButtons';
 
+// Needed to load local files on UNIX operating systems
+// Adapted from https://stackoverflow.com/a/28214523
+function fileUrl(str: string) {
+  var pathName = str.replace(/\\/g, '/');
+
+  // Windows drive letter must be prefixed with a slash
+  if (pathName[0] !== '/') {
+    pathName = '/' + pathName;
+  }
+
+  return encodeURI('file://' + pathName);
+};
+
+
 export function VideoPlayer() {
   const video = useVideo();
   const playerRef = useRef<ReactPlayer>(null);
@@ -31,7 +45,7 @@ export function VideoPlayer() {
       {video.path ? (
         <div className="rounded-lg flex flex-col justify-center items-center w-full overflow-clip">
           <ReactPlayer
-            url={video.path}
+            url={fileUrl(video.path)}
             controls={true}
             ref={playerRef}
             width="100%"

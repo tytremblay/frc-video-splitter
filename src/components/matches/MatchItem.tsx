@@ -1,3 +1,4 @@
+import { separateMatchResults } from '@/state';
 import { Popover, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
 import { clsx } from 'clsx';
@@ -52,6 +53,8 @@ export function MatchItem(props: MatchItemProps) {
     return 'Error';
   }, [status, percentages, props.match.id]);
 
+  const autofillTime = separateMatchResults.value ? props.match.startSeconds : props.match.fromSeconds;
+
   return (
     <li
       key={props.match.id}
@@ -63,12 +66,27 @@ export function MatchItem(props: MatchItemProps) {
       )}
     >
       <div className="min-w-0 flex-auto flex flex-row gap-2 justify-between items-center">
-        <div className="flex flex-col items-start gap-2 w-full">
+        <div className="flex flex-col items-start gap-2">
           <MatchTitle match={props.match} index={props.index} />
           <MatchDescription match={props.match} index={props.index} />
         </div>
-        <div className="flex items-center gap-x-2.5 text-xs leading-5 text-gray-400">
-          <div className="flex flex-row gap-4 align-middle items-center">
+        <div className="flex flex-col gap-2 text-xs leading-5 text-gray-400">
+          <div className="flex flex-row gap-2 align-middle items-center">
+            {separateMatchResults.value ? <>
+              <span>Match Start:</span>
+              <TimestampButton
+                timestampSeconds={props.match.startSeconds}
+                onSet={() => {
+                  updateMatch(props.index, {
+                    startSeconds: useVideo.getState().currentSeconds,
+                  });
+                }}
+                onSeek={() =>
+                  props.match.startSeconds && seekSeconds(props.match.startSeconds)
+                }
+              />
+              <span>Match:</span>
+            </> : ''}
             <TimestampButton
               timestampSeconds={props.match.fromSeconds}
               onSet={() => {
@@ -93,25 +111,54 @@ export function MatchItem(props: MatchItemProps) {
               }
             />
           </div>
+
+          {separateMatchResults.value ? <div className="flex flex-row gap-2 align-middle items-center">
+            <span>Results:</span>
+            <TimestampButton
+              timestampSeconds={props.match.fromResultsSeconds}
+              onSet={() => {
+                updateMatch(props.index, {
+                  fromResultsSeconds: useVideo.getState().currentSeconds,
+                });
+              }}
+              onSeek={() =>
+                props.match.fromResultsSeconds && seekSeconds(props.match.fromResultsSeconds)
+              }
+            />
+            <span className="text-gray-400">to</span>
+            <TimestampButton
+              timestampSeconds={props.match.toResultsSeconds}
+              onSet={() =>
+                updateMatch(props.index, {
+                  toResultsSeconds: useVideo.getState().currentSeconds,
+                })
+              }
+              onSeek={() =>
+                props.match.toResultsSeconds && seekSeconds(props.match.toResultsSeconds)
+              }
+            />
+          </div> : null}
         </div>
       </div>
-      {props.match.startTime && props.match.resultsTime && (
-        <Button
-          secondary
-          size="sm"
-          onClick={() =>
-            props.match.fromSeconds &&
-            autoFillTimeStamps(
-              props.index,
-              props.match.fromSeconds,
-              useVideo.getState().lengthSeconds
-            )
-          }
-          disabled={props.match.fromSeconds === undefined}
-        >
-          Autofill
-        </Button>
-      )}
+      {
+        props.match.startTime && props.match.resultsTime && (
+          <Button
+            secondary
+            size="sm"
+            onClick={() =>
+              autofillTime &&
+              autoFillTimeStamps(
+                props.index,
+                autofillTime,
+                useVideo.getState().lengthSeconds
+              )
+            }
+            disabled={autofillTime === undefined}
+          >
+            Autofill
+          </Button>
+        )
+      }
       <Popover className="relative">
         <Popover.Button className="inline-flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
           <EllipsisVerticalIcon
@@ -138,6 +185,9 @@ export function MatchItem(props: MatchItemProps) {
                   updateMatch(props.index, {
                     fromSeconds: undefined,
                     toSeconds: undefined,
+                    startSeconds: undefined,
+                    fromResultsSeconds: undefined,
+                    toResultsSeconds: undefined,
                   })
                 }
               >
@@ -154,6 +204,6 @@ export function MatchItem(props: MatchItemProps) {
           </Popover.Panel>
         </Transition>
       </Popover>
-    </li>
+    </li >
   );
 }
