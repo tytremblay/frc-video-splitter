@@ -19,10 +19,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: yarn install --frozen-lockfile
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - run: pnpm install --frozen-lockfile
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
-      - run: yarn semantic-release --dry-run
+      - run: pnpm semantic-release --dry-run
         id: get-next-version
         env:
           GITHUB_TOKEN: ${{ secrets.github_token }}
@@ -92,9 +95,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'yarn'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
@@ -107,7 +112,7 @@ jobs:
         run: echo "Next Version is ${{ needs.draft.outputs.version }} (${{ github.ref_name }})"
 
       - name: Update and push version tag
-        run: yarn updateVersion
+        run: pnpm updateVersion
 
       - name: Write next version to meta.json
         run: echo "{\"version\":\"${{ needs.draft.outputs.version }}\"}" >| ./buildResources/meta.json
@@ -116,13 +121,13 @@ jobs:
         env:
           MODE: 'production'
           TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
-        run: yarn build
+        run: pnpm build
 
       - name: Compile & release Electron app
         id: release-to-github
         env:
           VITE_APP_VERSION: ${{ needs.draft.outputs.version }}
-        run: yarn release
+        run: pnpm release
 
       - name: Delete tag for failed release
         if: steps.release-to-github.outcome == 'failure'
