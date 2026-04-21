@@ -8,5 +8,7 @@ files:
   - from: .
     filter:
       - package.json
-      - app
+      - out
+asarUnpack:
+  - "**/@ffmpeg-installer/**"
 publish: null

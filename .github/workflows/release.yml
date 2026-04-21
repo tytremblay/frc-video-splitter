@@ -120,7 +120,7 @@ jobs:
       - name: Build the app
         env:
           MODE: 'production'
-          TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
+          VITE_TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
         run: pnpm build
 
       - name: Compile & release Electron app
