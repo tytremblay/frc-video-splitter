@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from 'react';
+import { Button } from '@shared/components/ui/button';
 import { TBAMatch } from '../../tba/TBATypes';
 import { useEvent } from '../../state';
 import { MatchesTableHeader } from './MatchesTableHeader';
@@ -46,8 +47,8 @@ export function MatchesTable() {
     if (tbaMatches.data) setMatchesFromTBA(tbaEvent, tbaMatches.data)
   }, [tbaMatches.data]);
 
-  if (tbaMatches.isPending && tbaEvent?.key) return <div>Loading Matches...</div>;
-  if (tbaMatches.isError) return <div>Error Loading Matches: {tbaMatches.error.message}</div>;
+  if (tbaMatches.isPending && tbaEvent?.key) return <div className="text-muted-foreground">Loading Matches...</div>;
+  if (tbaMatches.isError) return <div className="text-destructive">Error Loading Matches: {tbaMatches.error.message}</div>;
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 w-full">
@@ -56,13 +57,10 @@ export function MatchesTable() {
           <div className="inline-block min-w-full align-middle">
             {matches.length === 0 ? (
               <div className='w-full flex flex-col items-center justify-center mt-4'>
-                <div className='text-xl font-white uppercase'>No Matches Found</div>
-                <button
-                  onClick={() => addBlankMatch(0)}
-                  className='rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20'
-                >
+                <div className="text-xl font-semibold uppercase text-foreground">No Matches Found</div>
+                <Button variant="secondary" onClick={() => addBlankMatch(0)}>
                   Add Manual Match
-                </button>
+                </Button>
               </div>
             ) : (
               <table className="min-w-full border-separate border-spacing-0">

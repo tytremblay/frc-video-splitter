@@ -8,10 +8,10 @@ interface TeamBadgeProps {
 export function TeamBadge(props: TeamBadgeProps) {
   return (
     <span className={clsx(
-      'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
+      'inline-flex items-center rounded-md border px-2 py-1 text-xs font-medium',
       props.color === 'red'
-        ? 'bg-red-400/10 text-red-400 ring-red-400/20'
-        : 'bg-blue-400/10 text-blue-400 ring-blue-400/20'
+        ? 'border-destructive/30 bg-destructive/10 text-destructive'
+        : 'border-primary/30 bg-primary/10 text-primary'
     )}>
       {props.teamNumber}
     </span>

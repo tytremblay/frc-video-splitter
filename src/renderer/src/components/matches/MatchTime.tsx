@@ -1,6 +1,8 @@
 import { CheckIcon, PencilIcon } from '@heroicons/react/20/solid';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
+import { Input } from '@shared/components/ui/input';
+import { Button } from '@shared/components/ui/button';
 
 interface MatchTimeProps {
   time?: number;
@@ -14,8 +16,10 @@ export function MatchTime(props: MatchTimeProps) {
     <div className='flex flex-row gap-2 items-center'>
       {!editing && (
         <>
-          <PencilIcon className='h-4 w-4 text-white' onClick={() => setEditing(true)} />
-          <div className="text-sm text-white">
+          <Button type="button" variant="ghost" size="icon-sm" onClick={() => setEditing(true)}>
+            <PencilIcon className="h-4 w-4" />
+          </Button>
+          <div className="text-sm text-foreground">
             {props.time
               ? DateTime.fromSeconds(props.time).setZone(props.timezone).toLocaleString(DateTime.TIME_WITH_SECONDS)
               : 'N/A'}
@@ -24,8 +28,10 @@ export function MatchTime(props: MatchTimeProps) {
       )}
       {editing && (
         <>
-          <input type='text' className='text-sm' placeholder='hh:mm:ss' />
-          <CheckIcon className='h-4 w-4 text-white' onClick={() => setEditing(false)} />
+          <Input type="text" className="text-sm" placeholder="hh:mm:ss" />
+          <Button type="button" variant="ghost" size="icon-sm" onClick={() => setEditing(false)}>
+            <CheckIcon className="h-4 w-4" />
+          </Button>
         </>
       )}
     </div>

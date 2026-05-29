@@ -1,7 +1,8 @@
-import type { IpcHandler } from '../../preload/index'
+import type { IpcApi } from '../../shared/ipc'
 
 declare global {
   interface Window {
-    ipc: IpcHandler
+    ipc: IpcApi
   }
 }
+

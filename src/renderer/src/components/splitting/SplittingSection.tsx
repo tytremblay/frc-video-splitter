@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { Button } from '@shared/components/ui/button';
 import { useMatches } from '../../state/useMatches';
 import type { SplitFixedDetails } from '@shared/types';
 import { useVideo } from '../../state/useVideo';
@@ -31,27 +32,21 @@ export function SplittingSection(props: SplittingSectionProps) {
   }, [outputDir, validMatches, video.path]);
 
   return (
-    <div className='rounded border border-gray-400 p-2'>
-      <div className='text-xl font-white uppercase'>Splitting</div>
-      <div className='flex flex-row gap-2 items-center'>
-        <div className='flex flex-col gap-1'>
-          <div className='text-sm text-gray-300'>Output Directory</div>
-          <div className='text-sm text-gray-300'>{outputDir || 'Not set'}</div>
+    <div className="rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
+      <div className="text-xl font-semibold uppercase tracking-wide text-foreground">Splitting</div>
+      <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-col gap-1">
+          <div className="text-sm font-medium text-muted-foreground">Output Directory</div>
+          <div className="text-sm text-foreground">{outputDir || 'Not set'}</div>
         </div>
-        <button
-          className='rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20'
-          onClick={openDir}
-        >
+        <Button variant="secondary" onClick={openDir}>
           Change
-        </button>
+        </Button>
       </div>
 
-      <button
-        className='rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20'
-        onClick={handleSplit}
-      >
+      <Button variant="secondary" onClick={handleSplit}>
         Split {validMatches.length} Matches
-      </button>
+      </Button>
     </div>
   );
 }

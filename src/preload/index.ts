@@ -1,29 +1,38 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
-import type { SplitFixedDetails } from '../../shared/types'
+import { IpcChannel } from '../shared/ipc'
+import type { IpcApi } from '../shared/ipc'
+import type { SplitFixedDetails } from '../shared/types'
 
-const handler = {
-  send(channel: string, value: unknown) {
-    ipcRenderer.send(channel, value)
-  },
-  on(channel: string, callback: (...args: unknown[]) => void) {
-    const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
-      callback(...args)
-    ipcRenderer.on(channel, subscription)
-    return () => {
-      ipcRenderer.removeListener(channel, subscription)
-    }
-  },
-  openFile() {
-    return ipcRenderer.invoke('dialog:openFile')
-  },
-  openDirectory() {
-    return ipcRenderer.invoke('dialog:openDirectory')
-  },
-  splitMatches(details: SplitFixedDetails[]) {
-    return ipcRenderer.invoke('split:start', details)
+function subscribeToEvent<T>(channel: IpcChannel, callback: (payload: T) => void) {
+  const subscription = (_event: IpcRendererEvent, payload: T) => callback(payload)
+  ipcRenderer.on(channel, subscription)
+  return () => {
+    ipcRenderer.removeListener(channel, subscription)
   }
 }
 
-contextBridge.exposeInMainWorld('ipc', handler)
+const api: IpcApi = {
+  openFile() {
+    return ipcRenderer.invoke(IpcChannel.OpenFile)
+  },
+  openDirectory() {
+    return ipcRenderer.invoke(IpcChannel.OpenDirectory)
+  },
+  splitMatches(details: SplitFixedDetails[]) {
+    return ipcRenderer.invoke(IpcChannel.SplitStart, details)
+  },
+  onSplitStart(callback) {
+    return subscribeToEvent(IpcChannel.SplitStart, callback)
+  },
+  onSplitProgress(callback) {
+    return subscribeToEvent(IpcChannel.SplitProgress, callback)
+  },
+  onSplitEnd(callback) {
+    return subscribeToEvent(IpcChannel.SplitEnd, callback)
+  }
+}
 
-export type IpcHandler = typeof handler
+contextBridge.exposeInMainWorld('ipc', api)
+
+export type { IpcApi }
+

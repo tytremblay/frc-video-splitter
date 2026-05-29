@@ -9,7 +9,7 @@ const navigation = [
 
 export function SideBar() {
   return (
-    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-2 ring-1 ring-white/10">
+    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-sidebar px-6 pb-2 text-sidebar-foreground ring-1 ring-sidebar-border">
       <div className="flex h-16 shrink-0 items-center">
         <img
           className="h-8 w-auto"
@@ -26,7 +26,7 @@ export function SideBar() {
                   <a
                     href={item.href}
                     className={clsx(
-                      'text-gray-400 hover:text-white hover:bg-gray-800',
+                      'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                       'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                     )}
                   >

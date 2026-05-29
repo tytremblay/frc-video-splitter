@@ -1,5 +1,6 @@
 import { ClockIcon } from '@heroicons/react/20/solid';
 import { Duration } from "luxon";
+import { Button } from '@shared/components/ui/button';
 
 interface TimestampButtonProps {
   timestampSeconds: number | undefined;
@@ -8,9 +9,11 @@ interface TimestampButtonProps {
 
 export function TimestampButton(props: TimestampButtonProps) {
   return (
-    <button
+    <Button
+      type="button"
+      size="sm"
+      className="gap-1"
       onClick={props.onClick}
-      className='rounded-md bg-blue-500 px-1.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 flex flex-row items-center gap-1'
     >
       <ClockIcon className='h-4 w-4' />
       {props.timestampSeconds !== undefined && (
@@ -18,6 +21,6 @@ export function TimestampButton(props: TimestampButtonProps) {
           ? "00:00:00"
           : Duration.fromMillis(props.timestampSeconds * 1000).toFormat('hh:mm:ss')
       )}
-    </button>
+    </Button>
   );
 }
