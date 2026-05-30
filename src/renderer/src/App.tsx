@@ -2,7 +2,6 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MatchesTable } from './components/matches';
 import { SideBar } from './components/sidebar';
 import { SplittingSection } from './components/splitting/SplittingSection';
 import { EventTimeline } from './components/timeline';

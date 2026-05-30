@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react'
 import { useMatches, SplitterMatch } from '../../state/useMatches'
 import { useSettings } from '../../state/useSettings'
 import { setCurrentSeconds, setVideoTimelineOffset, useVideo } from '../../state/useVideo'
@@ -152,6 +152,9 @@ export function EventTimeline() {
   const [pxPerSec, setPxPerSec] = useState(DEFAULT_PX_PER_SEC)
   const containerRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<{ startClientY: number; startBarVisualY: number } | null>(null)
+  const segmentsRef = useRef<Segment[]>([])
+  const pxPerSecRef = useRef(pxPerSec)
+  const zoomAnchorRef = useRef<{ time: number; viewportY: number } | null>(null)
 
   const timedMatches = matches.filter(m => m.actualTime != null && m.postResultTime != null)
   const orphanMatches = matches.filter(m => m.actualTime == null || m.postResultTime == null)
@@ -160,6 +163,9 @@ export function EventTimeline() {
   const thresholdSecs = collapseBreakThresholdMinutes * 60
 
   const { segments, totalHeight } = buildLayout(sortedTimedMatches, pxPerSec, collapseBreaks, thresholdSecs)
+
+  segmentsRef.current = segments
+  pxPerSecRef.current = pxPerSec
 
   const timelineStart = sortedTimedMatches.length > 0 ? sortedTimedMatches[0].actualTime! : 0
   const timelineEnd = sortedTimedMatches.length > 0
@@ -181,12 +187,26 @@ export function EventTimeline() {
       if (isMac ? e.metaKey : e.ctrlKey) {
         e.preventDefault()
         const factor = e.deltaY < 0 ? 1.1 : 0.9
+        const rect = el.getBoundingClientRect()
+        const viewportY = e.clientY - rect.top
+        const contentY = viewportY + el.scrollTop
+        const anchorTime = visualYToTime(contentY, segmentsRef.current, pxPerSecRef.current)
+        zoomAnchorRef.current = { time: anchorTime, viewportY }
         setPxPerSec(prev => Math.min(MAX_PX_PER_SEC, Math.max(MIN_PX_PER_SEC, prev * factor)))
       }
     }
     el.addEventListener('wheel', handleWheel, { passive: false })
     return () => el.removeEventListener('wheel', handleWheel)
   }, [])
+
+  useLayoutEffect(() => {
+    const anchor = zoomAnchorRef.current
+    const el = containerRef.current
+    if (!anchor || !el) return
+    zoomAnchorRef.current = null
+    const newContentY = timeToVisualYFull(anchor.time, segments, pxPerSec)
+    el.scrollTop = newContentY - anchor.viewportY
+  }, [pxPerSec])
 
   function handleMatchClick(match: SplitterMatch) {
     setSelectedId(match.id)

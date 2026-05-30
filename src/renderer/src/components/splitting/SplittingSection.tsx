@@ -2,12 +2,11 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { SplitBlock, SplitFixedDetails } from '@shared/types';
 import { CheckIcon, ChevronDownIcon, FolderOpenIcon, ScissorsIcon, TriangleAlertIcon } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useMatches, type SplitterMatch } from '../../state/useMatches';
 import { useSettings } from '../../state/useSettings';
+import { useSplitOperation, type MatchSplitStatus } from '../../state/useSplitOperation';
 import { useVideo } from '../../state/useVideo';
-
-type MatchSplitStatus = 'ready' | 'warning' | 'splitting' | 'split'
 
 function buildBlocks(
   match: SplitterMatch,
@@ -61,11 +60,8 @@ export function SplittingSection(props: SplittingSectionProps) {
   const video = useVideo();
   const settings = useSettings();
   const [outputDir, setOutputDir] = useState<string>(props.outputDir);
-  const [statusMap, setStatusMap] = useState<Map<string, MatchSplitStatus>>(new Map());
-  const [progressMap, setProgressMap] = useState<Map<string, number>>(new Map());
-  const [outputFileMap, setOutputFileMap] = useState<Map<string, string>>(new Map());
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  const unsubscribeRefs = useRef<Array<() => void>>([]);
+  const { statusMap, progressMap, outputFileMap, start } = useSplitOperation();
 
   const openDir = useCallback(async () => {
     const dir = await window.ipc.openDirectory();
@@ -88,37 +84,15 @@ export function SplittingSection(props: SplittingSectionProps) {
   );
 
   const handleSplit = useCallback(async () => {
-    unsubscribeRefs.current.forEach(unsub => unsub());
-    unsubscribeRefs.current = [];
-
     const details: SplitFixedDetails[] = visibleMatches.map(match => ({
       matchKey: match.id,
       inputFile: video.path,
       outputFile: `${outputDir}/${match.name}.mp4`,
       blocks: buildBlocks(match, settings),
     }));
-
-    const newOutputFileMap = new Map(details.map(d => [d.matchKey, d.outputFile]));
-    setOutputFileMap(newOutputFileMap);
-    setProgressMap(new Map());
-    setStatusMap(new Map(visibleMatches.map(m => [m.id, deriveStatus(m, video.durationSeconds)])));
-
-    const unsubStart = window.ipc.onSplitStart(({ matchKey }) => {
-      setStatusMap(prev => new Map(prev).set(matchKey, 'splitting'));
-    });
-    const unsubProgress = window.ipc.onSplitProgress(({ matchKey, percent }) => {
-      setProgressMap(prev => new Map(prev).set(matchKey, percent));
-    });
-    const unsubEnd = window.ipc.onSplitEnd(({ matchKey }) => {
-      setStatusMap(prev => new Map(prev).set(matchKey, 'split'));
-      setProgressMap(prev => { const next = new Map(prev); next.delete(matchKey); return next; });
-    });
-    unsubscribeRefs.current = [unsubStart, unsubProgress, unsubEnd];
-
-    await window.ipc.splitMatches(details);
-  }, [outputDir, visibleMatches, video.path, video.durationSeconds, settings]);
-
-  useEffect(() => () => { unsubscribeRefs.current.forEach(unsub => unsub()); }, []);
+    const initialStatusMap = new Map(visibleMatches.map(m => [m.id, deriveStatus(m, video.durationSeconds)]));
+    await start(details, initialStatusMap);
+  }, [outputDir, visibleMatches, video.path, video.durationSeconds, settings, start]);
 
   const canSplit = !!video.path && !!outputDir && visibleMatches.length > 0;
   const splitCount = [...statusMap.values()].filter(s => s === 'split').length;
