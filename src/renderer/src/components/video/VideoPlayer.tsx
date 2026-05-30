@@ -1,18 +1,46 @@
-import { BackwardIcon, ChevronLeftIcon, ChevronRightIcon, ForwardIcon, PlusCircleIcon } from '@heroicons/react/20/solid';
-import { useCallback, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
+import {
+  ChevronLeftIcon,
+  FastForwardIcon,
+  FileVideoIcon,
+  FolderOpenIcon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
+  RewindIcon,
+} from 'lucide-react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import { setCurrentSeconds, setVideoPath, useVideo } from '../../state/useVideo';
-import clsx from 'clsx';
-import { Button } from '@shared/components/ui/button';
 
-const increments = [-600, -135, -30, -5, 5, 30, 135, 600];
+const SEEK_BACK = [-600, -135, -30, -5] as const;
+const SEEK_FORWARD = [5, 30, 135, 600] as const;
+
+function formatTimestamp(seconds: number) {
+  const total = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function formatSeekLabel(seconds: number) {
+  const abs = Math.abs(seconds);
+  if (abs >= 60) return `${abs / 60}m`;
+  return `${abs}s`;
+}
+
+function basename(path: string) {
+  const parts = path.split(/[/\\]/);
+  return parts[parts.length - 1] || path;
+}
 
 interface VideoPlayerProps {
   hidden?: boolean;
 }
 
 export function VideoPlayer(props: VideoPlayerProps) {
-  const [hidden, setHidden] = useState(props.hidden);
+  const [collapsed, setCollapsed] = useState(props.hidden ?? false);
   const video = useVideo();
   const playerRef = useRef<ReactPlayer>(null);
 
@@ -21,58 +49,159 @@ export function VideoPlayer(props: VideoPlayerProps) {
     setVideoPath(file);
   }, []);
 
+  const seekBy = useCallback((increment: number) => {
+    const current = playerRef.current?.getCurrentTime() ?? 0;
+    playerRef.current?.seekTo(current + increment, 'seconds');
+  }, []);
+
+  const fileName = useMemo(
+    () => (video.path ? basename(video.path) : ''),
+    [video.path],
+  );
+
+  const fileUrl = useMemo(
+    () => video.path ? encodeURI(`file://${video.path}`) : '',
+    [video.path],
+  );
+
   if (!video.path) {
     return (
-      <button
-        type="button"
-        className="flex h-full min-h-48 w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border border-border bg-card p-6 text-card-foreground transition-colors hover:bg-muted/50"
-        onClick={openFile}
-      >
-        <h2 className="text-2xl font-semibold text-foreground">Add Video</h2>
-        <PlusCircleIcon className="h-20 w-20 text-muted-foreground" />
-      </button>
+      <div className="flex min-h-52 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-border/60 bg-card/50 p-8 text-center md:min-h-56">
+        <div className="flex size-12 items-center justify-center rounded-full bg-muted ring-1 ring-border/60">
+          <FileVideoIcon className="size-5 text-muted-foreground" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-semibold">No video loaded</p>
+          <p className="text-xs text-muted-foreground max-w-[18rem]">
+            Select a recording to preview, scrub, and mark match start and end times.
+          </p>
+        </div>
+        <Button type="button" onClick={openFile} size="sm" className="mt-1">
+          <FolderOpenIcon />
+          Select video
+        </Button>
+      </div>
+    );
+  }
+
+  if (collapsed) {
+    return (
+      <div className="flex w-fit items-center rounded-lg border border-border/60 bg-card p-1.5">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="Expand video panel"
+          onClick={() => setCollapsed(false)}
+        >
+          <PanelLeftOpenIcon className="size-4" />
+        </Button>
+      </div>
     );
   }
 
   return (
-    <div className={clsx('flex flex-col justify-start items-center p-4 transition-transform', hidden && 'w-0')}>
-      {hidden ? (
-        <Button type="button" variant="ghost" size="icon-sm" onClick={() => setHidden(false)}>
-          <ChevronRightIcon className="size-4" />
-        </Button>
-      ) : (
-        <Button type="button" variant="ghost" size="icon-sm" onClick={() => setHidden(true)}>
-          <ChevronLeftIcon className="size-4" />
-        </Button>
-      )}
-      <div className="overflow-hidden rounded-lg border border-border shadow-sm">
+    <div className="flex flex-col rounded-lg border border-border/60 bg-card overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Source
+          </p>
+          <p className="mt-0.5 truncate text-sm font-medium text-foreground" title={video.path}>
+            {fileName}
+          </p>
+        </div>
+        <div className="flex items-center gap-1 ml-2 shrink-0">
+          <Button type="button" variant="outline" size="sm" onClick={openFile} className="h-7 text-xs">
+            <FolderOpenIcon className="size-3" />
+            Change
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            aria-label="Collapse video panel"
+            onClick={() => setCollapsed(true)}
+          >
+            <PanelLeftCloseIcon className="size-3.5" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Video */}
+      <div className="aspect-video overflow-hidden bg-black">
         <ReactPlayer
-          url={video.path}
-          controls={true}
+          url={fileUrl}
+          controls
           ref={playerRef}
-          width='100%'
-          height='100%'
+          width="100%"
+          height="100%"
           onProgress={(state) => setCurrentSeconds(state.playedSeconds)}
         />
       </div>
-      {!hidden && (
-        <div className='w-full flex flex-row justify-center gap-3 py-2'>
-          {increments.map((increment) => (
-            <Button
-              key={`${increment}`}
-              type="button"
-              variant="outline"
-              className="flex h-auto flex-col gap-1 py-2 font-normal"
-              onClick={() =>
-                playerRef.current?.seekTo(playerRef.current?.getCurrentTime() + increment, 'seconds')
-              }
-            >
-              {increment < 0 ? <BackwardIcon className="h-6 w-6" /> : <ForwardIcon className="h-6 w-6" />}
-              <span className="text-xs text-muted-foreground">{Math.abs(increment)}s</span>
-            </Button>
-          ))}
+
+      {/* Timestamp + seek controls */}
+      <div className="border-t border-border/60 bg-muted/20 px-4 py-3 space-y-3">
+        {/* Current time display */}
+        <div className="flex items-center justify-center">
+          <div className="flex items-center gap-2 rounded-md border border-border/60 bg-background/60 px-4 py-1.5">
+            <div className="size-1.5 rounded-full bg-primary animate-pulse" />
+            <span className="font-mono text-lg font-medium tabular-nums text-foreground tracking-widest">
+              {formatTimestamp(video.currentSeconds)}
+            </span>
+          </div>
         </div>
-      )}
+
+        {/* Seek buttons */}
+        <div className="space-y-1.5">
+          <p className="text-center text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            Seek
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <ButtonGroup className="w-full justify-center sm:w-auto">
+              {SEEK_BACK.map((increment) => (
+                <Button
+                  key={increment}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="min-w-11 flex-col gap-0.5 py-1.5 h-auto border-border/60 text-muted-foreground hover:text-foreground hover:bg-accent"
+                  onClick={() => seekBy(increment)}
+                >
+                  <RewindIcon className="size-3" />
+                  <span className="font-mono text-[9px] leading-none">
+                    {formatSeekLabel(increment)}
+                  </span>
+                </Button>
+              ))}
+            </ButtonGroup>
+
+            <div className="hidden items-center justify-center text-border/60 sm:flex" aria-hidden>
+              <ChevronLeftIcon className="size-3.5 opacity-30" />
+            </div>
+
+            <ButtonGroup className="w-full justify-center sm:w-auto">
+              {SEEK_FORWARD.map((increment) => (
+                <Button
+                  key={increment}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="min-w-11 flex-col gap-0.5 py-1.5 h-auto border-border/60 text-muted-foreground hover:text-foreground hover:bg-accent"
+                  onClick={() => seekBy(increment)}
+                >
+                  <FastForwardIcon className="size-3" />
+                  <span className="font-mono text-[9px] leading-none">
+                    {formatSeekLabel(increment)}
+                  </span>
+                </Button>
+              ))}
+            </ButtonGroup>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

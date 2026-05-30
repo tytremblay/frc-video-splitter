@@ -1,8 +1,8 @@
-import { CheckIcon, PencilIcon } from '@heroicons/react/20/solid';
+import { CheckIcon, PencilIcon } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
-import { Input } from '@shared/components/ui/input';
-import { Button } from '@shared/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 interface MatchTimeProps {
   time?: number;

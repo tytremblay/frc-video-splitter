@@ -1,4 +1,12 @@
-import { CalendarIcon, MapPinIcon, PencilIcon } from '@heroicons/react/20/solid';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { CalendarIcon, MapPinIcon, PencilIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useEvent } from '../../state';
 import { EditEvent } from './EditEvent';
@@ -7,28 +15,35 @@ export function EventHeader() {
   const [editing, setEditing] = useState<boolean>(true);
   const event = useEvent();
 
+  if (editing) {
+    return <EditEvent onEditingComplete={() => setEditing(false)} />;
+  }
+
   return (
-    <div className="lg:flex lg:items-center lg:justify-between px-2 pt-4 overflow-visible w-full">
-      {editing ? (
-        <EditEvent onEditingComplete={() => setEditing(false)} />
-      ) : (
-        <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-bold leading-7 text-foreground sm:truncate sm:text-3xl sm:tracking-tight flex flex-row gap-2 items-center">
-            {event.name}
-            <PencilIcon className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground" onClick={() => setEditing(true)} />
-          </h2>
-          <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
-            <div className="mt-2 flex items-center text-sm text-muted-foreground">
-              <MapPinIcon className="mr-1.5 h-5 w-5 shrink-0 opacity-70" aria-hidden="true" />
+    <Card className="w-full min-w-0 gap-0 py-0">
+      <CardHeader className="px-4 py-4 sm:px-6">
+        <CardTitle className="text-xl sm:text-2xl">{event.name || 'Untitled event'}</CardTitle>
+        <CardDescription className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:gap-x-6">
+          {event.location && (
+            <span className="inline-flex items-center gap-1.5">
+              <MapPinIcon className="size-4 shrink-0 opacity-70" aria-hidden />
               {event.location}
-            </div>
-            <div className="mt-2 flex items-center text-sm text-muted-foreground">
-              <CalendarIcon className="mr-1.5 h-5 w-5 shrink-0 opacity-70" aria-hidden="true" />
-              {`${event.startDate} to ${event.endDate}`}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+            </span>
+          )}
+          {(event.startDate || event.endDate) && (
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarIcon className="size-4 shrink-0 opacity-70" aria-hidden />
+              {[event.startDate, event.endDate].filter(Boolean).join(' – ')}
+            </span>
+          )}
+        </CardDescription>
+        <CardAction>
+          <Button type="button" variant="outline" size="sm" onClick={() => setEditing(true)}>
+            <PencilIcon />
+            Edit
+          </Button>
+        </CardAction>
+      </CardHeader>
+    </Card>
   );
 }

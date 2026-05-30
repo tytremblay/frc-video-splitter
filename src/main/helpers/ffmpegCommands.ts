@@ -2,20 +2,19 @@ import { IpcMainInvokeEvent } from 'electron';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
-import Ffmpeg, { setFfmpegPath } from 'fluent-ffmpeg';
+import crypto from 'crypto';
+import { buildConcatList, ffmpeg, type ProgressInfo } from 'mediaforge';
 import type { SplitBlock, SplitFixedDetails } from '../../shared/types';
 import { IpcChannel } from '../../shared/ipc';
 
 export type { SplitBlock, SplitFixedDetails };
-
-const crypto = require('crypto');
 
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path.replace(
   'app.asar',
   'app.asar.unpacked'
 );
 
-setFfmpegPath(ffmpegPath);
+process.env.FFMPEG_PATH = ffmpegPath;
 
 const progressReportRateMs = 1000;
 
@@ -24,79 +23,65 @@ export function checkVersion(): void {
 }
 
 export const getRandomString = (): string => {
-  return crypto.randomBytes(4).readUInt32LE(0);
+  return crypto.randomBytes(4).readUInt32LE(0).toString();
 };
 
-export interface FfmpegFluentProgressData {
-  frames: number;
-  currentFps: number;
-  currentKbps: number;
-  targetSize: number;
-  timemark: string;
-  percent: number;
+export type FfmpegProgressData = ProgressInfo;
+
+function runFfmpeg(
+  build: () => ReturnType<typeof ffmpeg>,
+  progress?: (data: ProgressInfo) => void,
+  totalDurationUs?: number
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const proc = build()
+      .setBinary(ffmpegPath)
+      .enableProgress()
+      .spawn({ parseProgress: true, totalDurationUs });
+
+    proc.emitter.on('end', resolve);
+    proc.emitter.on('error', reject);
+    if (progress) proc.emitter.on('progress', progress);
+  });
 }
-
-export const splitVideoFileCmd = (
-  inputFilePath: string,
-  block: SplitBlock
-): { cmd: Ffmpeg.FfmpegCommand; clipPath: string } => {
-  const clipPath = path.join(
-    os.tmpdir(),
-    `clip-${getRandomString()}.mp4`
-  );
-
-  const cmd = Ffmpeg(inputFilePath)
-    .setStartTime(block.startSeconds)
-    .setDuration(block.durationSeconds)
-    .outputOptions('-codec copy')
-    .output(clipPath);
-
-  return { cmd, clipPath };
-};
-
-export const concatVideoFilesCmd = (
-  filePaths: string[],
-  outputPath: string
-): { cmd: Ffmpeg.FfmpegCommand; scriptFilePath: string } => {
-  const scriptFilePath = path.join(
-    os.tmpdir(),
-    `list-${getRandomString()}.txt`
-  );
-  const concatScript = filePaths.map((f) => `file '${f}'`).join('\n');
-  fs.writeFileSync(scriptFilePath, concatScript);
-
-  const cmd = Ffmpeg(scriptFilePath)
-    .inputOptions(['-f concat', '-safe 0'])
-    .outputOptions('-c copy')
-    .output(outputPath);
-
-  return { cmd, scriptFilePath };
-};
 
 export const splitVideoFile = (
   inputFilePath: string,
   block: SplitBlock,
-  progress?: (data: FfmpegFluentProgressData) => void
+  progress?: (data: ProgressInfo) => void
 ): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const { cmd: genCmd, clipPath } = splitVideoFileCmd(inputFilePath, block);
-    let cmd = genCmd.on('end', () => { resolve(clipPath); });
-    if (progress) cmd = cmd.on('progress', progress);
-    cmd.on('error', (error: any) => { reject(error); }).run();
-  });
+  const clipPath = path.join(os.tmpdir(), `clip-${getRandomString()}.mp4`);
+
+  return runFfmpeg(
+    () =>
+      ffmpeg(inputFilePath)
+        .seekInput(block.startSeconds)
+        .inputDuration(block.durationSeconds)
+        .output(clipPath)
+        .videoCodec('copy')
+        .audioCodec('copy'),
+    progress,
+    block.durationSeconds * 1_000_000
+  ).then(() => clipPath);
 };
 
 export const concatVideoFiles = (
   filePaths: string[],
   outputPath: string,
-  progress?: (data: FfmpegFluentProgressData) => void
-) => {
-  return new Promise((resolve, reject) => {
-    const { cmd: genCmd, scriptFilePath } = concatVideoFilesCmd(filePaths, outputPath);
-    let cmd = genCmd.on('end', () => { resolve(scriptFilePath); });
-    if (progress) cmd = cmd.on('progress', progress);
-    cmd.on('error', (error: any) => { reject(error); }).run();
-  });
+  progress?: (data: ProgressInfo) => void
+): Promise<string> => {
+  const scriptFilePath = path.join(os.tmpdir(), `list-${getRandomString()}.txt`);
+  fs.writeFileSync(scriptFilePath, buildConcatList(filePaths));
+
+  return runFfmpeg(
+    () =>
+      ffmpeg()
+        .input(scriptFilePath, { format: 'concat', extraArgs: ['-safe', '0'] })
+        .output(outputPath)
+        .videoCodec('copy')
+        .audioCodec('copy'),
+    progress
+  ).then(() => scriptFilePath);
 };
 
 export async function splitFixedLength(
@@ -115,7 +100,7 @@ export async function splitFixedLength(
         lastProgressSent = Date.now();
         event.sender.send(IpcChannel.SplitProgress, {
           matchKey: details.matchKey,
-          percent: progress.percent * 100,
+          percent: progress.percent ?? 0,
         });
       })
     )
@@ -127,7 +112,7 @@ export async function splitFixedLength(
     lastProgressSent = Date.now();
     event.sender.send(IpcChannel.SplitProgress, {
       matchKey: details.matchKey,
-      percent: progress.percent * 100,
+      percent: progress.percent ?? 0,
     });
   });
 

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from 'react';
-import { Button } from '@shared/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { TBAMatch } from '../../tba/TBATypes';
 import { useEvent } from '../../state';
 import { MatchesTableHeader } from './MatchesTableHeader';
@@ -47,32 +47,64 @@ export function MatchesTable() {
     if (tbaMatches.data) setMatchesFromTBA(tbaEvent, tbaMatches.data)
   }, [tbaMatches.data]);
 
-  if (tbaMatches.isPending && tbaEvent?.key) return <div className="text-muted-foreground">Loading Matches...</div>;
-  if (tbaMatches.isError) return <div className="text-destructive">Error Loading Matches: {tbaMatches.error.message}</div>;
+  if (tbaMatches.isPending && tbaEvent?.key) {
+    return (
+      <div className="flex items-center gap-2 text-xs text-muted-foreground py-4">
+        <div className="size-1.5 rounded-full bg-primary animate-pulse" />
+        Loading matches from TBA…
+      </div>
+    );
+  }
+
+  if (tbaMatches.isError) {
+    return (
+      <div className="flex items-center gap-2 text-xs text-destructive py-4">
+        <div className="size-1.5 rounded-full bg-destructive" />
+        Error loading matches: {tbaMatches.error.message}
+      </div>
+    );
+  }
+
+  if (matches.length === 0) {
+    return (
+      <div className="flex min-h-48 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-border/50 p-8 text-center">
+        <div className="space-y-1">
+          <p className="text-sm font-semibold">No matches yet</p>
+          <p className="max-w-sm text-xs text-muted-foreground">
+            Link an event from TBA or add matches manually to start marking timestamps.
+          </p>
+        </div>
+        <Button type="button" onClick={() => addBlankMatch(0)} size="sm" variant="outline">
+          Add match
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 w-full">
-      <div className="flow-root">
-        <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full align-middle">
-            {matches.length === 0 ? (
-              <div className='w-full flex flex-col items-center justify-center mt-4'>
-                <div className="text-xl font-semibold uppercase text-foreground">No Matches Found</div>
-                <Button variant="secondary" onClick={() => addBlankMatch(0)}>
-                  Add Manual Match
-                </Button>
-              </div>
-            ) : (
-              <table className="min-w-full border-separate border-spacing-0">
-                <MatchesTableHeader />
-                <tbody>
-                  {matches.map((match, i) => <MatchRow key={match.id} match={match} index={i} />)}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-      </div>
+    <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-border/60 bg-card">
+      <table className="min-w-full border-separate border-spacing-0">
+        <MatchesTableHeader />
+        <tbody>
+          {matches.map((match, i) => (
+            <MatchRow key={match.id} match={match} index={i} />
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan={5} className="px-4 py-2 sm:px-6">
+              <button
+                type="button"
+                onClick={() => addBlankMatch(matches.length)}
+                className="text-xs text-muted-foreground/50 hover:text-primary transition-colors flex items-center gap-1.5"
+              >
+                <span className="text-base leading-none">+</span>
+                Add match
+              </button>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
 }

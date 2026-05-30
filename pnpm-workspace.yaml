@@ -1,5 +1,9 @@
 allowBuilds:
   '@ffmpeg-installer/darwin-arm64': true
+  '@ffmpeg-installer/linux-x64': true
+  '@ffmpeg-installer/win32-x64': true
+  core-js-pure: true
   electron: true
   esbuild: true
   msw: true
+  sharp: true
