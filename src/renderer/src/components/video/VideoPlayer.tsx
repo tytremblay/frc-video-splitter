@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import {
-  ChevronLeftIcon,
   FastForwardIcon,
   FileVideoIcon,
   FolderOpenIcon,
@@ -119,17 +118,36 @@ export function VideoPlayer() {
         />
       </div>
 
-      {/* Timestamp + seek controls */}
-      <div className="border-t border-border/60 bg-muted/20 px-4 py-3 space-y-3">
-        {/* Current time display */}
-        <div className="flex items-center justify-center gap-3">
+      {/* Seek + timestamp controls — single row */}
+      <div className="border-t border-border/60 bg-muted/20 px-4 py-3 flex items-center gap-2">
+        {/* Back seek */}
+        <ButtonGroup className="shrink-0">
+          {SEEK_BACK.map((increment) => (
+            <Button
+              key={increment}
+              type="button"
+              variant="outline"
+              size="sm"
+              className="min-w-11 flex-col gap-0.5 py-1.5 h-auto border-border/60 text-muted-foreground hover:text-foreground hover:bg-accent"
+              onClick={() => seekBy(increment)}
+            >
+              <RewindIcon className="size-3.5" />
+              <span className="font-mono text-[10px] leading-none">
+                {formatSeekLabel(increment)}
+              </span>
+            </Button>
+          ))}
+        </ButtonGroup>
+
+        {/* Timestamps — centered between seek groups */}
+        <div className="flex flex-1 items-center justify-center gap-2 min-w-0">
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60">
               Playback
             </span>
-            <div className="flex items-center gap-2 rounded-md border border-border/60 bg-background/60 px-4 py-1.5">
-              <div className="size-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="font-mono text-lg font-medium tabular-nums text-foreground tracking-widest">
+            <div className="flex items-center gap-2 rounded-md border border-border/60 bg-background/60 px-3 py-1.5">
+              <div className="size-1.5 rounded-full bg-primary animate-pulse shrink-0" />
+              <span className="font-mono text-base font-medium tabular-nums text-foreground tracking-widest">
                 {formatTimestamp(video.currentSeconds)}
               </span>
             </div>
@@ -140,8 +158,8 @@ export function VideoPlayer() {
                 Event time
               </span>
               <div className="flex items-center gap-1.5 rounded-md border border-sky-500/30 bg-sky-500/5 px-3 py-1.5">
-                <div className="size-1.5 rounded-full bg-sky-500/60" />
-                <span className="font-mono text-sm tabular-nums text-sky-600 dark:text-sky-400">
+                <div className="size-1.5 rounded-full bg-sky-500/60 shrink-0" />
+                <span className="font-mono text-base tabular-nums text-sky-600 dark:text-sky-400">
                   {formatTimeOfDay(video.videoTimelineOffsetSecs + video.currentSeconds)}
                 </span>
               </div>
@@ -149,53 +167,24 @@ export function VideoPlayer() {
           )}
         </div>
 
-        {/* Seek buttons */}
-        <div className="space-y-1.5">
-          <p className="text-center text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-            Seek
-          </p>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <ButtonGroup className="w-full justify-center sm:w-auto">
-              {SEEK_BACK.map((increment) => (
-                <Button
-                  key={increment}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="min-w-11 flex-col gap-0.5 py-1.5 h-auto border-border/60 text-muted-foreground hover:text-foreground hover:bg-accent"
-                  onClick={() => seekBy(increment)}
-                >
-                  <RewindIcon className="size-3" />
-                  <span className="font-mono text-[9px] leading-none">
-                    {formatSeekLabel(increment)}
-                  </span>
-                </Button>
-              ))}
-            </ButtonGroup>
-
-            <div className="hidden items-center justify-center text-border/60 sm:flex" aria-hidden>
-              <ChevronLeftIcon className="size-3.5 opacity-30" />
-            </div>
-
-            <ButtonGroup className="w-full justify-center sm:w-auto">
-              {SEEK_FORWARD.map((increment) => (
-                <Button
-                  key={increment}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="min-w-11 flex-col gap-0.5 py-1.5 h-auto border-border/60 text-muted-foreground hover:text-foreground hover:bg-accent"
-                  onClick={() => seekBy(increment)}
-                >
-                  <FastForwardIcon className="size-3" />
-                  <span className="font-mono text-[9px] leading-none">
-                    {formatSeekLabel(increment)}
-                  </span>
-                </Button>
-              ))}
-            </ButtonGroup>
-          </div>
-        </div>
+        {/* Forward seek */}
+        <ButtonGroup className="shrink-0">
+          {SEEK_FORWARD.map((increment) => (
+            <Button
+              key={increment}
+              type="button"
+              variant="outline"
+              size="sm"
+              className="min-w-11 flex-col gap-0.5 py-1.5 h-auto border-border/60 text-muted-foreground hover:text-foreground hover:bg-accent"
+              onClick={() => seekBy(increment)}
+            >
+              <FastForwardIcon className="size-3.5" />
+              <span className="font-mono text-[10px] leading-none">
+                {formatSeekLabel(increment)}
+              </span>
+            </Button>
+          ))}
+        </ButtonGroup>
       </div>
     </div>
   );

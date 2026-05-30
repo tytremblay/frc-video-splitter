@@ -147,7 +147,7 @@ function formatDuration(secs: number): string {
 export function EventTimeline() {
   const matches = useMatches(state => state.matches)
   const { collapseBreaks, collapseBreakThresholdMinutes } = useSettings()
-  const { durationSeconds, videoTimelineOffsetSecs } = useVideo()
+  const { durationSeconds, videoTimelineOffsetSecs, currentSeconds } = useVideo()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [pxPerSec, setPxPerSec] = useState(DEFAULT_PX_PER_SEC)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -270,6 +270,11 @@ export function EventTimeline() {
     barHeight = barBottom - barTop
   }
 
+  const showPlayhead = showVideoBar
+  const playheadY = showPlayhead
+    ? timeToVisualYFull(videoTimelineOffsetSecs! + currentSeconds, segments, pxPerSec)
+    : null
+
   return (
     <div ref={containerRef} className="overflow-y-auto h-full select-none">
       <div className="px-3 pb-8 pt-3 flex flex-col gap-0">
@@ -279,8 +284,7 @@ export function EventTimeline() {
             {/* Hour markers column */}
             <div className="relative shrink-0 w-14">
               {hourMarkers.map(t => {
-                const y = timeToVisualY(t, segments, pxPerSec)
-                if (y === null) return null
+                const y = timeToVisualYFull(t, segments, pxPerSec)
                 const label = new Date(t * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
                 return (
                   <div
@@ -332,8 +336,7 @@ export function EventTimeline() {
             <div className="relative flex-1 min-w-0">
               {/* Hour tick lines */}
               {hourMarkers.map(t => {
-                const y = timeToVisualY(t, segments, pxPerSec)
-                if (y === null) return null
+                const y = timeToVisualYFull(t, segments, pxPerSec)
                 return (
                   <div
                     key={t}
@@ -377,6 +380,17 @@ export function EventTimeline() {
                   <div className="flex-1 h-px" style={{ backgroundImage: 'repeating-linear-gradient(90deg, oklch(1 0 0 / 0.12) 0px, oklch(1 0 0 / 0.12) 3px, transparent 3px, transparent 7px)' }} />
                 </div>
               ))}
+
+              {/* Playhead */}
+              {playheadY !== null && (
+                <div
+                  className="absolute left-0 right-0 z-20 pointer-events-none"
+                  style={{ top: playheadY }}
+                >
+                  <div className="absolute left-0 right-0 h-px" style={{ background: 'oklch(0.75 0.18 35 / 0.9)' }} />
+                  <div className="absolute left-0 right-0 h-px translate-y-[1px] blur-sm" style={{ background: 'oklch(0.75 0.18 35 / 0.5)' }} />
+                </div>
+              )}
 
               {/* Match blocks */}
               {segments.filter((s): s is MatchSegment => s.type === 'match').map(({ match, visualTop, visualHeight }) => {
