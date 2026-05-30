@@ -14,8 +14,8 @@ export default function Layout({ children }: LayoutProps) {
     <SidebarProvider>
       <SideBar />
       <SidebarInset className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <header className="flex h-12 shrink-0 items-center border-b px-4">
-          <SidebarTrigger className="-ml-1" />
+        <header className="flex h-11 shrink-0 items-center border-b border-border/60 px-3">
+          <SidebarTrigger className="size-8 text-muted-foreground hover:text-foreground" />
         </header>
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {children}
