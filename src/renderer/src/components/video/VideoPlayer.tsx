@@ -5,13 +5,20 @@ import {
   FastForwardIcon,
   FileVideoIcon,
   FolderOpenIcon,
-  PanelLeftCloseIcon,
-  PanelLeftOpenIcon,
   RewindIcon,
 } from 'lucide-react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import ReactPlayer from 'react-player';
-import { setCurrentSeconds, setVideoPath, useVideo } from '../../state/useVideo';
+import { setCurrentSeconds, setVideoDuration, setVideoPath, useVideo } from '../../state/useVideo';
+
+function formatTimeOfDay(unixSecs: number) {
+  return new Date(unixSecs * 1000).toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  })
+}
 
 const SEEK_BACK = [-600, -135, -30, -5] as const;
 const SEEK_FORWARD = [5, 30, 135, 600] as const;
@@ -35,12 +42,7 @@ function basename(path: string) {
   return parts[parts.length - 1] || path;
 }
 
-interface VideoPlayerProps {
-  hidden?: boolean;
-}
-
-export function VideoPlayer(props: VideoPlayerProps) {
-  const [collapsed, setCollapsed] = useState(props.hidden ?? false);
+export function VideoPlayer() {
   const video = useVideo();
   const playerRef = useRef<ReactPlayer>(null);
 
@@ -84,22 +86,6 @@ export function VideoPlayer(props: VideoPlayerProps) {
     );
   }
 
-  if (collapsed) {
-    return (
-      <div className="flex w-fit items-center rounded-lg border border-border/60 bg-card p-1.5">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Expand video panel"
-          onClick={() => setCollapsed(false)}
-        >
-          <PanelLeftOpenIcon className="size-4" />
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col rounded-lg border border-border/60 bg-card overflow-hidden">
       {/* Header */}
@@ -117,16 +103,6 @@ export function VideoPlayer(props: VideoPlayerProps) {
             <FolderOpenIcon className="size-3" />
             Change
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            aria-label="Collapse video panel"
-            onClick={() => setCollapsed(true)}
-          >
-            <PanelLeftCloseIcon className="size-3.5" />
-          </Button>
         </div>
       </div>
 
@@ -139,19 +115,38 @@ export function VideoPlayer(props: VideoPlayerProps) {
           width="100%"
           height="100%"
           onProgress={(state) => setCurrentSeconds(state.playedSeconds)}
+          onDuration={setVideoDuration}
         />
       </div>
 
       {/* Timestamp + seek controls */}
       <div className="border-t border-border/60 bg-muted/20 px-4 py-3 space-y-3">
         {/* Current time display */}
-        <div className="flex items-center justify-center">
-          <div className="flex items-center gap-2 rounded-md border border-border/60 bg-background/60 px-4 py-1.5">
-            <div className="size-1.5 rounded-full bg-primary animate-pulse" />
-            <span className="font-mono text-lg font-medium tabular-nums text-foreground tracking-widest">
-              {formatTimestamp(video.currentSeconds)}
+        <div className="flex items-center justify-center gap-3">
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              Playback
             </span>
+            <div className="flex items-center gap-2 rounded-md border border-border/60 bg-background/60 px-4 py-1.5">
+              <div className="size-1.5 rounded-full bg-primary animate-pulse" />
+              <span className="font-mono text-lg font-medium tabular-nums text-foreground tracking-widest">
+                {formatTimestamp(video.currentSeconds)}
+              </span>
+            </div>
           </div>
+          {video.videoTimelineOffsetSecs !== null && (
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-[9px] font-semibold uppercase tracking-widest text-sky-600/70 dark:text-sky-400/70">
+                Event time
+              </span>
+              <div className="flex items-center gap-1.5 rounded-md border border-sky-500/30 bg-sky-500/5 px-3 py-1.5">
+                <div className="size-1.5 rounded-full bg-sky-500/60" />
+                <span className="font-mono text-sm tabular-nums text-sky-600 dark:text-sky-400">
+                  {formatTimeOfDay(video.videoTimelineOffsetSecs + video.currentSeconds)}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Seek buttons */}

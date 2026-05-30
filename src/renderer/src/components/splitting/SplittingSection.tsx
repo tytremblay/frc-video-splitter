@@ -1,9 +1,33 @@
 import { Button } from '@/components/ui/button';
-import type { SplitFixedDetails } from '@shared/types';
+import type { SplitBlock, SplitFixedDetails } from '@shared/types';
 import { FolderOpenIcon, ScissorsIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { useMatches } from '../../state/useMatches';
+import { useMatches, type SplitterMatch } from '../../state/useMatches';
+import { useSettings } from '../../state/useSettings';
 import { useVideo } from '../../state/useVideo';
+
+function buildBlocks(
+  match: SplitterMatch,
+  settings: ReturnType<typeof useSettings.getState>
+): SplitBlock[] {
+  const { startPaddingSeconds, endPaddingSeconds, matchLengthSeconds, resultsLengthSeconds, clipDeadAir, deadAirThresholdSeconds } = settings;
+
+  const matchStart = match.fromSeconds! - startPaddingSeconds;
+  const matchEnd = match.fromSeconds! + matchLengthSeconds + endPaddingSeconds;
+  const resultsStart = match.toSeconds! - startPaddingSeconds;
+  const resultsEnd = match.toSeconds! + resultsLengthSeconds + endPaddingSeconds;
+
+  const gap = resultsStart - matchEnd;
+
+  if (clipDeadAir && gap > deadAirThresholdSeconds) {
+    return [
+      { startSeconds: matchStart, durationSeconds: matchEnd - matchStart },
+      { startSeconds: resultsStart, durationSeconds: resultsEnd - resultsStart },
+    ];
+  }
+
+  return [{ startSeconds: matchStart, durationSeconds: resultsEnd - matchStart }];
+}
 
 interface SplittingSectionProps {
   outputDir: string;
@@ -12,6 +36,7 @@ interface SplittingSectionProps {
 export function SplittingSection(props: SplittingSectionProps) {
   const matches = useMatches(state => state.matches);
   const video = useVideo();
+  const settings = useSettings();
   const [outputDir, setOutputDir] = useState<string>(props.outputDir);
 
   const openDir = useCallback(async () => {
@@ -26,11 +51,11 @@ export function SplittingSection(props: SplittingSectionProps) {
       matchKey: match.name,
       inputFile: video.path,
       outputFile: `${outputDir}/${match.name}.mp4`,
-      blocks: [{ startSeconds: match.fromSeconds, durationSeconds: match.toSeconds - match.fromSeconds }]
+      blocks: buildBlocks(match, settings)
     }));
 
     await window.ipc.splitMatches(details);
-  }, [outputDir, validMatches, video.path]);
+  }, [outputDir, validMatches, video.path, settings]);
 
   const canSplit = !!video.path && !!outputDir && validMatches.length > 0;
 

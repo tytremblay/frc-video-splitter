@@ -36,12 +36,13 @@ import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { setEvent, setEventFromTBA, useEvent } from '../../state';
+import { useSettings } from '../../state/useSettings';
 import { TBAEvent } from '../../tba/TBATypes';
 
-async function getEvents(year: number) {
+async function getEvents(year: number, apiKey: string) {
   const res = await fetch(`https://www.thebluealliance.com/api/v3/events/${encodeURIComponent(year)}`, {
     headers: {
-      'X-TBA-Auth-Key': '5c86cepWKD99NPe4M7WZVAF9N7LwKVdXpWmkRIRYBYdUrPCG1OaaF9DkvegcttFr',
+      'X-TBA-Auth-Key': apiKey || import.meta.env.VITE_TBA_API_KEY,
     }
   });
   const events = await res.json() as TBAEvent[];
@@ -60,6 +61,7 @@ interface EditEventProps {
 
 export function EditEvent(props: EditEventProps) {
   const event = useEvent();
+  const tbaApiKey = useSettings(s => s.tbaApiKey);
 
   const handleTBAEvent = useCallback((value: TBAEvent) => {
     setEventFromTBA(value);
@@ -73,7 +75,7 @@ export function EditEvent(props: EditEventProps) {
   const [tbaOpen, setTbaOpen] = useState(false);
 
   const queryClient = useQueryClient();
-  const events = useQuery({ queryKey: ['events', year], queryFn: async () => getEvents(year) });
+  const events = useQuery({ queryKey: ['events', year, tbaApiKey], queryFn: async () => getEvents(year, tbaApiKey) });
 
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ['events'] });

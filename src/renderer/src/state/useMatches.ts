@@ -9,6 +9,8 @@ export type SplitterMatch = {
   sourceVideoPath: string
   fromSeconds?: number
   toSeconds?: number
+  actualTime?: number
+  postResultTime?: number
 }
 
 export interface MatchesState {
@@ -33,6 +35,8 @@ export function setMatchesFromTBA(tbaEvent: TBAEvent, tbaMatches: TBAMatch[]) {
     name: `${t.comp_level.toUpperCase()}${t.match_number}`,
     description: `${t.alliances.red.team_keys.map(matchKeyToNumber).join(", ")} vs ${t.alliances.blue.team_keys.map(matchKeyToNumber).join(", ")}`,
     sourceVideoPath: "",
+    actualTime: t.actual_time || undefined,
+    postResultTime: t.post_result_time || undefined,
   }))
   useMatches.setState({ matches })
 }

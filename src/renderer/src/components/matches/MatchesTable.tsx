@@ -7,7 +7,7 @@ import { MatchesTableHeader } from './MatchesTableHeader';
 import { MatchRow } from './MatchRow';
 import { addBlankMatch, setMatchesFromTBA, useMatches } from '../../state/useMatches';
 
-const tbaKey: string | undefined = import.meta.env.VITE_TBA_API_KEY;
+const tbaKey: string = import.meta.env.VITE_TBA_API_KEY;
 
 async function getMatches(eventKey: string) {
   const req = await fetch(`https://www.thebluealliance.com/api/v3/event/${eventKey}/matches`, {

@@ -30,19 +30,30 @@ If `actual_time` or `post_result_time` is missing, the match has no projected ti
 ### Clip
 The output video file produced for a single match. Named `<matchName>.mp4` and written to the user-chosen output directory. A clip is composed of one or two **blocks** derived from user settings:
 
-- **Match block**: `[actual_time - start_offset, actual_time - start_offset + match_length]`
-- **Results block**: `[post_result_time - start_offset, post_result_time - start_offset + results_length]`
-- If the results block start ≤ match block end, the two are merged into one continuous block.
+- **Match block**: `[fromSeconds - startPaddingSeconds, fromSeconds + matchLengthSeconds + endPaddingSeconds]`
+- **Results block**: `[toSeconds - startPaddingSeconds, toSeconds + resultsLengthSeconds + endPaddingSeconds]`
+- If the dead air gap between the two blocks is ≤ `deadAirThresholdSeconds` (or `clipDeadAir` is disabled), the blocks are merged into one continuous block.
+- **Dead air gap**: `(toSeconds - startPaddingSeconds) - (fromSeconds + matchLengthSeconds + endPaddingSeconds)`
+
+Blocks are computed in the renderer from `SplitterMatch` timestamps and user settings before being passed over IPC as a `SplitFixedDetails`. The main process receives fully-resolved blocks and executes ffmpeg without any settings knowledge.
 
 ### Settings
 User-configurable values that control clip generation:
 
-| Setting | Description |
-|---|---|
-| `start_offset` | Seconds before `actual_time` / `post_result_time` to begin each block |
-| `match_length` | Duration in seconds of the match block |
-| `results_length` | Duration in seconds of the results block |
-| `filename_format` | `tba_key` (e.g. `2025mimid_qm1.mp4`) or `human_readable` (e.g. `2025 Greater Pittsburgh - QM1.mp4`) |
+| Setting | Default | Description |
+|---|---|---|
+| `startPaddingSeconds` | 3 | Seconds before `fromSeconds` / `toSeconds` to begin each block |
+| `endPaddingSeconds` | 3 | Seconds after the match block end / results block end |
+| `matchLengthSeconds` | 135 | Duration of match gameplay after kickoff (`fromSeconds`) |
+| `resultsLengthSeconds` | 10 | Duration of results screen footage after `toSeconds` |
+| `clipDeadAir` | false | Whether to cut the gap between match and results blocks |
+| `deadAirThresholdSeconds` | 30 | Minimum gap duration that triggers a dead air cut |
+
+### Event Timeline
+A vertical, scrollable visualization of all matches in wall-clock time. Match blocks are proportional in height to their duration (`actual_time` → `post_result_time`). Gaps between matches represent real downtime and are rendered as empty space. Matches without TBA timing data ("orphan matches") appear as fixed-height blocks below the timed section, visually distinct. Scroll pans the timeline; Ctrl+scroll zooms (adjusts pixels-per-second). Clicking a match selects it and seeks the video to its `fromSeconds`. The timeline lives alongside the `MatchesTable` behind a tab toggle in the main content area.
+
+### Orphan Match
+A match with no `actualTime` or `postResultTime` — either created manually or imported from TBA with incomplete data. Cannot be positioned on the Event Timeline by wall-clock time; rendered as a fixed-height block in a separate section below timed matches.
 
 ### Session Persistence
 The full session state (event, matches with timestamps and overrides, video path, output directory, settings) is auto-saved to disk via `electron-store` so users can resume across restarts.

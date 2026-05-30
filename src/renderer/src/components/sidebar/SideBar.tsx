@@ -9,14 +9,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { CalendarIcon, MapPinIcon, PencilIcon, ScissorsIcon } from 'lucide-react';
+import { CalendarIcon, MapPinIcon, PencilIcon, ScissorsIcon, SettingsIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useEvent } from '../../state';
 import { EditEventDialog } from '../event/EditEventDialog';
+import { SettingsDialog } from '../settings/SettingsDialog';
 
 export function SideBar() {
   const event = useEvent();
   const [editOpen, setEditOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <>
@@ -48,6 +50,15 @@ export function SideBar() {
                   >
                     <PencilIcon className="size-4" />
                     <span>Edit Event</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => setSettingsOpen(true)}
+                    className="text-sidebar-foreground/70 hover:text-sidebar-foreground data-[active]:text-primary data-[active]:bg-primary/10"
+                  >
+                    <SettingsIcon className="size-4" />
+                    <span>Settings</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -87,6 +98,7 @@ export function SideBar() {
       </Sidebar>
 
       <EditEventDialog open={editOpen} onOpenChange={setEditOpen} />
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </>
   );
 }
