@@ -1,12 +1,14 @@
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import type { SplitBlock, SplitFixedDetails } from '@shared/types';
-import { CheckIcon, ChevronDownIcon, FolderOpenIcon, ScissorsIcon, TriangleAlertIcon } from 'lucide-react';
+import { CalendarDaysIcon, FolderOpenIcon, ScissorsIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { useMatches, type SplitterMatch } from '../../state/useMatches';
+import { useEvent } from '../../state/useEvent';
+import { type SplitterMatch, useMatches } from '../../state/useMatches';
 import { useSettings } from '../../state/useSettings';
-import { useSplitOperation, type MatchSplitStatus } from '../../state/useSplitOperation';
+import { type MatchSplitStatus, useSplitOperation } from '../../state/useSplitOperation';
 import { useVideo } from '../../state/useVideo';
+import { FileConflictDialog } from './FileConflictDialog';
+import { MatchListItem } from './MatchListItem';
 
 function buildBlocks(
   match: SplitterMatch,
@@ -31,36 +33,28 @@ function buildBlocks(
   return [{ startSeconds: matchStart, durationSeconds: resultsEnd - matchStart }];
 }
 
-function formatTimestamp(seconds: number) {
-  const total = Math.max(0, Math.floor(seconds));
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
-
 function deriveStatus(match: SplitterMatch, durationSeconds: number): 'ready' | 'warning' {
-  if (match.fromSeconds! < 0 || match.toSeconds! > durationSeconds) return 'warning'
-  return 'ready'
-}
-
-function warningReason(match: SplitterMatch, durationSeconds: number): string {
-  const reasons: string[] = []
-  if (match.fromSeconds! < 0) reasons.push(`starts ${formatTimestamp(-match.fromSeconds!)} before video`)
-  if (match.toSeconds! > durationSeconds) reasons.push(`ends ${formatTimestamp(match.toSeconds! - durationSeconds)} after video`)
-  return reasons.join(' · ')
+  if (match.fromSeconds! < 0 || match.toSeconds! > durationSeconds) return 'warning';
+  return 'ready';
 }
 
 interface SplittingSectionProps {
   outputDir: string;
+  onOpenEventDialog: () => void;
 }
 
 export function SplittingSection(props: SplittingSectionProps) {
+  const eventName = useEvent(state => state.name);
   const matches = useMatches(state => state.matches);
   const video = useVideo();
   const settings = useSettings();
   const [outputDir, setOutputDir] = useState<string>(props.outputDir);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [pendingSplit, setPendingSplit] = useState<{
+    details: SplitFixedDetails[];
+    initialStatusMap: Map<string, MatchSplitStatus>;
+    conflictingPaths: string[];
+  } | null>(null);
   const { statusMap, progressMap, outputFileMap, start } = useSplitOperation();
 
   const openDir = useCallback(async () => {
@@ -83,6 +77,15 @@ export function SplittingSection(props: SplittingSectionProps) {
     match.toSeconds > 0
   );
 
+  const runSplit = useCallback(async (details: SplitFixedDetails[], initialStatusMap: Map<string, MatchSplitStatus>) => {
+    const conflictingPaths = await window.ipc.checkFilesExist(details.map(d => d.outputFile));
+    if (conflictingPaths.length === 0) {
+      await start(details, initialStatusMap);
+    } else {
+      setPendingSplit({ details, initialStatusMap, conflictingPaths });
+    }
+  }, [start]);
+
   const handleSplit = useCallback(async () => {
     const details: SplitFixedDetails[] = visibleMatches.map(match => ({
       matchKey: match.id,
@@ -91,8 +94,40 @@ export function SplittingSection(props: SplittingSectionProps) {
       blocks: buildBlocks(match, settings),
     }));
     const initialStatusMap = new Map(visibleMatches.map(m => [m.id, deriveStatus(m, video.durationSeconds)]));
+    await runSplit(details, initialStatusMap);
+  }, [outputDir, visibleMatches, video.path, video.durationSeconds, settings, runSplit]);
+
+  const handleSplitMatch = useCallback(async (match: SplitterMatch) => {
+    const details: SplitFixedDetails[] = [{
+      matchKey: match.id,
+      inputFile: video.path,
+      outputFile: `${outputDir}/${match.name}.mp4`,
+      blocks: buildBlocks(match, settings),
+    }];
+    const initialStatusMap = new Map([[match.id, deriveStatus(match, video.durationSeconds)]]);
+    await runSplit(details, initialStatusMap);
+  }, [outputDir, video.path, video.durationSeconds, settings, runSplit]);
+
+  const handleConflictReplace = useCallback(async () => {
+    if (!pendingSplit) return;
+    setPendingSplit(null);
+    await start(pendingSplit.details, pendingSplit.initialStatusMap);
+  }, [pendingSplit, start]);
+
+  const handleConflictSkip = useCallback(async () => {
+    if (!pendingSplit) return;
+    const conflictSet = new Set(pendingSplit.conflictingPaths);
+    const details = pendingSplit.details.filter(d => !conflictSet.has(d.outputFile));
+    const initialStatusMap = new Map(
+      [...pendingSplit.initialStatusMap].filter(([key]) => details.some(d => d.matchKey === key))
+    );
+    setPendingSplit(null);
     await start(details, initialStatusMap);
-  }, [outputDir, visibleMatches, video.path, video.durationSeconds, settings, start]);
+  }, [pendingSplit, start]);
+
+  const handleConflictCancel = useCallback(() => {
+    setPendingSplit(null);
+  }, []);
 
   const canSplit = !!video.path && !!outputDir && visibleMatches.length > 0;
   const splitCount = [...statusMap.values()].filter(s => s === 'split').length;
@@ -102,7 +137,24 @@ export function SplittingSection(props: SplittingSectionProps) {
   }).length;
 
   return (
-    <div className="flex flex-col rounded-lg border border-border/60 bg-card overflow-hidden">
+    <div className="relative flex flex-col h-full rounded-lg border border-border/60 bg-card overflow-hidden">
+      {!eventName && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-background/80 backdrop-blur-sm p-6 text-center">
+          <div className="flex size-10 items-center justify-center rounded-full border border-border/40 bg-muted/40">
+            <CalendarDaysIcon className="size-5 text-muted-foreground/60" strokeWidth={1.5} />
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground">No event selected</p>
+            <p className="text-xs text-muted-foreground/60 max-w-[18rem] leading-relaxed">
+              Select an event to load matches and enable splitting.
+            </p>
+          </div>
+          <Button type="button" size="sm" onClick={props.onOpenEventDialog}>
+            Select event
+          </Button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="border-b border-border/60 px-4 py-3">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Export</p>
@@ -137,78 +189,32 @@ export function SplittingSection(props: SplittingSectionProps) {
           </div>
         ) : (
           <ul className="divide-y divide-border/40">
-            {visibleMatches.map((match) => {
-              const status = statusMap.get(match.id) ?? deriveStatus(match, video.durationSeconds);
-              const progress = progressMap.get(match.id);
-              const outputFile = outputFileMap.get(match.id);
-              const isExpanded = expandedIds.has(match.id);
-
-              return (
-                <li key={match.id} className="divide-y divide-border/30">
-                  {/* Summary row */}
-                  <button
-                    type="button"
-                    onClick={() => toggleExpanded(match.id)}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-muted/30 transition-colors"
-                  >
-                    <StatusIndicator status={status} progress={progress} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold truncate">{match.name}</p>
-                      {match.description && (
-                        <p className="text-[10px] text-muted-foreground/60 truncate">{match.description}</p>
-                      )}
-                    </div>
-                    <div className="shrink-0 text-right mr-1">
-                      <p className="font-mono text-[10px] text-muted-foreground/70 tabular-nums">
-                        {formatTimestamp(match.fromSeconds!)}
-                      </p>
-                      <p className="font-mono text-[10px] text-muted-foreground/40 tabular-nums">
-                        {formatTimestamp(match.toSeconds!)}
-                      </p>
-                    </div>
-                    <ChevronDownIcon className={cn(
-                      'size-3.5 shrink-0 text-muted-foreground/40 transition-transform duration-150',
-                      isExpanded && 'rotate-180'
-                    )} />
-                  </button>
-
-                  {/* Expanded detail */}
-                  {isExpanded && (
-                    <div className="px-4 py-3 bg-muted/10 space-y-2.5">
-                      {status === 'warning' && (
-                        <DetailRow label="Warning" valueClassName="text-amber-500">
-                          {warningReason(match, video.durationSeconds)}
-                        </DetailRow>
-                      )}
-                      {status === 'splitting' && progress != null && (
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Progress</span>
-                            <span className="font-mono text-[10px] text-muted-foreground/70">{Math.round(progress)}%</span>
-                          </div>
-                          <div className="h-1 rounded-full bg-border/40 overflow-hidden">
-                            <div
-                              className="h-full rounded-full bg-primary transition-all duration-300"
-                              style={{ width: `${progress}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                      {outputFile && (
-                        <DetailRow label="Output">
-                          <span className="font-mono break-all">{outputFile}</span>
-                        </DetailRow>
-                      )}
-                      <DetailRow label="Start">{formatTimestamp(match.fromSeconds!)}</DetailRow>
-                      <DetailRow label="End">{formatTimestamp(match.toSeconds!)}</DetailRow>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
+            {visibleMatches.map((match) => (
+              <MatchListItem
+                key={match.id}
+                match={match}
+                status={statusMap.get(match.id) ?? deriveStatus(match, video.durationSeconds)}
+                progress={progressMap.get(match.id)}
+                outputFile={outputFileMap.get(match.id)}
+                isExpanded={expandedIds.has(match.id)}
+                onToggleExpanded={() => toggleExpanded(match.id)}
+                onSplitMatch={() => handleSplitMatch(match)}
+                canSplit={!!outputDir && !!video.path}
+                videoDurationSeconds={video.durationSeconds}
+              />
+            ))}
           </ul>
         )}
       </div>
+
+      <FileConflictDialog
+        open={pendingSplit !== null}
+        conflictingPaths={pendingSplit?.conflictingPaths ?? []}
+        totalCount={pendingSplit?.details.length ?? 0}
+        onReplace={handleConflictReplace}
+        onSkip={handleConflictSkip}
+        onCancel={handleConflictCancel}
+      />
 
       {/* Footer */}
       <div className="border-t border-border/60 bg-muted/10 px-4 py-3 flex items-center justify-between gap-3">
@@ -226,37 +232,6 @@ export function SplittingSection(props: SplittingSectionProps) {
           Split {visibleMatches.length > 0 ? visibleMatches.length : ''} {visibleMatches.length === 1 ? 'match' : 'matches'}
         </Button>
       </div>
-    </div>
-  );
-}
-
-function StatusIndicator({ status, progress }: { status: MatchSplitStatus; progress?: number }) {
-  if (status === 'split') return <CheckIcon className="size-3.5 shrink-0 text-emerald-500" />;
-  if (status === 'warning') return <TriangleAlertIcon className="size-3.5 shrink-0 text-amber-500" />;
-  if (status === 'splitting') {
-    return (
-      <div className="relative size-3.5 shrink-0">
-        <svg className="size-full -rotate-90" viewBox="0 0 14 14">
-          <circle cx="7" cy="7" r="5.5" fill="none" strokeWidth="1.5" className="stroke-border/40" />
-          <circle
-            cx="7" cy="7" r="5.5" fill="none" strokeWidth="1.5"
-            className="stroke-primary transition-all duration-300"
-            strokeDasharray={`${2 * Math.PI * 5.5}`}
-            strokeDashoffset={`${2 * Math.PI * 5.5 * (1 - (progress ?? 0) / 100)}`}
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-    );
-  }
-  return <div className="size-1.5 rounded-full bg-primary shrink-0" />;
-}
-
-function DetailRow({ label, children, valueClassName }: { label: string; children: React.ReactNode; valueClassName?: string }) {
-  return (
-    <div className="flex items-start gap-2">
-      <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 shrink-0 w-12 pt-px">{label}</span>
-      <span className={cn('text-[10px] text-muted-foreground/80 min-w-0', valueClassName)}>{children}</span>
     </div>
   );
 }

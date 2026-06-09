@@ -15,7 +15,7 @@ interface EditEventDialogProps {
 export function EditEventDialog({ open, onOpenChange }: EditEventDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden" showCloseButton={false}>
+      <DialogContent className="p-0 gap-0" showCloseButton={false}>
         <DialogHeader className="sr-only">
           <DialogTitle>Edit event</DialogTitle>
           <DialogDescription>

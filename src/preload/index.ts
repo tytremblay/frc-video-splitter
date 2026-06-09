@@ -18,6 +18,9 @@ const api: IpcApi = {
   openDirectory() {
     return ipcRenderer.invoke(IpcChannel.OpenDirectory)
   },
+  checkFilesExist(paths: string[]) {
+    return ipcRenderer.invoke(IpcChannel.CheckFilesExist, paths)
+  },
   splitMatches(details: SplitFixedDetails[]) {
     return ipcRenderer.invoke(IpcChannel.SplitStart, details)
   },
