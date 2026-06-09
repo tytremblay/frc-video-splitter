@@ -11,4 +11,7 @@ files:
       - out
 asarUnpack:
   - "**/@ffmpeg-installer/**"
+linux:
+  target:
+    - AppImage
 publish: null
