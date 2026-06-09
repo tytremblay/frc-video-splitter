@@ -9,13 +9,15 @@ import {
 } from '@/components/ui/menubar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ScissorsIcon, ZoomInIcon, ZoomOutIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SplittingSection } from './components/splitting/SplittingSection';
 import { EventTimeline, type EventTimelineHandle } from './components/timeline';
 import { VideoPlayer } from './components/video';
 import { EditEventDialog } from './components/event/EditEventDialog';
 import { SettingsDialog } from './components/settings/SettingsDialog';
 import { useTBAMatchSync } from './state/useTBAMatchSync';
+import { setSettings, useSettings } from './state/useSettings';
+import { useTutorial } from './hooks/useTutorial';
 
 const queryClient = new QueryClient();
 
@@ -24,6 +26,15 @@ function AppInner() {
   const timelineRef = useRef<EventTimelineHandle>(null);
   const [editEventOpen, setEditEventOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { startTutorial } = useTutorial();
+  const hasSeenTutorial = useSettings(s => s.hasSeenTutorial);
+
+  useEffect(() => {
+    if (!hasSeenTutorial) {
+      setSettings({ hasSeenTutorial: true });
+      startTutorial();
+    }
+  }, []);
 
   return (
     <div className="flex h-svh flex-col overflow-hidden">
@@ -47,7 +58,7 @@ function AppInner() {
         {/* Menubar */}
         <Menubar className="h-auto border-0 bg-transparent p-0 shadow-none gap-0">
           <MenubarMenu>
-            <MenubarTrigger className="h-7 px-2.5 text-xs font-medium text-muted-foreground/80 rounded-md cursor-pointer hover:bg-muted/60 hover:text-foreground data-[state=open]:bg-muted/60 data-[state=open]:text-foreground transition-colors">
+            <MenubarTrigger data-tutorial="event-menu" className="h-7 px-2.5 text-xs font-medium text-muted-foreground/80 rounded-md cursor-pointer hover:bg-muted/60 hover:text-foreground data-[state=open]:bg-muted/60 data-[state=open]:text-foreground transition-colors">
               Event
             </MenubarTrigger>
             <MenubarContent>
@@ -58,12 +69,23 @@ function AppInner() {
           </MenubarMenu>
 
           <MenubarMenu>
-            <MenubarTrigger className="h-7 px-2.5 text-xs font-medium text-muted-foreground/80 rounded-md cursor-pointer hover:bg-muted/60 hover:text-foreground data-[state=open]:bg-muted/60 data-[state=open]:text-foreground transition-colors">
+            <MenubarTrigger data-tutorial="settings-menu" className="h-7 px-2.5 text-xs font-medium text-muted-foreground/80 rounded-md cursor-pointer hover:bg-muted/60 hover:text-foreground data-[state=open]:bg-muted/60 data-[state=open]:text-foreground transition-colors">
               Settings
             </MenubarTrigger>
             <MenubarContent>
               <MenubarItem onSelect={() => setSettingsOpen(true)}>
                 Preferences…
+              </MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+
+          <MenubarMenu>
+            <MenubarTrigger className="h-7 px-2.5 text-xs font-medium text-muted-foreground/80 rounded-md cursor-pointer hover:bg-muted/60 hover:text-foreground data-[state=open]:bg-muted/60 data-[state=open]:text-foreground transition-colors">
+              Help
+            </MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem onSelect={startTutorial}>
+                Restart tutorial…
               </MenubarItem>
             </MenubarContent>
           </MenubarMenu>

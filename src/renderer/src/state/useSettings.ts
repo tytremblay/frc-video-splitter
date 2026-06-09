@@ -13,6 +13,7 @@ export interface SettingsState {
   clipDeadAir: boolean;
   deadAirThresholdSeconds: number;
   splitConcurrency: ConcurrencyLevel;
+  hasSeenTutorial: boolean;
 }
 
 export const useSettings = create<SettingsState>()(
@@ -28,6 +29,7 @@ export const useSettings = create<SettingsState>()(
       clipDeadAir: false,
       deadAirThresholdSeconds: 30,
       splitConcurrency: 'normal',
+      hasSeenTutorial: false,
     }),
     { name: 'frc-video-splitter-settings' }
   )

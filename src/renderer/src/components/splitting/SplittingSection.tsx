@@ -137,7 +137,7 @@ export function SplittingSection(props: SplittingSectionProps) {
   }).length;
 
   return (
-    <div className="relative flex flex-col h-full rounded-lg border border-border/60 bg-card overflow-hidden">
+    <div data-tutorial="match-list" className="relative flex flex-col h-full rounded-lg border border-border/60 bg-card overflow-hidden">
       {!eventName && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-background/80 backdrop-blur-sm p-6 text-center">
           <div className="flex size-10 items-center justify-center rounded-full border border-border/40 bg-muted/40">

@@ -173,7 +173,7 @@ export const EventTimeline = forwardRef<EventTimelineHandle>(function EventTimel
     : null
 
   return (
-    <div ref={containerRef} className="overflow-y-auto h-full select-none">
+    <div ref={containerRef} data-tutorial="event-timeline" className="overflow-y-auto h-full select-none">
       <div className="px-3 pb-8 pt-3 flex flex-col gap-0">
 
         {sortedTimedMatches.length > 0 && (

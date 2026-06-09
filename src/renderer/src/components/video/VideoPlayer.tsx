@@ -86,7 +86,7 @@ export function VideoPlayer() {
   }
 
   return (
-    <div className="flex flex-col h-full rounded-lg border border-border/60 bg-card overflow-hidden">
+    <div data-tutorial="video-player" className="flex flex-col h-full rounded-lg border border-border/60 bg-card overflow-hidden">
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-3">
         <div className="min-w-0 flex-1">

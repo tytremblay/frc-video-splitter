@@ -82,6 +82,50 @@
   box-sizing: border-box;
 }
 
+/* driver.js dark theme */
+.driver-popover {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px oklch(0 0 0 / 0.5);
+}
+.driver-popover-title {
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  font-size: 14px;
+}
+.driver-popover-description {
+  font-family: var(--font-sans);
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.driver-popover-close-btn { color: var(--muted-foreground); }
+.driver-popover-close-btn:hover,
+.driver-popover-close-btn:focus { color: var(--foreground); }
+.driver-popover-progress-text {
+  font-family: var(--font-sans);
+  color: var(--muted-foreground);
+}
+.driver-popover-footer button {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-shadow: none;
+  font-family: var(--font-sans);
+}
+.driver-popover-footer button:hover,
+.driver-popover-footer button:focus { background-color: var(--accent); }
+.driver-popover-next-btn {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-color: transparent !important;
+}
+.driver-popover-next-btn:hover,
+.driver-popover-next-btn:focus { opacity: 0.9; }
+.driver-popover-arrow { border-color: var(--popover); }
+
 body {
   background-color: var(--background);
   color: var(--foreground);
