@@ -10,6 +10,7 @@ defaults:
     shell: 'bash'
 env:
   GH_TOKEN: ${{ secrets.github_token }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   get-next-version:
