@@ -86,9 +86,9 @@ export function VideoPlayer() {
   }
 
   return (
-    <div className="flex flex-col rounded-lg border border-border/60 bg-card overflow-hidden">
+    <div className="flex flex-col h-full rounded-lg border border-border/60 bg-card overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
+      <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-3">
         <div className="min-w-0 flex-1">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Source
@@ -105,8 +105,8 @@ export function VideoPlayer() {
         </div>
       </div>
 
-      {/* Video */}
-      <div className="aspect-video overflow-hidden bg-black">
+      {/* Video — scales with panel, maintains aspect ratio via object-fit */}
+      <div className="flex-1 min-h-0 overflow-hidden bg-black [&_video]:object-contain">
         <ReactPlayer
           url={fileUrl}
           controls
@@ -119,7 +119,7 @@ export function VideoPlayer() {
       </div>
 
       {/* Seek + timestamp controls — single row */}
-      <div className="border-t border-border/60 bg-muted/20 px-4 py-3 flex items-center gap-2">
+      <div className="shrink-0 border-t border-border/60 bg-muted/20 px-4 py-3 flex items-center gap-2">
         {/* Back seek */}
         <ButtonGroup className="shrink-0">
           {SEEK_BACK.map((increment) => (
@@ -142,7 +142,7 @@ export function VideoPlayer() {
         {/* Timestamps — centered between seek groups */}
         <div className="flex flex-1 items-center justify-center gap-2 min-w-0">
           <div className="flex flex-col items-center gap-0.5">
-            <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/85">
               Playback
             </span>
             <div className="flex items-center gap-2 rounded-md border border-border/60 bg-background/60 px-3 py-1.5">

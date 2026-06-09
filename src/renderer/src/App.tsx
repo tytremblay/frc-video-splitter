@@ -1,5 +1,4 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { Separator } from '@/components/ui/separator';
 import {
   Menubar,
   MenubarContent,
@@ -38,7 +37,7 @@ function AppInner() {
           <span className="text-xs font-bold tracking-[0.18em] uppercase text-primary select-none">
             FRC
           </span>
-          <span className="text-xs font-medium tracking-wide text-muted-foreground/60 select-none">
+          <span className="text-xs font-medium tracking-wide text-muted-foreground/80 select-none">
             Video Splitter
           </span>
         </div>
@@ -77,7 +76,7 @@ function AppInner() {
           <button
             type="button"
             onClick={() => timelineRef.current?.zoomOut()}
-            className="flex size-7 items-center justify-center rounded-md text-muted-foreground/60 hover:bg-muted/60 hover:text-foreground transition-colors"
+            className="flex size-7 items-center justify-center rounded-md text-muted-foreground/80 hover:bg-muted/60 hover:text-foreground transition-colors"
             title="Zoom out (Cmd/Ctrl + scroll)"
           >
             <ZoomOutIcon className="size-3.5" />
@@ -85,7 +84,7 @@ function AppInner() {
           <button
             type="button"
             onClick={() => timelineRef.current?.zoomIn()}
-            className="flex size-7 items-center justify-center rounded-md text-muted-foreground/60 hover:bg-muted/60 hover:text-foreground transition-colors"
+            className="flex size-7 items-center justify-center rounded-md text-muted-foreground/80 hover:bg-muted/60 hover:text-foreground transition-colors"
             title="Zoom in (Cmd/Ctrl + scroll)"
           >
             <ZoomInIcon className="size-3.5" />
@@ -97,15 +96,25 @@ function AppInner() {
       <div className="flex-1 min-h-0">
         <ResizablePanelGroup orientation="horizontal" className="h-full">
           <ResizablePanel defaultSize={40} minSize={20}>
-            <aside className="flex h-full flex-col gap-4 overflow-hidden p-4 sm:gap-5 sm:p-5">
-              <section aria-label="Video" className="min-w-0">
-                <VideoPlayer />
-              </section>
-              <Separator className="opacity-50" />
-              <section aria-label="Export" className="min-w-0 flex-1 min-h-0 overflow-hidden flex flex-col">
-                <SplittingSection outputDir="" onOpenEventDialog={() => setEditEventOpen(true)} />
-              </section>
-            </aside>
+            <ResizablePanelGroup orientation="vertical" className="h-full">
+              <ResizablePanel defaultSize={45} minSize={20}>
+                <div className="flex h-full flex-col overflow-hidden p-4 sm:p-5">
+                  <section aria-label="Video" className="min-w-0 flex-1 min-h-0 overflow-hidden flex flex-col">
+                    <VideoPlayer />
+                  </section>
+                </div>
+              </ResizablePanel>
+
+              <ResizableHandle withHandle />
+
+              <ResizablePanel defaultSize={55} minSize={20}>
+                <div className="flex h-full flex-col overflow-hidden p-4 sm:p-5">
+                  <section aria-label="Export" className="min-w-0 flex-1 min-h-0 overflow-hidden flex flex-col">
+                    <SplittingSection outputDir="" onOpenEventDialog={() => setEditEventOpen(true)} />
+                  </section>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
           </ResizablePanel>
 
           <ResizableHandle withHandle />

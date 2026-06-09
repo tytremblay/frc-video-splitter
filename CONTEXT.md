@@ -52,8 +52,8 @@ User-configurable values that control clip generation:
 | Setting | Default | Description |
 |---|---|---|
 | `startPaddingSeconds` | 3 | Seconds before `fromSeconds` / `toSeconds` to begin each block |
-| `endPaddingSeconds` | 3 | Seconds after the match block end / results block end |
-| `matchLengthSeconds` | 135 | Duration of match gameplay after kickoff (`fromSeconds`) |
+| `endPaddingSeconds` | 10 | Seconds after the match block end / results block end |
+| `matchLengthSeconds` | 150 | Duration of match gameplay after kickoff (`fromSeconds`) |
 | `resultsLengthSeconds` | 10 | Duration of results screen footage after `toSeconds` |
 | `clipDeadAir` | false | Whether to cut the gap between match and results blocks |
 | `deadAirThresholdSeconds` | 30 | Minimum gap duration that triggers a dead air cut |

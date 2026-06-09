@@ -118,13 +118,13 @@ export const EventTimeline = forwardRef<EventTimelineHandle>(function EventTimel
     return (
       <div className="flex min-h-48 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/30 p-8 text-center">
         <div className="size-8 rounded-full border border-border/40 flex items-center justify-center">
-          <svg className="size-4 text-muted-foreground/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <svg className="size-4 text-muted-foreground/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>
         </div>
         <div className="space-y-1">
-          <p className="text-xs font-semibold tracking-wide text-muted-foreground/70 uppercase">No matches yet</p>
-          <p className="max-w-xs text-xs text-muted-foreground/50 leading-relaxed">
+          <p className="text-xs font-semibold tracking-wide text-muted-foreground/85 uppercase">No matches yet</p>
+          <p className="max-w-xs text-xs text-muted-foreground/75 leading-relaxed">
             Link an event from TBA or add matches manually to see the timeline.
           </p>
         </div>
@@ -189,7 +189,7 @@ export const EventTimeline = forwardRef<EventTimelineHandle>(function EventTimel
                     className="absolute right-0 flex items-center gap-1.5 -translate-y-1/2"
                     style={{ top: y }}
                   >
-                    <span className="text-[9px] font-mono text-muted-foreground/40 whitespace-nowrap leading-none tracking-tight">
+                    <span className="text-[9px] font-mono text-muted-foreground/55 whitespace-nowrap leading-none tracking-tight">
                       {label}
                     </span>
                     <div className="w-1.5 h-px bg-border/40" />

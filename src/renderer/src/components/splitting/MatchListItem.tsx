@@ -46,19 +46,19 @@ export function MatchListItem({ match, status, progress, outputFile, isExpanded,
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold truncate">{match.name}</p>
             {match.description && (
-              <p className="text-[10px] text-muted-foreground/60 truncate">{match.description}</p>
+              <p className="text-[10px] text-muted-foreground/80 truncate">{match.description}</p>
             )}
           </div>
           <div className="shrink-0 text-right mr-1">
-            <p className="font-mono text-[10px] text-muted-foreground/70 tabular-nums">
+            <p className="font-mono text-[10px] text-muted-foreground/90 tabular-nums">
               {formatTimestamp(match.fromSeconds!)}
             </p>
-            <p className="font-mono text-[10px] text-muted-foreground/40 tabular-nums">
+            <p className="font-mono text-[10px] text-muted-foreground/65 tabular-nums">
               {formatTimestamp(match.toSeconds!)}
             </p>
           </div>
           <ChevronDownIcon className={cn(
-            'size-3.5 shrink-0 text-muted-foreground/40 transition-transform duration-150',
+            'size-3.5 shrink-0 text-muted-foreground/60 transition-transform duration-150',
             isExpanded && 'rotate-180'
           )} />
         </button>
@@ -66,7 +66,7 @@ export function MatchListItem({ match, status, progress, outputFile, isExpanded,
           type="button"
           disabled={!canSplit || status === 'splitting'}
           onClick={onSplitMatch}
-          className="shrink-0 flex items-center justify-center px-3 text-muted-foreground/40 hover:bg-muted/30 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="shrink-0 flex items-center justify-center px-3 text-muted-foreground/60 hover:bg-muted/30 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           title="Split this match"
         >
           <ScissorsIcon className="size-3.5" />
@@ -84,8 +84,8 @@ export function MatchListItem({ match, status, progress, outputFile, isExpanded,
           {status === 'splitting' && progress != null && (
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Progress</span>
-                <span className="font-mono text-[10px] text-muted-foreground/70">{Math.round(progress)}%</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80">Progress</span>
+                <span className="font-mono text-[10px] text-muted-foreground/90">{Math.round(progress)}%</span>
               </div>
               <div className="h-1 rounded-full bg-border/40 overflow-hidden">
                 <div

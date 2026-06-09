@@ -141,11 +141,11 @@ export function SplittingSection(props: SplittingSectionProps) {
       {!eventName && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-background/80 backdrop-blur-sm p-6 text-center">
           <div className="flex size-10 items-center justify-center rounded-full border border-border/40 bg-muted/40">
-            <CalendarDaysIcon className="size-5 text-muted-foreground/60" strokeWidth={1.5} />
+            <CalendarDaysIcon className="size-5 text-muted-foreground/75" strokeWidth={1.5} />
           </div>
           <div className="space-y-1">
             <p className="text-sm font-semibold text-foreground">No event selected</p>
-            <p className="text-xs text-muted-foreground/60 max-w-[18rem] leading-relaxed">
+            <p className="text-xs text-muted-foreground/80 max-w-[18rem] leading-relaxed">
               Select an event to load matches and enable splitting.
             </p>
           </div>
@@ -163,13 +163,13 @@ export function SplittingSection(props: SplittingSectionProps) {
 
       {/* Output folder */}
       <div className="px-4 py-3 space-y-1.5 border-b border-border/60">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">Output folder</p>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/85">Output folder</p>
         <div className="flex min-w-0 items-center gap-2">
           <div
             className="min-h-8 flex-1 truncate rounded-md border border-border/60 bg-background/40 px-3 py-1.5 font-mono text-xs text-foreground/70"
             title={outputDir || undefined}
           >
-            {outputDir || <span className="text-muted-foreground/50">Not selected</span>}
+            {outputDir || <span className="text-muted-foreground/70">Not selected</span>}
           </div>
           <Button type="button" variant="outline" size="sm" className="shrink-0 h-8 border-border/60" onClick={openDir}>
             <FolderOpenIcon className="size-3.5" />
@@ -181,7 +181,7 @@ export function SplittingSection(props: SplittingSectionProps) {
       <div className="flex-1 overflow-y-auto">
         {visibleMatches.length === 0 ? (
           <div className="px-4 py-6 text-center">
-            <p className="text-xs text-muted-foreground/50">
+            <p className="text-xs text-muted-foreground/75">
               {video.path
                 ? 'Align the video bar on the timeline to set match timestamps.'
                 : 'Load a video and align it on the timeline to populate matches.'}

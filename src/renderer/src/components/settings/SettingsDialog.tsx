@@ -53,13 +53,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden">
-        <DialogHeader className="border-b px-6 py-5">
-          <DialogTitle>Settings</DialogTitle>
-          <DialogDescription>Configure app-wide preferences.</DialogDescription>
+        <DialogHeader className="border-b border-white/[0.07] px-6 py-5">
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary mb-1">
+            Configuration
+          </p>
+          <DialogTitle className="text-[15px] font-semibold leading-snug">Settings</DialogTitle>
+          <DialogDescription className="text-[12px] leading-relaxed">Configure app-wide preferences.</DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="general" className="flex flex-col min-h-0">
-          <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto px-6 py-0 gap-0">
+          <TabsList className="w-full justify-start rounded-none border-b border-white/[0.07] bg-transparent h-auto px-6 py-0 gap-0">
             <TabsTrigger
               value="general"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-3 py-2.5 text-sm"
@@ -312,7 +315,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-end gap-2 border-t bg-muted/30 px-6 py-4">
+        <div className="flex justify-end gap-2 border-t border-white/[0.07] bg-black/20 px-6 py-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
