@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
         env:
@@ -43,7 +43,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Show version
         run: echo "Next Version is ${{ needs.get-next-version.outputs.new-release-version }} (${{ github.ref_name }})"
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - uses: pnpm/action-setup@v4
 
       - run: pnpm install --frozen-lockfile
