@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SplitFixedDetails } from '@shared/types'
+import { useSettings } from './useSettings'
 
 export type MatchSplitStatus = 'ready' | 'warning' | 'splitting' | 'split'
 
@@ -31,7 +32,8 @@ export function useSplitOperation() {
     })
     unsubscribeRefs.current = [unsubStart, unsubProgress, unsubEnd]
 
-    await window.ipc.splitMatches(details)
+    const { splitConcurrency } = useSettings.getState()
+    await window.ipc.splitMatches(details, splitConcurrency)
   }, [])
 
   return { statusMap, progressMap, outputFileMap, start }

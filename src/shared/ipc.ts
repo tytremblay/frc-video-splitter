@@ -1,4 +1,4 @@
-import type { SplitFixedDetails } from './types'
+import type { SplitFixedDetails, ConcurrencyLevel } from './types'
 
 export enum IpcChannel {
   OpenFile = 'dialog:openFile',
@@ -13,7 +13,7 @@ export interface IpcApi {
   openFile: () => Promise<string | undefined>
   openDirectory: () => Promise<string | undefined>
   checkFilesExist: (paths: string[]) => Promise<string[]>
-  splitMatches: (details: SplitFixedDetails[]) => Promise<void>
+  splitMatches: (details: SplitFixedDetails[], concurrency: ConcurrencyLevel) => Promise<void>
   onSplitStart: (callback: (payload: { matchKey: string }) => void) => () => void
   onSplitProgress: (callback: (payload: { matchKey: string; percent: number }) => void) => () => void
   onSplitEnd: (callback: (payload: { matchKey: string }) => void) => () => void

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { ConcurrencyLevel } from '@shared/types';
 
 export interface SettingsState {
   tbaApiKey: string;
@@ -11,6 +12,7 @@ export interface SettingsState {
   resultsLengthSeconds: number;
   clipDeadAir: boolean;
   deadAirThresholdSeconds: number;
+  splitConcurrency: ConcurrencyLevel;
 }
 
 export const useSettings = create<SettingsState>()(
@@ -25,6 +27,7 @@ export const useSettings = create<SettingsState>()(
       resultsLengthSeconds: 10,
       clipDeadAir: false,
       deadAirThresholdSeconds: 30,
+      splitConcurrency: 'normal',
     }),
     { name: 'frc-video-splitter-settings' }
   )

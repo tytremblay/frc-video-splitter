@@ -1,3 +1,5 @@
+export type ConcurrencyLevel = 'efficient' | 'normal' | 'performance' | 'extreme'
+
 export interface SplitBlock {
   startSeconds: number;
   durationSeconds: number;

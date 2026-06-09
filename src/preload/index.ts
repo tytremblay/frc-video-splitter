@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 import { IpcChannel } from '../shared/ipc'
 import type { IpcApi } from '../shared/ipc'
-import type { SplitFixedDetails } from '../shared/types'
+import type { SplitFixedDetails, ConcurrencyLevel } from '../shared/types'
 
 function subscribeToEvent<T>(channel: IpcChannel, callback: (payload: T) => void) {
   const subscription = (_event: IpcRendererEvent, payload: T) => callback(payload)
@@ -21,8 +21,8 @@ const api: IpcApi = {
   checkFilesExist(paths: string[]) {
     return ipcRenderer.invoke(IpcChannel.CheckFilesExist, paths)
   },
-  splitMatches(details: SplitFixedDetails[]) {
-    return ipcRenderer.invoke(IpcChannel.SplitStart, details)
+  splitMatches(details: SplitFixedDetails[], concurrency: ConcurrencyLevel) {
+    return ipcRenderer.invoke(IpcChannel.SplitStart, details, concurrency)
   },
   onSplitStart(callback) {
     return subscribeToEvent(IpcChannel.SplitStart, callback)

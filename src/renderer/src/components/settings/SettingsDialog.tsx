@@ -20,6 +20,8 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
 import { setSettings, useSettings } from '../../state/useSettings';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
+import type { ConcurrencyLevel } from '@shared/types';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -46,6 +48,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       resultsLengthSeconds: local.resultsLengthSeconds,
       clipDeadAir: local.clipDeadAir,
       deadAirThresholdSeconds: local.deadAirThresholdSeconds,
+      splitConcurrency: local.splitConcurrency,
     });
     onOpenChange(false);
   }
@@ -307,6 +310,42 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   </td>
                   <td className="px-6 py-2.5 text-xs leading-relaxed" style={{ color: 'oklch(0.48 0.018 258)', opacity: local.clipDeadAir ? 1 : 0.4 }}>
                     Gaps longer than this will be cut out.
+                  </td>
+                </tr>
+                {/* Performance divider */}
+                <tr>
+                  <td colSpan={3} className="px-6 pt-4 pb-1">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'oklch(0.42 0.015 258)' }}>Performance</span>
+                      <div className="flex-1 h-px" style={{ background: 'oklch(1 0 0 / 0.06)' }} />
+                    </div>
+                  </td>
+                </tr>
+
+                {/* Split Concurrency row */}
+                <tr>
+                  <td className="px-6 py-2.5">
+                    <label htmlFor="split-concurrency" className="text-sm font-medium cursor-pointer" style={{ color: 'oklch(0.78 0.01 240)' }}>
+                      Split Concurrency
+                    </label>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <div className="flex justify-end">
+                      <NativeSelect
+                        id="split-concurrency"
+                        size="sm"
+                        value={local.splitConcurrency}
+                        onChange={(e) => setLocal(l => ({ ...l, splitConcurrency: e.target.value as ConcurrencyLevel }))}
+                      >
+                        <NativeSelectOption value="efficient">Efficient</NativeSelectOption>
+                        <NativeSelectOption value="normal">Normal</NativeSelectOption>
+                        <NativeSelectOption value="performance">Performance</NativeSelectOption>
+                        <NativeSelectOption value="extreme">Extreme</NativeSelectOption>
+                      </NativeSelect>
+                    </div>
+                  </td>
+                  <td className="px-6 py-2.5 text-xs leading-relaxed" style={{ color: 'oklch(0.48 0.018 258)' }}>
+                    Max matches split simultaneously. Scales with your CPU core count.
                   </td>
                 </tr>
               </tbody>
