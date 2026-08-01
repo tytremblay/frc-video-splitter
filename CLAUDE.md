@@ -67,3 +67,17 @@ shadcn/ui components are installed into `src/renderer/src/components/ui/` (alias
 ### Build config
 
 `electron.vite.config.ts` configures three Vite bundles (main, preload, renderer). `electron-builder.yml` controls packaging. The `@ffmpeg-installer/ffmpeg` binary is marked `asarUnpack` so it remains accessible at runtime outside the asar archive.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs live as GitHub issues in `tytremblay/frc-video-splitter`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five canonical triage roles, each label string equal to its name. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
