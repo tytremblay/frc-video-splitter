@@ -12,6 +12,10 @@ pnpm release      # Package distributable with electron-builder (outputs to dist
 
 There are no tests in this project.
 
+## Commit conventions
+
+This repo uses [Conventional Commits](https://www.conventionalcommits.org) — commit messages drive the release version via semantic-release, so the format is mandatory (a commitlint `commit-msg` hook enforces it). Use `feat:` (minor), `fix:`/`perf:` (patch), `feat!:` or a `BREAKING CHANGE:` footer (major); `docs`/`refactor`/`chore`/`build`/`ci`/`test`/`style` produce no release. See `CONTRIBUTING.md` for the full table and examples. Config lives in `commitlint.config.js` and `release.config.js`.
+
 ## Architecture
 
 This is an **Electron desktop app** built with `electron-vite`. It splits FRC (FIRST Robotics Competition) match recordings into individual match video files using ffmpeg.
