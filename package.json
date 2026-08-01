@@ -3,7 +3,7 @@
   "license": "MIT",
   "name": "frc-video-splitter",
   "description": "Split FRC match videos into individual matches",
-  "version": "4.0.0-alpha1",
+  "version": "4.0.0-beta1",
   "author": "Ty Tremblay <ty.tremblay@gmail.com>",
   "packageManager": "pnpm@11.5.0",
   "repository": {
@@ -20,7 +20,8 @@
     "postinstall": "electron-builder install-app-deps",
     "publish": "electron-builder",
     "release": "electron-builder",
-    "updateVersion": "semantic-release"
+    "updateVersion": "semantic-release",
+    "prepare": "husky"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -64,6 +65,9 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@semantic-release/release-notes-generator": "^14.1.1",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.2.15",
@@ -72,6 +76,7 @@
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0",
     "electron-vite": "^3.0.0",
+    "husky": "^9.1.7",
     "playwright-core": "^1.60.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

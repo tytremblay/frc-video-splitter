@@ -1,87 +1,65 @@
-name: Release A New Version
-on: [push]
+name: Release
 
+on:
+  push:
+    branches: [main, beta, alpha]
+
+# Don't cancel an in-flight release; let it finish tagging/uploading.
 concurrency:
   group: release-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
-defaults:
-  run:
-    shell: 'bash'
+permissions:
+  contents: write
+
 env:
-  GH_TOKEN: ${{ secrets.github_token }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  get-next-version:
+  # 1) Decide + apply the version ONCE. semantic-release reads the Conventional
+  #    Commits since the last tag, bumps package.json, and pushes the release
+  #    commit and the vX.Y.Z tag. Then we open the GitHub Release for that tag.
+  version:
     runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.semantic.outputs.new-release-published }}
+      version: ${{ steps.semantic.outputs.new-release-version }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # semantic-release needs full history + tags
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - uses: pnpm/action-setup@v4
+
       - run: pnpm install --frozen-lockfile
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
-      - run: pnpm semantic-release --dry-run
-        id: get-next-version
-        env:
-          GITHUB_TOKEN: ${{ secrets.github_token }}
-    outputs:
-      new-release-published: ${{ steps.get-next-version.outputs.new-release-published }}
-      new-release-version: ${{ steps.get-next-version.outputs.new-release-version }}
 
-  draft:
-    needs: [get-next-version]
-    runs-on: ubuntu-latest
-    if: needs.get-next-version.outputs.new-release-published == 'true'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Show version
-        run: echo "Next Version is ${{ needs.get-next-version.outputs.new-release-version }} (${{ github.ref_name }})"
-
-      - name: Get last git tag
-        id: tag
-        run: echo "last-tag=$(git describe --tags --abbrev=0 || git rev-list --max-parents=0 ${{github.ref}})" >> $GITHUB_OUTPUT
-
-      - name: Generate release notes
-        uses: ./.github/actions/release-notes
-        id: release-note
-        with:
-          from: ${{ steps.tag.outputs.last-tag }}
-          to: ${{ github.ref }}
-          include-commit-body: true
-          include-abbreviated-commit: true
-
-      - name: Delete outdated drafts
-        uses: hugo19941994/delete-draft-releases@v1.0.0
+      - name: Run semantic-release
+        id: semantic
+        run: pnpm semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Release Draft
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.github_token }}
+      - name: Create GitHub Release
+        if: steps.semantic.outputs.new-release-published == 'true'
+        uses: softprops/action-gh-release@v2
         with:
-          prerelease: true
-          draft: true
-          tag_name: v${{ needs.get-next-version.outputs.new-release-version }}
-          name: v${{ needs.get-next-version.outputs.new-release-version }}
-          body: ${{ steps.release-note.outputs.release-note }}
-    outputs:
-      release-note: ${{ steps.release-note.outputs.release-note }}
-      version: ${{ needs.get-next-version.outputs.new-release-version }}
+          tag_name: v${{ steps.semantic.outputs.new-release-version }}
+          name: v${{ steps.semantic.outputs.new-release-version }}
+          # Any version with a pre-release identifier (e.g. 4.0.0-beta.1).
+          prerelease: ${{ contains(steps.semantic.outputs.new-release-version, '-') }}
+          generate_release_notes: true
 
-  upload_artifacts:
-    needs: [draft]
+  # 2) Build installers on each OS from the tag we just created, then attach
+  #    them to the release. Runs only when a new version was actually published.
+  build:
+    needs: version
+    if: needs.version.outputs.published == 'true'
 
     strategy:
       matrix:
@@ -91,41 +69,36 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Build from the release tag so package.json carries the bumped
+          # version into artifact names.
+          ref: v${{ needs.version.outputs.version }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - uses: pnpm/action-setup@v4
 
       - run: pnpm install --frozen-lockfile
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
-      - name: Prepare release notes
-        env:
-          RELEASE_NOTE: ${{ needs.draft.outputs.release-note }}
-        run: echo "$RELEASE_NOTE" >> ./buildResources/release-notes.md
-
-      - name: Show version
-        run: echo "Next Version is ${{ needs.draft.outputs.version }} (${{ github.ref_name }})"
-
-      - name: Update and push version tag
-        run: pnpm updateVersion
-
-      - name: Write next version to meta.json
-        run: echo "{\"version\":\"${{ needs.draft.outputs.version }}\"}" >| ./buildResources/meta.json
-
       - name: Build the app
         env:
-          MODE: 'production'
           VITE_TBA_API_KEY: ${{ secrets.TBA_API_KEY }}
         run: pnpm build
 
-      - name: Compile & release Electron app
-        id: release-to-github
-        env:
-          VITE_APP_VERSION: ${{ needs.draft.outputs.version }}
+      - name: Package installers
         run: pnpm release
 
-      - name: Delete tag for failed release
-        if: steps.release-to-github.outcome == 'failure'
-        run: git push --delete origin v${{ needs.draft.outputs.version }}```
+      - name: Attach installers to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.version.outputs.version }}
+          fail_on_unmatched_files: false
+          files: |
+            dist/*.dmg
+            dist/*.exe
+            dist/*.AppImage
+            dist/*.deb
