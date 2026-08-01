@@ -1,0 +1,40 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { ConcurrencyLevel } from '@shared/types';
+
+export interface SettingsState {
+  tbaApiKey: string;
+  collapseBreaks: boolean;
+  collapseBreakThresholdMinutes: number;
+  startPaddingSeconds: number;
+  endPaddingSeconds: number;
+  matchLengthSeconds: number;
+  resultsLengthSeconds: number;
+  clipDeadAir: boolean;
+  deadAirThresholdSeconds: number;
+  splitConcurrency: ConcurrencyLevel;
+  hasSeenTutorial: boolean;
+}
+
+export const useSettings = create<SettingsState>()(
+  persist(
+    () => ({
+      tbaApiKey: '',
+      collapseBreaks: true,
+      collapseBreakThresholdMinutes: 60,
+      startPaddingSeconds: 3,
+      endPaddingSeconds: 10,
+      matchLengthSeconds: 150,
+      resultsLengthSeconds: 10,
+      clipDeadAir: false,
+      deadAirThresholdSeconds: 30,
+      splitConcurrency: 'normal',
+      hasSeenTutorial: false,
+    }),
+    { name: 'frc-video-splitter-settings' }
+  )
+);
+
+export function setSettings(settings: Partial<SettingsState>) {
+  useSettings.setState(settings);
+}

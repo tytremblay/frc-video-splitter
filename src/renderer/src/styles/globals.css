@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+@import "tailwindcss";
+
+@source "../components/**/*.tsx";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+:root {
+  --radius: 0.4rem;
+
+  --background: oklch(0.115 0.009 258);
+  --foreground: oklch(0.91 0.01 240);
+  --card: oklch(0.14 0.009 258);
+  --card-foreground: oklch(0.91 0.01 240);
+  --popover: oklch(0.165 0.01 258);
+  --popover-foreground: oklch(0.91 0.01 240);
+  --primary: oklch(0.71 0.168 61);
+  --primary-foreground: oklch(0.10 0 0);
+  --secondary: oklch(0.19 0.009 258);
+  --secondary-foreground: oklch(0.85 0.01 240);
+  --muted: oklch(0.175 0.009 258);
+  --muted-foreground: oklch(0.63 0.016 258);
+  --accent: oklch(0.19 0.009 258);
+  --accent-foreground: oklch(0.91 0.01 240);
+  --destructive: oklch(0.60 0.20 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 0.085);
+  --input: oklch(1 0 0 / 0.085);
+  --ring: oklch(0.71 0.168 61);
+
+  --sidebar: oklch(0.095 0.009 258);
+  --sidebar-foreground: oklch(0.88 0.01 240);
+  --sidebar-primary: oklch(0.71 0.168 61);
+  --sidebar-primary-foreground: oklch(0.10 0 0);
+  --sidebar-accent: oklch(0.155 0.009 258);
+  --sidebar-accent-foreground: oklch(0.88 0.01 240);
+  --sidebar-border: oklch(1 0 0 / 0.07);
+  --sidebar-ring: oklch(0.71 0.168 61);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* driver.js dark theme */
+.driver-popover {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px oklch(0 0 0 / 0.5);
+}
+.driver-popover-title {
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  font-size: 14px;
+}
+.driver-popover-description {
+  font-family: var(--font-sans);
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.driver-popover-close-btn { color: var(--muted-foreground); }
+.driver-popover-close-btn:hover,
+.driver-popover-close-btn:focus { color: var(--foreground); }
+.driver-popover-progress-text {
+  font-family: var(--font-sans);
+  color: var(--muted-foreground);
+}
+.driver-popover-footer button {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-shadow: none;
+  font-family: var(--font-sans);
+}
+.driver-popover-footer button:hover,
+.driver-popover-footer button:focus { background-color: var(--accent); }
+.driver-popover-next-btn {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-color: transparent !important;
+}
+.driver-popover-next-btn:hover,
+.driver-popover-next-btn:focus { opacity: 0.9; }
+.driver-popover-arrow { border-color: var(--popover); }
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

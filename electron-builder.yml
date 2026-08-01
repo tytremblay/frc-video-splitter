@@ -1,0 +1,17 @@
+appId: com.frc.videoSplitter
+productName: FRC Video Splitter
+copyright: Copyright © 2023 Ty Tremblay
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - out
+asarUnpack:
+  - "**/@ffmpeg-installer/**"
+linux:
+  target:
+    - AppImage
+publish: null
