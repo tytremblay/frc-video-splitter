@@ -1,8 +1,37 @@
 import { existsSync } from 'fs'
 import os from 'os'
-import { dialog, ipcMain } from 'electron'
+import { dialog, ipcMain, type WebContents } from 'electron'
 import { IpcChannel } from '../shared/ipc'
-import type { SplitFixedDetails, ConcurrencyLevel } from '../shared/types'
+import type { SplitEvent, SplitFixedDetails, ConcurrencyLevel } from '../shared/types'
+
+const progressReportRateMs = 1000
+
+/**
+ * Adapt a per-match SplitEvent stream onto Electron IPC. `start`/`end` always
+ * pass through; `progress` is rate-limited to ~1 Hz to avoid flooding the
+ * channel — throttling lives here because it is a transport concern, keeping
+ * the ffmpeg orchestrator free to emit every tick.
+ */
+function createSplitEventSender(sender: WebContents): (event: SplitEvent) => void {
+  let lastProgressSent = 0
+  return (event: SplitEvent) => {
+    switch (event.type) {
+      case 'start':
+        sender.send(IpcChannel.SplitStart, { matchKey: event.matchKey })
+        return
+      case 'end':
+        sender.send(IpcChannel.SplitEnd, { matchKey: event.matchKey })
+        return
+      case 'progress': {
+        const now = Date.now()
+        if (now - lastProgressSent < progressReportRateMs) return
+        lastProgressSent = now
+        sender.send(IpcChannel.SplitProgress, { matchKey: event.matchKey, percent: event.percent })
+        return
+      }
+    }
+  }
+}
 
 function resolveConcurrency(level: ConcurrencyLevel): number {
   const cpuCount = os.cpus().length
@@ -54,9 +83,10 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IpcChannel.SplitStart, async (event, details: SplitFixedDetails[], level: ConcurrencyLevel = 'normal') => {
     const { splitFixedLength } = await import('./helpers/ffmpegCommands')
     await runConcurrent(
-      details.map(detail => () => splitFixedLength(event, detail)),
+      // A fresh sender per match gives each its own progress throttle, so
+      // concurrent splits don't starve each other's progress updates.
+      details.map(detail => () => splitFixedLength(detail, createSplitEventSender(event.sender))),
       resolveConcurrency(level)
     )
-    event.sender.send(IpcChannel.SplitEnd, { matchKey: details[0].matchKey })
   })
 }

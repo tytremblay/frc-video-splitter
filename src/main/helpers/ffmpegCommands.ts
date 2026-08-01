@@ -1,11 +1,9 @@
-import { IpcMainInvokeEvent } from 'electron';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
 import crypto from 'crypto';
 import { buildConcatList, ffmpeg, type ProgressInfo } from 'mediaforge';
-import type { SplitBlock, SplitFixedDetails } from '../../shared/types';
-import { IpcChannel } from '../../shared/ipc';
+import type { SplitBlock, SplitEvent, SplitFixedDetails } from '../../shared/types';
 
 export type { SplitBlock, SplitFixedDetails };
 
@@ -15,8 +13,6 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path.replace(
 );
 
 process.env.FFMPEG_PATH = ffmpegPath;
-
-const progressReportRateMs = 1000;
 
 export function checkVersion(): void {
   console.log(`ffmpegPath: ${ffmpegPath}`);
@@ -84,37 +80,29 @@ export const concatVideoFiles = (
   ).then(() => scriptFilePath);
 };
 
+/**
+ * Split one match into its output clip, emitting lifecycle events through
+ * `onEvent`. Progress is emitted on every ffmpeg tick — rate-limiting is a
+ * transport concern and lives in the Electron adapter, not here. This function
+ * knows nothing about IPC, which is what makes it testable through `onEvent`.
+ */
 export async function splitFixedLength(
-  event: IpcMainInvokeEvent,
-  details: SplitFixedDetails
+  details: SplitFixedDetails,
+  onEvent: (event: SplitEvent) => void
 ): Promise<void> {
-  let lastProgressSent = Date.now();
+  const { matchKey } = details;
+  const emitProgress = (progress: ProgressInfo): void =>
+    onEvent({ type: 'progress', matchKey, percent: progress.percent ?? 0 });
 
-  event.sender.send(IpcChannel.SplitStart, { matchKey: details.matchKey });
+  onEvent({ type: 'start', matchKey });
 
   const videoParts = await Promise.all(
     details.blocks.map((block) =>
-      splitVideoFile(details.inputFile, block, (progress) => {
-        const msSinceLastUpdate = Date.now() - lastProgressSent;
-        if (msSinceLastUpdate < progressReportRateMs) return;
-        lastProgressSent = Date.now();
-        event.sender.send(IpcChannel.SplitProgress, {
-          matchKey: details.matchKey,
-          percent: progress.percent ?? 0,
-        });
-      })
+      splitVideoFile(details.inputFile, block, emitProgress)
     )
   );
 
-  await concatVideoFiles(videoParts, details.outputFile, (progress) => {
-    const msSinceLastUpdate = Date.now() - lastProgressSent;
-    if (msSinceLastUpdate < progressReportRateMs) return;
-    lastProgressSent = Date.now();
-    event.sender.send(IpcChannel.SplitProgress, {
-      matchKey: details.matchKey,
-      percent: progress.percent ?? 0,
-    });
-  });
+  await concatVideoFiles(videoParts, details.outputFile, emitProgress);
 
-  event.sender.send(IpcChannel.SplitEnd, { matchKey: details.matchKey });
+  onEvent({ type: 'end', matchKey });
 }

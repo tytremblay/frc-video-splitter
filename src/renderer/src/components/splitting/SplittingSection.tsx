@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
-import type { SplitBlock, SplitFixedDetails } from '@shared/types';
+import { type ClipMatch, computeClip, deriveStatus } from '@shared/clip';
+import type { SplitFixedDetails } from '@shared/types';
 import { CalendarDaysIcon, FolderOpenIcon, ScissorsIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useEvent } from '../../state/useEvent';
@@ -10,33 +11,12 @@ import { useVideo } from '../../state/useVideo';
 import { FileConflictDialog } from './FileConflictDialog';
 import { MatchListItem } from './MatchListItem';
 
-function buildBlocks(
-  match: SplitterMatch,
-  settings: ReturnType<typeof useSettings.getState>
-): SplitBlock[] {
-  const { startPaddingSeconds, endPaddingSeconds, matchLengthSeconds, resultsLengthSeconds, clipDeadAir, deadAirThresholdSeconds } = settings;
-
-  const matchStart = match.fromSeconds! - startPaddingSeconds;
-  const matchEnd = match.fromSeconds! + matchLengthSeconds + endPaddingSeconds;
-  const resultsStart = match.toSeconds! - startPaddingSeconds;
-  const resultsEnd = match.toSeconds! + resultsLengthSeconds + endPaddingSeconds;
-
-  const gap = resultsStart - matchEnd;
-
-  if (clipDeadAir && gap > deadAirThresholdSeconds) {
-    return [
-      { startSeconds: matchStart, durationSeconds: matchEnd - matchStart },
-      { startSeconds: resultsStart, durationSeconds: resultsEnd - resultsStart },
-    ];
-  }
-
-  return [{ startSeconds: matchStart, durationSeconds: resultsEnd - matchStart }];
-}
-
-function deriveStatus(match: SplitterMatch, durationSeconds: number): 'ready' | 'warning' {
-  if (match.fromSeconds! < 0 || match.toSeconds! > durationSeconds) return 'warning';
-  return 'ready';
-}
+// Callers below operate on `visibleMatches`, which is already filtered to
+// matches whose timestamps are set, so the non-null narrowing is safe here.
+const asClipMatch = (m: SplitterMatch): ClipMatch => ({
+  fromSeconds: m.fromSeconds!,
+  toSeconds: m.toSeconds!,
+});
 
 interface SplittingSectionProps {
   outputDir: string;
@@ -91,9 +71,9 @@ export function SplittingSection(props: SplittingSectionProps) {
       matchKey: match.id,
       inputFile: video.path,
       outputFile: `${outputDir}/${match.name}.mp4`,
-      blocks: buildBlocks(match, settings),
+      blocks: computeClip(asClipMatch(match), settings),
     }));
-    const initialStatusMap = new Map(visibleMatches.map(m => [m.id, deriveStatus(m, video.durationSeconds)]));
+    const initialStatusMap = new Map(visibleMatches.map(m => [m.id, deriveStatus(asClipMatch(m), video.durationSeconds)]));
     await runSplit(details, initialStatusMap);
   }, [outputDir, visibleMatches, video.path, video.durationSeconds, settings, runSplit]);
 
@@ -102,9 +82,9 @@ export function SplittingSection(props: SplittingSectionProps) {
       matchKey: match.id,
       inputFile: video.path,
       outputFile: `${outputDir}/${match.name}.mp4`,
-      blocks: buildBlocks(match, settings),
+      blocks: computeClip(asClipMatch(match), settings),
     }];
-    const initialStatusMap = new Map([[match.id, deriveStatus(match, video.durationSeconds)]]);
+    const initialStatusMap = new Map([[match.id, deriveStatus(asClipMatch(match), video.durationSeconds)]]);
     await runSplit(details, initialStatusMap);
   }, [outputDir, video.path, video.durationSeconds, settings, runSplit]);
 
@@ -133,7 +113,7 @@ export function SplittingSection(props: SplittingSectionProps) {
   const splitCount = [...statusMap.values()].filter(s => s === 'split').length;
   const readyCount = visibleMatches.filter(m => {
     const s = statusMap.get(m.id);
-    return s == null ? deriveStatus(m, video.durationSeconds) === 'ready' : s === 'ready';
+    return s == null ? deriveStatus(asClipMatch(m), video.durationSeconds) === 'ready' : s === 'ready';
   }).length;
 
   return (
@@ -193,7 +173,7 @@ export function SplittingSection(props: SplittingSectionProps) {
               <MatchListItem
                 key={match.id}
                 match={match}
-                status={statusMap.get(match.id) ?? deriveStatus(match, video.durationSeconds)}
+                status={statusMap.get(match.id) ?? deriveStatus(asClipMatch(match), video.durationSeconds)}
                 progress={progressMap.get(match.id)}
                 outputFile={outputFileMap.get(match.id)}
                 isExpanded={expandedIds.has(match.id)}
